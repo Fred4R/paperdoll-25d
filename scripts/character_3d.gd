@@ -87,18 +87,26 @@ func _physics_process(delta: float) -> void:
 	velocity.z = input_dir.z * move_speed
 	move_and_slide()
 
-	if not is_player and input_dir.length_squared() > 0.002:
+	# Side art faces texture +x. Flip the billboard when travel is to the camera's left.
+	var face_right := true
+	if input_dir.length_squared() > 0.002:
 		var cam := get_viewport().get_camera_3d()
 		if cam:
-			var to_cam := cam.global_position - global_position
-			to_cam.y = 0.0
-			var side := input_dir.cross(Vector3.UP).dot(to_cam)
-			sprite.flip_h = side < 0.0
+			var cam_right := cam.global_transform.basis.x
+			cam_right.y = 0.0
+			var along := input_dir.dot(cam_right)
+			if absf(along) > 0.2:
+				face_right = along > 0.0
+			elif sprite.flip_h:
+				face_right = false
+		sprite.flip_h = not face_right
+	else:
+		sprite.flip_h = false
 
 	_bob(delta, input_dir.length() > 0.05)
 	if paperdoll and paperdoll.has_method("drive"):
 		var planar := Vector2(velocity.x, velocity.z).length()
-		paperdoll.drive(planar, delta)
+		paperdoll.drive(planar, delta, face_right)
 
 var _bob_t := 0.0
 func _bob(delta: float, moving: bool) -> void:
