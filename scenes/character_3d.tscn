@@ -1,0 +1,34 @@
+[gd_scene load_steps=4 format=3 uid="uid://bchar25d01"]
+
+[ext_resource type="Script" path="res://scripts/character_3d.gd" id="1_script"]
+[ext_resource type="PackedScene" path="res://scenes/paperdoll.tscn" id="2_doll"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_1"]
+radius = 0.28
+height = 1.7
+
+[node name="Character3D" type="CharacterBody3D"]
+collision_layer = 2
+collision_mask = 1
+script = ExtResource("1_script")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.85, 0)
+shape = SubResource("CapsuleShape3D_1")
+
+[node name="SubViewport" type="SubViewport" parent="."]
+transparent_bg = true
+size = Vector2i(128, 192)
+render_target_update_mode = 4
+handle_input_locally = false
+
+[node name="Paperdoll" parent="SubViewport" instance=ExtResource("2_doll")]
+
+[node name="Sprite3D" type="Sprite3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.95, 0)
+pixel_size = 0.012
+billboard = 2
+shaded = false
+alpha_cut = 2
+alpha_scissor_threshold = 0.2
+texture_filter = 0

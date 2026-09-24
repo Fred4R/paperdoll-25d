@@ -1,0 +1,36 @@
+[gd_scene load_steps=8 format=3 uid="uid://bpaperdoll01"]
+
+[ext_resource type="Script" path="res://scripts/paperdoll.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://assets/paperdoll/body.svg" id="2_body"]
+[ext_resource type="Texture2D" path="res://assets/paperdoll/pants_navy.svg" id="3_pants"]
+[ext_resource type="Texture2D" path="res://assets/paperdoll/shirt_blue.svg" id="4_shirt"]
+[ext_resource type="Texture2D" path="res://assets/paperdoll/shoes.svg" id="5_shoes"]
+[ext_resource type="Texture2D" path="res://assets/paperdoll/eyes.svg" id="6_eyes"]
+[ext_resource type="Texture2D" path="res://assets/paperdoll/hair_blonde.svg" id="7_hair"]
+
+[node name="Paperdoll" type="Node2D"]
+script = ExtResource("1_script")
+
+[node name="Body" type="Sprite2D" parent="."]
+position = Vector2(64, 96)
+texture = ExtResource("2_body")
+
+[node name="Pants" type="Sprite2D" parent="."]
+position = Vector2(64, 96)
+texture = ExtResource("3_pants")
+
+[node name="Shirt" type="Sprite2D" parent="."]
+position = Vector2(64, 96)
+texture = ExtResource("4_shirt")
+
+[node name="Shoes" type="Sprite2D" parent="."]
+position = Vector2(64, 96)
+texture = ExtResource("5_shoes")
+
+[node name="Eyes" type="Sprite2D" parent="."]
+position = Vector2(64, 96)
+texture = ExtResource("6_eyes")
+
+[node name="Hair" type="Sprite2D" parent="."]
+position = Vector2(64, 96)
+texture = ExtResource("7_hair")
