@@ -112,11 +112,8 @@ var _bob_t := 0.0
 func _bob(delta: float, moving: bool) -> void:
 	if is_player:
 		return
-	if moving:
-		_bob_t += delta * 10.0
-		sprite.position.y = 0.95 + sin(_bob_t) * 0.04
-	else:
-		sprite.position.y = lerpf(sprite.position.y, 0.95, 8.0 * delta)
+	# The doll drops inside the texture so the sole stays put. Do not bob the billboard.
+	sprite.position.y = lerpf(sprite.position.y, 0.95, 8.0 * delta)
 
 var _wander_dir := Vector3.ZERO
 var _wander_timer := 0.0

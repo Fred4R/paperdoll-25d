@@ -96,9 +96,11 @@ var pants_i := 0
 var _phase := 0.0
 var _pose := 0.0
 var _profile := false
+var _ground_y := 0.0
 
 func _ready() -> void:
 	_apply()
+	_ground_y = _lowest_sole()
 
 func set_look(p_hair: int, p_shirt: int, p_pants: int, p_female: bool) -> void:
 	female = p_female
@@ -138,6 +140,7 @@ func drive(speed_mps: float, delta: float, _face_right: bool = true) -> void:
 		_swing(elbow_r, lerpf(elbow_r.rotation, -ELBOW_REST, blend))
 		_depth(leg_l, leg_r, 0, 0)
 		_depth(arm_l, arm_r, 0, 0)
+		_plant()
 		return
 	var left_phase := _phase
 	var right_phase := fposmod(_phase + 0.5, 1.0)
@@ -151,6 +154,7 @@ func drive(speed_mps: float, delta: float, _face_right: bool = true) -> void:
 	_swing(arm_r, arm_right)
 	var flex_l := _knee_flex(left_phase)
 	var flex_r := _knee_flex(right_phase)
+	# Front: shins fold toward the midline. Side: both fold backward, which is a step.
 	_swing(knee_l, -flex_l)
 	_swing(knee_r, lerpf(flex_r, -flex_r, _pose))
 	var elbow_left := _elbow_flex(right_phase)
@@ -165,6 +169,30 @@ func drive(speed_mps: float, delta: float, _face_right: bool = true) -> void:
 		_depth(arm_l, arm_r, 3, -1)
 	else:
 		_depth(arm_r, arm_l, 3, -1)
+	_plant()
+
+
+func _lowest_sole() -> float:
+	var saved := position
+	position = Vector2(saved.x, 0.0)
+	var y := maxf(_sole($LegL/Knee/Shoe), _sole($LegR/Knee/Shoe))
+	position = saved
+	return y
+
+func _sole(shoe: Sprite2D) -> float:
+	if shoe == null or shoe.texture == null:
+		return 0.0
+	# Sprite2D.offset moves the drawing only. Sole center is local (0, height).
+	return to_local(shoe.to_global(Vector2(0.0, shoe.texture.get_size().y))).y
+
+func _plant() -> void:
+	if _ground_y == 0.0 or leg_l == null:
+		return
+	var saved_x := position.x
+	position = Vector2(saved_x, 0.0)
+	var low := maxf(_sole($LegL/Knee/Shoe), _sole($LegR/Knee/Shoe))
+	# Positive y is down. Drop the doll so the lower sole stays on the standing ground line.
+	position.y = _ground_y - low
 
 func _blend_pose(moving: bool, delta: float) -> void:
 	_pose = move_toward(_pose, 1.0 if moving else 0.0, delta * 6.0)
