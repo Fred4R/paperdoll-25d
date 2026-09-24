@@ -18,37 +18,79 @@ script = ExtResource("1_script")
 [node name="LegL" type="Node2D" parent="."]
 position = Vector2(53, 112)
 
-[node name="Skin" type="Sprite2D" parent="LegL"]
+[node name="Thigh" type="Sprite2D" parent="LegL"]
 centered = false
 offset = Vector2(-9, 0)
 texture = ExtResource("3_leg")
+region_enabled = true
+region_rect = Rect2(0, 0, 18, 34)
 
-[node name="Cloth" type="Sprite2D" parent="LegL"]
+[node name="ThighCloth" type="Sprite2D" parent="LegL"]
 centered = false
 offset = Vector2(-11, 0)
 texture = ExtResource("4_pant")
+region_enabled = true
+region_rect = Rect2(0, 0, 22, 32)
 
-[node name="Shoe" type="Sprite2D" parent="LegL"]
+[node name="Knee" type="Node2D" parent="LegL"]
+position = Vector2(0, 34)
+
+[node name="Shin" type="Sprite2D" parent="LegL/Knee"]
 centered = false
-offset = Vector2(-11, 58)
+offset = Vector2(-9, 0)
+texture = ExtResource("3_leg")
+region_enabled = true
+region_rect = Rect2(0, 34, 18, 34)
+
+[node name="ShinCloth" type="Sprite2D" parent="LegL/Knee"]
+centered = false
+offset = Vector2(-11, 0)
+texture = ExtResource("4_pant")
+region_enabled = true
+region_rect = Rect2(0, 32, 22, 32)
+
+[node name="Shoe" type="Sprite2D" parent="LegL/Knee"]
+centered = false
+offset = Vector2(-11, 28)
 texture = ExtResource("5_shoe")
 
 [node name="LegR" type="Node2D" parent="."]
 position = Vector2(75, 112)
 
-[node name="Skin" type="Sprite2D" parent="LegR"]
+[node name="Thigh" type="Sprite2D" parent="LegR"]
 centered = false
 offset = Vector2(-9, 0)
 texture = ExtResource("3_leg")
+region_enabled = true
+region_rect = Rect2(0, 0, 18, 34)
 
-[node name="Cloth" type="Sprite2D" parent="LegR"]
+[node name="ThighCloth" type="Sprite2D" parent="LegR"]
 centered = false
 offset = Vector2(-11, 0)
 texture = ExtResource("4_pant")
+region_enabled = true
+region_rect = Rect2(0, 0, 22, 32)
 
-[node name="Shoe" type="Sprite2D" parent="LegR"]
+[node name="Knee" type="Node2D" parent="LegR"]
+position = Vector2(0, 34)
+
+[node name="Shin" type="Sprite2D" parent="LegR/Knee"]
 centered = false
-offset = Vector2(-11, 58)
+offset = Vector2(-9, 0)
+texture = ExtResource("3_leg")
+region_enabled = true
+region_rect = Rect2(0, 34, 18, 34)
+
+[node name="ShinCloth" type="Sprite2D" parent="LegR/Knee"]
+centered = false
+offset = Vector2(-11, 0)
+texture = ExtResource("4_pant")
+region_enabled = true
+region_rect = Rect2(0, 32, 22, 32)
+
+[node name="Shoe" type="Sprite2D" parent="LegR/Knee"]
+centered = false
+offset = Vector2(-11, 28)
 texture = ExtResource("5_shoe")
 
 [node name="Body" type="Sprite2D" parent="."]
@@ -67,28 +109,54 @@ texture = ExtResource("7_skirt")
 [node name="ArmL" type="Node2D" parent="."]
 position = Vector2(42, 64)
 
-[node name="Skin" type="Sprite2D" parent="ArmL"]
+[node name="Upper" type="Sprite2D" parent="ArmL"]
 centered = false
 offset = Vector2(-9, 0)
 texture = ExtResource("8_arm")
+region_enabled = true
+region_rect = Rect2(0, 0, 18, 31)
 
 [node name="Sleeve" type="Sprite2D" parent="ArmL"]
 centered = false
 offset = Vector2(-10, 0)
 texture = ExtResource("9_sleeve")
 
-[node name="ArmR" type="Node2D" parent="."]
-position = Vector2(86, 64)
+[node name="Elbow" type="Node2D" parent="ArmL"]
+position = Vector2(0, 31)
+rotation = 0.52
 
-[node name="Skin" type="Sprite2D" parent="ArmR"]
+[node name="Forearm" type="Sprite2D" parent="ArmL/Elbow"]
 centered = false
 offset = Vector2(-9, 0)
 texture = ExtResource("8_arm")
+region_enabled = true
+region_rect = Rect2(0, 31, 18, 31)
+
+[node name="ArmR" type="Node2D" parent="."]
+position = Vector2(86, 64)
+
+[node name="Upper" type="Sprite2D" parent="ArmR"]
+centered = false
+offset = Vector2(-9, 0)
+texture = ExtResource("8_arm")
+region_enabled = true
+region_rect = Rect2(0, 0, 18, 31)
 
 [node name="Sleeve" type="Sprite2D" parent="ArmR"]
 centered = false
 offset = Vector2(-10, 0)
 texture = ExtResource("9_sleeve")
+
+[node name="Elbow" type="Node2D" parent="ArmR"]
+position = Vector2(0, 31)
+rotation = -0.52
+
+[node name="Forearm" type="Sprite2D" parent="ArmR/Elbow"]
+centered = false
+offset = Vector2(-9, 0)
+texture = ExtResource("8_arm")
+region_enabled = true
+region_rect = Rect2(0, 31, 18, 31)
 
 [node name="Eyes" type="Sprite2D" parent="."]
 position = Vector2(64, 96)
