@@ -173,7 +173,9 @@ func _apply() -> void:
 		_half(shin, false)
 		pivot.get_node("Knee").position = Vector2(0, mid)
 		var shoe: Sprite2D = pivot.get_node("Knee/Shoe")
-		shoe.position = Vector2(0, shin.region_rect.size.y)
+		var shoe_size := shoe.texture.get_size()
+		shoe.offset = Vector2(-shoe_size.x * 0.5, 0)
+		shoe.position = Vector2(0, shin.region_rect.size.y - 2.0)
 		var show_pants := not female
 		for cloth_path in ["ThighCloth", "Knee/ShinCloth"]:
 			var cloth: Sprite2D = pivot.get_node(cloth_path)
@@ -191,7 +193,10 @@ func _apply() -> void:
 		var mid := _half(upper, true)
 		_half(forearm, false)
 		pivot.get_node("Elbow").position = Vector2(0, mid)
-		pivot.get_node("Sleeve").modulate = SHIRT_COLORS[shirt_i]
+		var sleeve: Sprite2D = pivot.get_node("Sleeve")
+		sleeve.modulate = SHIRT_COLORS[shirt_i]
+		var sleeve_size := sleeve.texture.get_size()
+		sleeve.offset = Vector2(-sleeve_size.x * 0.5, 0)
 
 func _half(sprite: Sprite2D, top: bool) -> float:
 	var size := sprite.texture.get_size()

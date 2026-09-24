@@ -51,7 +51,7 @@ region_rect = Rect2(0, 32, 22, 32)
 
 [node name="Shoe" type="Sprite2D" parent="LegL/Knee"]
 centered = false
-offset = Vector2(-11, 28)
+offset = Vector2(-11, 0)
 texture = ExtResource("5_shoe")
 
 [node name="LegR" type="Node2D" parent="."]
@@ -90,7 +90,7 @@ region_rect = Rect2(0, 32, 22, 32)
 
 [node name="Shoe" type="Sprite2D" parent="LegR/Knee"]
 centered = false
-offset = Vector2(-11, 28)
+offset = Vector2(-11, 0)
 texture = ExtResource("5_shoe")
 
 [node name="Body" type="Sprite2D" parent="."]
