@@ -53,8 +53,8 @@ size = Vector3(40, 0.3, 40)
 material = SubResource("MatFloor")
 
 [node name="Path" type="CSGBox3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.01, 0)
-use_collision = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.02, 0)
+use_collision = false
 size = Vector3(4, 0.05, 24)
 material = SubResource("MatStone")
 

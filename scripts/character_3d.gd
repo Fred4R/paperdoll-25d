@@ -20,12 +20,11 @@ var _yaw := 0.0
 var _pitch := 0.0
 
 func _ready() -> void:
-	sprite.texture = viewport.get_texture()
+	# ViewportTexture is local to the scene and can be wrong before the root is ready.
+	call_deferred("_bind_viewport")
 	if paperdoll and paperdoll.has_method("set_look"):
 		paperdoll.set_look(hair_style, shirt_style, pants_style, female)
 	if is_player:
-		# Own billboard stays in the world (same system as NPCs) but is not drawn
-		# into this camera, or the Y-billboard fills the view.
 		sprite.layers = 2
 		camera.current = true
 		camera.cull_mask = camera.cull_mask & ~2
@@ -33,6 +32,9 @@ func _ready() -> void:
 	else:
 		camera.current = false
 		head.visible = false
+
+func _bind_viewport() -> void:
+	sprite.texture = viewport.get_texture()
 
 func _unhandled_input(event: InputEvent) -> void:
 	if not is_player:
@@ -92,6 +94,9 @@ func _physics_process(delta: float) -> void:
 			sprite.flip_h = side < 0.0
 
 	_bob(delta, input_dir.length() > 0.05)
+	if paperdoll and paperdoll.has_method("drive"):
+		var planar := Vector2(velocity.x, velocity.z).length()
+		paperdoll.drive(planar, delta)
 
 var _bob_t := 0.0
 func _bob(delta: float, moving: bool) -> void:
