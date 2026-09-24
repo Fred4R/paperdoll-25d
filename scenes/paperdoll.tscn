@@ -1,36 +1,99 @@
-[gd_scene load_steps=8 format=3 uid="uid://bpaperdoll01"]
+[gd_scene load_steps=12 format=3 uid="uid://bpaperdoll01"]
 
 [ext_resource type="Script" path="res://scripts/paperdoll.gd" id="1_script"]
-[ext_resource type="Texture2D" path="res://assets/paperdoll/body.svg" id="2_body"]
-[ext_resource type="Texture2D" path="res://assets/paperdoll/pants_navy.svg" id="3_pants"]
-[ext_resource type="Texture2D" path="res://assets/paperdoll/shirt_blue.svg" id="4_shirt"]
-[ext_resource type="Texture2D" path="res://assets/paperdoll/shoes.svg" id="5_shoes"]
-[ext_resource type="Texture2D" path="res://assets/paperdoll/eyes.svg" id="6_eyes"]
-[ext_resource type="Texture2D" path="res://assets/paperdoll/hair_blonde.svg" id="7_hair"]
+[ext_resource type="Texture2D" path="res://assets/paperdoll/body_male.svg" id="2_body"]
+[ext_resource type="Texture2D" path="res://assets/paperdoll/leg_male.svg" id="3_leg"]
+[ext_resource type="Texture2D" path="res://assets/paperdoll/pant_leg.svg" id="4_pant"]
+[ext_resource type="Texture2D" path="res://assets/paperdoll/shoe_single.svg" id="5_shoe"]
+[ext_resource type="Texture2D" path="res://assets/paperdoll/shirt_torso.svg" id="6_shirt"]
+[ext_resource type="Texture2D" path="res://assets/paperdoll/skirt_navy.svg" id="7_skirt"]
+[ext_resource type="Texture2D" path="res://assets/paperdoll/arm_male.svg" id="8_arm"]
+[ext_resource type="Texture2D" path="res://assets/paperdoll/sleeve.svg" id="9_sleeve"]
+[ext_resource type="Texture2D" path="res://assets/paperdoll/eyes.svg" id="10_eyes"]
+[ext_resource type="Texture2D" path="res://assets/paperdoll/hair_short.svg" id="11_hair"]
 
 [node name="Paperdoll" type="Node2D"]
 script = ExtResource("1_script")
+
+[node name="LegL" type="Node2D" parent="."]
+position = Vector2(53, 112)
+
+[node name="Skin" type="Sprite2D" parent="LegL"]
+centered = false
+offset = Vector2(-9, 0)
+texture = ExtResource("3_leg")
+
+[node name="Cloth" type="Sprite2D" parent="LegL"]
+centered = false
+offset = Vector2(-11, 0)
+texture = ExtResource("4_pant")
+
+[node name="Shoe" type="Sprite2D" parent="LegL"]
+centered = false
+offset = Vector2(-11, 58)
+texture = ExtResource("5_shoe")
+
+[node name="LegR" type="Node2D" parent="."]
+position = Vector2(75, 112)
+
+[node name="Skin" type="Sprite2D" parent="LegR"]
+centered = false
+offset = Vector2(-9, 0)
+texture = ExtResource("3_leg")
+
+[node name="Cloth" type="Sprite2D" parent="LegR"]
+centered = false
+offset = Vector2(-11, 0)
+texture = ExtResource("4_pant")
+
+[node name="Shoe" type="Sprite2D" parent="LegR"]
+centered = false
+offset = Vector2(-11, 58)
+texture = ExtResource("5_shoe")
 
 [node name="Body" type="Sprite2D" parent="."]
 position = Vector2(64, 96)
 texture = ExtResource("2_body")
 
-[node name="Pants" type="Sprite2D" parent="."]
-position = Vector2(64, 96)
-texture = ExtResource("3_pants")
-
 [node name="Shirt" type="Sprite2D" parent="."]
 position = Vector2(64, 96)
-texture = ExtResource("4_shirt")
+texture = ExtResource("6_shirt")
 
-[node name="Shoes" type="Sprite2D" parent="."]
+[node name="Skirt" type="Sprite2D" parent="."]
+visible = false
 position = Vector2(64, 96)
-texture = ExtResource("5_shoes")
+texture = ExtResource("7_skirt")
+
+[node name="ArmL" type="Node2D" parent="."]
+position = Vector2(42, 64)
+
+[node name="Skin" type="Sprite2D" parent="ArmL"]
+centered = false
+offset = Vector2(-9, 0)
+texture = ExtResource("8_arm")
+
+[node name="Sleeve" type="Sprite2D" parent="ArmL"]
+centered = false
+offset = Vector2(-10, 0)
+texture = ExtResource("9_sleeve")
+
+[node name="ArmR" type="Node2D" parent="."]
+position = Vector2(86, 64)
+
+[node name="Skin" type="Sprite2D" parent="ArmR"]
+centered = false
+offset = Vector2(-9, 0)
+texture = ExtResource("8_arm")
+
+[node name="Sleeve" type="Sprite2D" parent="ArmR"]
+centered = false
+offset = Vector2(-10, 0)
+texture = ExtResource("9_sleeve")
 
 [node name="Eyes" type="Sprite2D" parent="."]
 position = Vector2(64, 96)
-texture = ExtResource("6_eyes")
+texture = ExtResource("10_eyes")
 
 [node name="Hair" type="Sprite2D" parent="."]
 position = Vector2(64, 96)
-texture = ExtResource("7_hair")
+texture = ExtResource("11_hair")
