@@ -1,7 +1,7 @@
 extends CharacterBody3D
 ## 3D body. Paperdoll is a Y-billboard. The local player looks through a head camera.
 
-@export var move_speed: float = 5.0
+@export var move_speed: float = 1.4
 @export var gravity: float = 18.0
 @export var is_player: bool = false
 @export var female: bool = false
@@ -25,6 +25,8 @@ func _ready() -> void:
 	if paperdoll and paperdoll.has_method("set_look"):
 		paperdoll.set_look(hair_style, shirt_style, pants_style, female)
 	if is_player:
+		# Own billboard stays in the world (same system as NPCs) but is not drawn
+		# into this camera, or the Y-billboard fills the view.
 		sprite.layers = 2
 		camera.current = true
 		camera.cull_mask = camera.cull_mask & ~2
