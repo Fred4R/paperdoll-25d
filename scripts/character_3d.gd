@@ -1,23 +1,52 @@
 extends CharacterBody3D
-## 3D body that displays a 2D paperdoll via SubViewport → Sprite3D billboard.
+## 3D body. Paperdoll is a Y-billboard. The local player looks through a head camera.
 
 @export var move_speed: float = 5.0
 @export var gravity: float = 18.0
 @export var is_player: bool = false
+@export var female: bool = false
 @export var hair_style: int = 0
 @export var shirt_style: int = 0
 @export var pants_style: int = 0
+@export var mouse_sensitivity: float = 0.0025
 
 @onready var sprite: Sprite3D = $Sprite3D
 @onready var viewport: SubViewport = $SubViewport
 @onready var paperdoll: Node2D = $SubViewport/Paperdoll
+@onready var head: Node3D = $Head
+@onready var camera: Camera3D = $Head/Camera3D
 
-var facing_right := true
+var _yaw := 0.0
+var _pitch := 0.0
 
 func _ready() -> void:
 	sprite.texture = viewport.get_texture()
 	if paperdoll and paperdoll.has_method("set_look"):
-		paperdoll.set_look(hair_style, shirt_style, pants_style)
+		paperdoll.set_look(hair_style, shirt_style, pants_style, female)
+	if is_player:
+		# Own billboard stays in the world (same system as NPCs) but is not drawn
+		# into this camera, or the Y-billboard fills the view.
+		sprite.layers = 2
+		camera.current = true
+		camera.cull_mask = camera.cull_mask & ~2
+		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	else:
+		camera.current = false
+		head.visible = false
+
+func _unhandled_input(event: InputEvent) -> void:
+	if not is_player:
+		return
+	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
+		_yaw -= event.relative.x * mouse_sensitivity
+		_pitch -= event.relative.y * mouse_sensitivity
+		_pitch = clampf(_pitch, deg_to_rad(-80.0), deg_to_rad(80.0))
+		rotation.y = _yaw
+		head.rotation.x = _pitch
+	elif event.is_action_pressed("ui_cancel"):
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	elif event is InputEventMouseButton and event.pressed and Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
+		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 func _physics_process(delta: float) -> void:
 	if not is_on_floor():
@@ -29,7 +58,15 @@ func _physics_process(delta: float) -> void:
 	if is_player:
 		var x := Input.get_axis("move_left", "move_right")
 		var z := Input.get_axis("move_forward", "move_back")
-		input_dir = Vector3(x, 0.0, z)
+		var forward := -global_transform.basis.z
+		forward.y = 0.0
+		if forward.length_squared() > 0.0001:
+			forward = forward.normalized()
+		var right := global_transform.basis.x
+		right.y = 0.0
+		if right.length_squared() > 0.0001:
+			right = right.normalized()
+		input_dir = right * x + forward * z
 		if input_dir.length() > 1.0:
 			input_dir = input_dir.normalized()
 
@@ -46,14 +83,20 @@ func _physics_process(delta: float) -> void:
 	velocity.z = input_dir.z * move_speed
 	move_and_slide()
 
-	if absf(input_dir.x) > 0.05:
-		facing_right = input_dir.x > 0.0
-		sprite.flip_h = not facing_right
+	if not is_player and input_dir.length_squared() > 0.002:
+		var cam := get_viewport().get_camera_3d()
+		if cam:
+			var to_cam := cam.global_position - global_position
+			to_cam.y = 0.0
+			var side := input_dir.cross(Vector3.UP).dot(to_cam)
+			sprite.flip_h = side < 0.0
 
 	_bob(delta, input_dir.length() > 0.05)
 
 var _bob_t := 0.0
 func _bob(delta: float, moving: bool) -> void:
+	if is_player:
+		return
 	if moving:
 		_bob_t += delta * 10.0
 		sprite.position.y = 0.95 + sin(_bob_t) * 0.04

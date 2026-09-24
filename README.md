@@ -16,10 +16,12 @@ Godot 4 prototype: a **3D environment** with **modular 2D paperdoll** characters
 
 | Key | Action |
 |---|---|
-| WASD / arrows | Walk on the XZ plane |
+| Mouse | Look (POV) |
+| WASD / arrows | Walk relative to look |
+| Esc | Release cursor; click to capture again |
 | 1 | Cycle hair |
 | 2 | Cycle shirt |
-| 3 | Cycle pants |
+| 3 | Cycle pants / skirt |
 
 ## Layout
 
@@ -29,7 +31,9 @@ CharacterBody3D          3D move / collide
   SubViewport            2D paperdoll composite
     Paperdoll
       Body, Pants, Shirt, Shoes, Eyes, Hair
-  Sprite3D               Y-billboard, nearest filter
+  Sprite3D               Y-billboard (hidden from the local POV camera only)
+  Head
+    Camera3D             first person; enabled when is_player
 ```
 
 Swap layer files under `assets/paperdoll/` or edit the path lists in `scripts/paperdoll.gd`.
