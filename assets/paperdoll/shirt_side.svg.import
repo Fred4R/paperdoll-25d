@@ -1,0 +1,24 @@
+[remap]
+
+importer="texture"
+type="CompressedTexture2D"
+uid="uid://npm2xpzcwbppf"
+path="res://.godot/imported/shirt_side.svg-3ad0d3e73ad8eab2.ctex"
+metadata={
+"vram_texture": false
+}
+
+[deps]
+
+source_file="res://assets/paperdoll/shirt_side.svg"
+dest_files=["res://.godot/imported/shirt_side.svg-3ad0d3e73ad8eab2.ctex"]
+
+[params]
+
+compress/mode=0
+mipmaps/generate=false
+detect_3d/compress_to=0
+svg/scale=1.0
+editor/scale_with_editor_scale=false
+editor/convert_colors_with_editor_theme=false
+process/fix_alpha_border=true
