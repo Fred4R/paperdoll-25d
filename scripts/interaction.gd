@@ -46,6 +46,7 @@ func _ready() -> void:
 	_clips = {
 		"embrace": ClipLibrary.load_file(EMBRACE_PATH),
 		"greeting": ClipLibrary.load_file(GREETING_PATH),
+		"handhold": ClipLibrary.load_file(HANDHOLD_PATH),
 	}
 	_clip = _clips["embrace"]
 	list_panel.visible = false
