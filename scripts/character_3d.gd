@@ -261,7 +261,7 @@ func _schedule_input(delta: float) -> Vector3:
 	if to_goal.length() > 0.2:
 		if _player_near():
 			return Vector3.ZERO
-		return to_goal.normalized()
+		return DollMath.arrive(to_goal, 0.8)
 	_wait -= delta
 	if _wait <= 0.0:
 		_spot = (_spot + 1) % _schedule.size()
