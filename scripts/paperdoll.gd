@@ -66,7 +66,8 @@ const SHOE_FRONT_M := "res://assets/paperdoll/front/shoe_m.svg"
 @onready var elbow_l: Node2D = $ArmL/Elbow
 @onready var elbow_r: Node2D = $ArmR/Elbow
 
-var female := false
+var palette_name := "player"
+var _palette: Dictionary = {}
 var hair_i := 0
 var shirt_i := 0
 var pants_i := 0
@@ -96,6 +97,16 @@ func _ready() -> void:
 		var kept := hair.position
 		hair.reparent(hair_pivot)
 		hair.position = kept - hair_pivot.position
+	_apply()
+
+func set_palette(name: String) -> void:
+	palette_name = name
+	var file := FileAccess.open("res://data/palettes.json", FileAccess.READ)
+	if file == null:
+		return
+	var all: Dictionary = JSON.parse_string(file.get_as_text())
+	_palette = all.get(name, {})
+	female = bool(_palette.get("has_skirt", false))
 	_apply()
 
 func set_look(p_hair: int, p_shirt: int, p_pants: int, p_female: bool) -> void:
@@ -188,6 +199,8 @@ func set_side_view(side: bool) -> void:
 func _swing_hair(angle: float, blend: float) -> void:
 	if hair_pivot:
 		hair_pivot.rotation = lerpf(hair_pivot.rotation, angle, blend)
+
+func set_clip_locked(locked: bool) -> void:
 	_clip_locked = locked
 	if not locked and female:
 		_set_hero_face(true)
@@ -214,28 +227,26 @@ func _lowers() -> Array:
 	return LOWER_FEMALE if female else LOWER_MALE
 
 func _apply() -> void:
-	var use_side := female and _side
-	var use_back := female and _back
-	var arm_tex: Texture2D = load("res://assets/paperdoll/front/arm_f_back.svg" if use_back else ("res://assets/paperdoll/front/arm_f_side.svg" if use_side else (ARM_FEMALE if female else ARM_MALE)))
-	var leg_tex: Texture2D = load("res://assets/paperdoll/front/leg_f_back.svg" if use_back else ("res://assets/paperdoll/front/leg_f_side.svg" if use_side else (LEG_FEMALE if female else LEG_MALE)))
+	var arm_tex: Texture2D = load(_layer("arm"))
+	var leg_tex: Texture2D = load(_layer("leg"))
 	var pant_tex: Texture2D = load("res://assets/paperdoll/pant_leg.svg")
 	if body:
-		body.texture = load("res://assets/paperdoll/front/body_f_back.svg" if use_back else ("res://assets/paperdoll/front/body_f_side.svg" if use_side else (BODY_FEMALE if female else BODY_MALE)))
+		body.texture = load(_layer("body"))
 	if hair:
-		hair.texture = load("res://assets/paperdoll/front/hair_f_back.svg" if use_back else ("res://assets/paperdoll/front/hair_f_side.svg" if use_side else _hairs()[hair_i]))
+		hair.texture = load(_layer("hair"))
 	if eyes:
 		eyes.visible = false
 	_set_hero_face(true)
 	if shirt:
-		shirt.texture = load(_female_cloth("shirt") if female else SHIRT_FRONT_M)
+		shirt.texture = load(_layer("shirt"))
 		shirt.modulate = Color.WHITE
 	if skirt:
-		skirt.visible = female
-		if female:
-			skirt.texture = load(_female_cloth("skirt"))
+		skirt.visible = bool(_palette.get("has_skirt", false))
+		if skirt.visible:
+			skirt.texture = load(_layer("skirt"))
 			skirt.modulate = Color.WHITE
-	var shoe_tex: Texture2D = load("res://assets/paperdoll/front/shoe_f_back.svg" if use_back else ("res://assets/paperdoll/front/shoe_f_side.svg" if use_side else (SHOE_FRONT_F if female else SHOE_FRONT_M)))
-	var sleeve_tex: Texture2D = load("res://assets/paperdoll/front/sleeve_f_back.svg" if use_back else ("res://assets/paperdoll/front/sleeve_f_side.svg" if use_side else (SLEEVE_FRONT_F if female else SLEEVE_FRONT_M)))
+	var shoe_tex: Texture2D = load(_layer("shoe"))
+	var sleeve_tex: Texture2D = load(_layer("sleeve"))
 	for pivot in [leg_l, leg_r]:
 		if pivot == null:
 			continue
@@ -274,6 +285,12 @@ func _apply() -> void:
 		var sleeve_size := sleeve.texture.get_size()
 		sleeve.offset = Vector2(-sleeve_size.x * 0.5, 0)
 
+func _layer(part: String) -> String:
+	var views: Dictionary = _palette.get(part, {})
+	var view := "back" if _back else ("side" if _side else "front")
+	var path := str(views.get(view, views.get("front", "")))
+	return path if not path.is_empty() else "res://assets/paperdoll/front/body_m.svg"
+
 func _female_cloth(kind: String) -> String:
 	var rose := shirt_i == 1
 	if kind == "skirt":
@@ -292,17 +309,21 @@ func _set_hero_face(smile: bool) -> void:
 	var face := get_node_or_null("../../FaceViewport/Face") as Sprite2D
 	if face == null:
 		return
+	if _palette.is_empty():
+		return
 	if female and _side:
-		face.texture = load("res://assets/paperdoll/front/face_f_side_hero.svg")
+		face.texture = load(_layer("face") if _palette.get("face", {}).get("side", "") == "" else str(_palette["face"]["side"]))
+		face.visible = true
 		return
 	if female and _back:
 		face.visible = false
 		return
 	face.visible = true
+	var faces: Dictionary = _palette.get("face", {})
 	if female:
-		face.texture = load("res://assets/paperdoll/front/face_f_hero.svg" if smile else "res://assets/paperdoll/front/face_f_calm_hero.svg")
+		face.texture = load(str(faces.get("front" if smile else "calm", faces.get("front", ""))))
 	else:
-		face.texture = load("res://assets/paperdoll/front/face_m_hero.svg")
+		face.texture = load(str(faces.get("front", "res://assets/paperdoll/front/face_m_hero.svg")))
 
 func _half(sprite: Sprite2D, top: bool) -> float:
 	var size := sprite.texture.get_size()

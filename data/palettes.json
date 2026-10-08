@@ -1,0 +1,109 @@
+{
+  "player": {
+    "has_skirt": false,
+    "body": {"front": "res://assets/paperdoll/front/body_m.svg"},
+    "hair": {"front": "res://assets/paperdoll/front/hair_m.svg"},
+    "shirt": {"front": "res://assets/paperdoll/front/shirt_m.svg"},
+    "arm": {"front": "res://assets/paperdoll/front/arm_m.svg"},
+    "leg": {"front": "res://assets/paperdoll/front/leg_m.svg"},
+    "sleeve": {"front": "res://assets/paperdoll/front/sleeve_m.svg"},
+    "shoe": {"front": "res://assets/paperdoll/front/shoe_m.svg"},
+    "face": {"front": "res://assets/paperdoll/front/face_m_hero.svg"}
+  },
+  "woman_dark": {
+    "has_skirt": true,
+    "body": {
+      "front": "res://assets/paperdoll/front/body_f.svg",
+      "side": "res://assets/paperdoll/front/body_f_side.svg",
+      "back": "res://assets/paperdoll/front/body_f_back.svg"
+    },
+    "hair": {
+      "front": "res://assets/paperdoll/front/hair_f.svg",
+      "side": "res://assets/paperdoll/front/hair_f_side.svg",
+      "back": "res://assets/paperdoll/front/hair_f_back.svg"
+    },
+    "shirt": {
+      "front": "res://assets/paperdoll/front/shirt_f.svg",
+      "side": "res://assets/paperdoll/front/shirt_f_side.svg",
+      "back": "res://assets/paperdoll/front/shirt_f_back.svg"
+    },
+    "skirt": {
+      "front": "res://assets/paperdoll/front/skirt_f.svg",
+      "side": "res://assets/paperdoll/front/skirt_f_side.svg",
+      "back": "res://assets/paperdoll/front/skirt_f_back.svg"
+    },
+    "arm": {
+      "front": "res://assets/paperdoll/front/arm_f.svg",
+      "side": "res://assets/paperdoll/front/arm_f_side.svg",
+      "back": "res://assets/paperdoll/front/arm_f_back.svg"
+    },
+    "leg": {
+      "front": "res://assets/paperdoll/front/leg_f.svg",
+      "side": "res://assets/paperdoll/front/leg_f_side.svg",
+      "back": "res://assets/paperdoll/front/leg_f_back.svg"
+    },
+    "sleeve": {
+      "front": "res://assets/paperdoll/front/sleeve_f.svg",
+      "side": "res://assets/paperdoll/front/sleeve_f_side.svg",
+      "back": "res://assets/paperdoll/front/sleeve_f_back.svg"
+    },
+    "shoe": {
+      "front": "res://assets/paperdoll/front/shoe_f.svg",
+      "side": "res://assets/paperdoll/front/shoe_f_side.svg",
+      "back": "res://assets/paperdoll/front/shoe_f_back.svg"
+    },
+    "face": {
+      "front": "res://assets/paperdoll/front/face_f_hero.svg",
+      "calm": "res://assets/paperdoll/front/face_f_calm_hero.svg",
+      "side": "res://assets/paperdoll/front/face_f_side_hero.svg"
+    }
+  },
+  "woman_rose": {
+    "has_skirt": true,
+    "body": {
+      "front": "res://assets/paperdoll/front/body_f.svg",
+      "side": "res://assets/paperdoll/front/body_f_side.svg",
+      "back": "res://assets/paperdoll/front/body_f_back.svg"
+    },
+    "hair": {
+      "front": "res://assets/paperdoll/front/hair_f_auburn.svg",
+      "side": "res://assets/paperdoll/front/hair_f_side.svg",
+      "back": "res://assets/paperdoll/front/hair_f_back.svg"
+    },
+    "shirt": {
+      "front": "res://assets/paperdoll/front/shirt_f_rose.svg",
+      "side": "res://assets/paperdoll/front/shirt_f_side.svg",
+      "back": "res://assets/paperdoll/front/shirt_f_back.svg"
+    },
+    "skirt": {
+      "front": "res://assets/paperdoll/front/skirt_f_rose.svg",
+      "side": "res://assets/paperdoll/front/skirt_f_side.svg",
+      "back": "res://assets/paperdoll/front/skirt_f_back.svg"
+    },
+    "arm": {
+      "front": "res://assets/paperdoll/front/arm_f.svg",
+      "side": "res://assets/paperdoll/front/arm_f_side.svg",
+      "back": "res://assets/paperdoll/front/arm_f_back.svg"
+    },
+    "leg": {
+      "front": "res://assets/paperdoll/front/leg_f.svg",
+      "side": "res://assets/paperdoll/front/leg_f_side.svg",
+      "back": "res://assets/paperdoll/front/leg_f_back.svg"
+    },
+    "sleeve": {
+      "front": "res://assets/paperdoll/front/sleeve_f.svg",
+      "side": "res://assets/paperdoll/front/sleeve_f_side.svg",
+      "back": "res://assets/paperdoll/front/sleeve_f_back.svg"
+    },
+    "shoe": {
+      "front": "res://assets/paperdoll/front/shoe_f.svg",
+      "side": "res://assets/paperdoll/front/shoe_f_side.svg",
+      "back": "res://assets/paperdoll/front/shoe_f_back.svg"
+    },
+    "face": {
+      "front": "res://assets/paperdoll/front/face_f_hero.svg",
+      "calm": "res://assets/paperdoll/front/face_f_calm_hero.svg",
+      "side": "res://assets/paperdoll/front/face_f_side_hero.svg"
+    }
+  }
+}

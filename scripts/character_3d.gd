@@ -7,6 +7,7 @@ enum Mode { FREE, FROZEN, APPROACH, CLIP }
 @export var move_speed: float = 1.4
 @export var gravity: float = 18.0
 @export var is_player: bool = false
+@export var palette := "player"
 @export var female: bool = false
 @export var hair_style: int = 0
 @export var shirt_style: int = 0
@@ -34,7 +35,9 @@ var _resume_spot := 0
 
 func _ready() -> void:
 	call_deferred("_bind_viewport")
-	if paperdoll and paperdoll.has_method("set_look"):
+	if paperdoll and paperdoll.has_method("set_palette"):
+		paperdoll.set_palette(palette)
+	elif paperdoll and paperdoll.has_method("set_look"):
 		paperdoll.set_look(hair_style, shirt_style, pants_style, female)
 	if is_player:
 		add_to_group("player")
@@ -52,9 +55,12 @@ func _bind_viewport() -> void:
 	sprite.texture = viewport.get_texture()
 	face_billboard.texture = face_viewport.get_texture()
 
+var _preview_on := false
+
 func set_preview(show: bool) -> void:
 	if not is_player:
 		return
+	_preview_on = show
 	var layer := 1 if show else 2
 	sprite.layers = layer
 	face_billboard.layers = layer
@@ -149,7 +155,7 @@ func _physics_process(delta: float) -> void:
 	velocity.z = input_dir.z * move_speed
 	move_and_slide()
 
-	if not is_player:
+	if not is_player or _preview_on:
 		var cam := get_viewport().get_camera_3d()
 		if cam:
 			var to_cam := cam.global_position - global_position
