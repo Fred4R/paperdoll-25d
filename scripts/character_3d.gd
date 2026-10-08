@@ -149,6 +149,10 @@ func set_face_blend(amount: float) -> void:
 	if paperdoll and paperdoll.has_method("set_face_blend"):
 		paperdoll.set_face_blend(amount)
 
+func begin_ease() -> void:
+	if paperdoll and paperdoll.has_method("begin_ease"):
+		paperdoll.begin_ease()
+
 func begin_release() -> void:
 	if paperdoll and paperdoll.has_method("begin_release"):
 		paperdoll.begin_release()
@@ -156,16 +160,8 @@ func begin_release() -> void:
 func set_slots(show_chest: bool, show_groin: bool) -> void:
 	if paperdoll and paperdoll.has_method("set_slots"):
 		paperdoll.set_slots(show_chest, show_groin)
-	if paperdoll and paperdoll.has_method("begin_ease"):
-		paperdoll.begin_ease()
-
-func set_nude(show: bool) -> void:
-	if paperdoll and paperdoll.has_method("set_nude"):
-		paperdoll.set_nude(show)
 
 func set_hair_tint(tint: Color) -> void:
-	if paperdoll and paperdoll.has_method("set_hair_tint"):
-		paperdoll.set_hair_tint(tint)
 	if paperdoll and paperdoll.has_method("set_hair_tint"):
 		paperdoll.set_hair_tint(tint)
 
