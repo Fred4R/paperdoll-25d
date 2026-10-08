@@ -97,7 +97,7 @@ func _refresh_prompt() -> void:
 	var show := _can_open()
 	prompt.visible = show
 	if show:
-		prompt.text = "E  Embrace"
+		prompt.text = "E  Two clips"
 
 func _open_list() -> void:
 	_list_open = true
@@ -117,6 +117,11 @@ func _pick(clip_name: String) -> void:
 	_clip = _clips.get(clip_name, _clips["embrace"])
 	_list_open = false
 	list_panel.visible = false
+	if clip_name == "greeting":
+		player.set_mode_frozen(false)
+		npc.set_mode_frozen(false)
+		_begin_contact()
+		return
 	npc.set_mode_frozen(false)
 	var forward := -player.global_transform.basis.z
 	forward.y = 0.0
