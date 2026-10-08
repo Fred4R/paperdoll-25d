@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="128" height="192" viewBox="0 0 128 192">
-  <g transform="translate(61 0) scale(0.88 1) translate(-64 0)">
-  <path d="M46 34 Q40 12 64 8 Q92 12 86 36 Q90 48 84 62 L46 62 Q40 48 46 34 Z" fill="#6a3b24"/>
-  <path d="M48 58 Q44 78 50 108 Q58 100 62 70 Q60 50 64 36" fill="#6a3b24"/>
-  <path d="M80 58 Q84 78 78 108 Q70 100 66 70 Q68 50 64 36" fill="#6a3b24"/>
-  </g>
-</svg>

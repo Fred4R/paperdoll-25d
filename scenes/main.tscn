@@ -1,150 +1,151 @@
-[gd_scene load_steps=19 format=3 uid="uid://bmain25d01"]
+[gd_scene load_steps=11 format=3 uid="uid://b2dmainroom01"]
 
-[ext_resource type="PackedScene" path="res://scenes/character_3d.tscn" id="1_char"]
-[ext_resource type="Script" path="res://scripts/list_and_clock.gd" id="2_interact"]
-[ext_resource type="AudioStream" path="res://assets/audio/reach.wav" id="3_reach"]
-[ext_resource type="Script" path="res://scripts/mirror.gd" id="4_mirror"]
-[ext_resource type="PackedScene" path="res://scenes/on_screen_buttons.tscn" id="5_hud"]
-[ext_resource type="PackedScene" path="res://scenes/yard.tscn" id="6_yard"]
-[ext_resource type="Texture2D" path="res://assets/scenes/gate_sketch.svg" id="7_sketch"]
-[ext_resource type="Texture2D" path="res://assets/paperdoll/front/face_f_hero.svg" id="8_portrait"]
+[ext_resource type="Texture2D" path="res://assets/2d/room.png" id="1_room"]
+[ext_resource type="Script" path="res://scripts/player_2d.gd" id="2_player"]
+[ext_resource type="Script" path="res://scripts/woman_2d.gd" id="3_woman"]
+[ext_resource type="Texture2D" path="res://assets/2d/woman_idle.png" id="4_idle"]
+[ext_resource type="Script" path="res://scripts/list_and_clock.gd" id="5_list"]
+[ext_resource type="AudioStream" path="res://assets/audio/reach.wav" id="6_reach"]
 
-[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_1"]
-sky_top_color = Color(0.45, 0.62, 0.85, 1)
-sky_horizon_color = Color(0.78, 0.82, 0.88, 1)
-ground_bottom_color = Color(0.22, 0.26, 0.22, 1)
-ground_horizon_color = Color(0.55, 0.58, 0.5, 1)
+[sub_resource type="CircleShape2D" id="CircleShape2D_feet"]
+radius = 14.0
 
-[sub_resource type="Sky" id="Sky_1"]
-sky_material = SubResource("ProceduralSkyMaterial_1")
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_list"]
+bg_color = Color(0.12, 0.1, 0.09, 0.88)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+content_margin_left = 14.0
+content_margin_top = 10.0
+content_margin_right = 14.0
+content_margin_bottom = 10.0
 
-[sub_resource type="Environment" id="Environment_1"]
-background_mode = 2
-sky = SubResource("Sky_1")
-ambient_light_source = 2
-ambient_light_color = Color(0.75, 0.78, 0.82, 1)
-ambient_light_energy = 0.55
-tonemap_mode = 2
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_prompt"]
+bg_color = Color(0.12, 0.1, 0.09, 0.75)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+content_margin_left = 10.0
+content_margin_top = 4.0
+content_margin_right = 10.0
+content_margin_bottom = 4.0
 
-[sub_resource type="StandardMaterial3D" id="MatFloor"]
-albedo_color = Color(0.42, 0.52, 0.38, 1)
-roughness = 0.95
+[sub_resource type="LabelSettings" id="LabelSettings_prompt"]
+font_size = 22
 
-[sub_resource type="StandardMaterial3D" id="MatStone"]
-albedo_color = Color(0.55, 0.52, 0.48, 1)
-roughness = 0.85
+[node name="Main" type="Node2D"]
 
-[sub_resource type="StandardMaterial3D" id="MatWood"]
-albedo_color = Color(0.45, 0.32, 0.2, 1)
-roughness = 0.9
+[node name="Room" type="Sprite2D" parent="."]
+texture = ExtResource("1_room")
+centered = false
 
-[sub_resource type="StandardMaterial3D" id="MatRoof"]
-albedo_color = Color(0.45, 0.22, 0.18, 1)
-roughness = 0.8
+[node name="Camera" type="Camera2D" parent="."]
+anchor_mode = 0
 
-[sub_resource type="StandardMaterial3D" id="MatSketch"]
-shading_mode = 0
-albedo_texture = ExtResource("7_sketch")
+[node name="World" type="Node2D" parent="."]
+y_sort_enabled = true
 
-[sub_resource type="QuadMesh" id="SketchQuad"]
-material = SubResource("MatSketch")
-size = Vector2(0.512, 0.384)
-orientation = 0
+[node name="Player" type="CharacterBody2D" parent="World"]
+position = Vector2(640, 660)
+motion_mode = 1
+script = ExtResource("2_player")
 
-[sub_resource type="NavigationMesh" id="NavigationMesh_yard"]
-vertices = PackedVector3Array(-3.5, 0.45, -16.25, -1.25, 0.45, -16.5, -1.25, 0.45, -19.5, -10.75, 0.45, -6.5, -5.25, 0.45, -6.5, -3.5, 0.45, -11.75, -19.5, 0.45, -3.75, -11, 0.45, -3.75, -19.5, 0.45, -19.5, 3.5, 0.45, -16.5, 19.5, 0.45, -19.5, 3.75, 0.45, -12, 5.25, 0.45, -9, 10.25, 0.45, -9, 10.5, 0.45, -6.75, 19.5, 0.45, -6.75, -2.5, 2.95, -15.5, -2.5, 2.95, -12.5, 2.5, 2.95, -12.5, 2.5, 2.95, -15.5, -2.25, 0.45, -15.25, -2.25, 0.45, -12.5, 2.5, 0.45, -12.5, 2.5, 0.45, -15.25, 3.25, 0.45, -11.25, 4.75, 0.45, -8.75, -3.25, 0.45, -11.25, 3, 0.45, 1.5, 3.75, 0.45, 2.25, 5.25, 0.45, -2.75, 4.75, 0.45, -3, 1.75, 0.45, 1.5, -4.75, 0.45, -6.25, -4.75, 0.45, -2, 5.5, 3.7, -8.25, 5.5, 3.7, -3.75, 9.5, 3.7, -3.75, 9.5, 3.7, -8.25, 6, 0.45, -7.75, 6, 0.45, -4, 9.25, 0.45, -4, 9.25, 0.45, -7.75, 3.75, 0.45, 3.25, 3, 0.45, 3.5, 3, 0.45, 5, 4, 0.45, 5.5, 10.5, 0.45, -3.25, 10, 0.45, -2.75, 4, 0.45, 6.25, 19.5, 0.45, 6.25, -10.25, 3.2, -5.75, -10.25, 3.2, -2.25, -5.75, 3.2, -2.25, -5.75, 3.2, -5.75, -9.75, 0.45, -5.25, -9.75, 0.45, -2.5, -6, 0.45, -2.5, -6, 0.45, -5.25, -4, 0.45, 6.5, -4, 0.45, 5.75, -5.5, 0.45, -1.25, -10.75, 0.45, -1.25, -19.5, 0.45, 19.5, -3, 0.45, 19.5, -3, 0.45, 7, 2, 0.45, 5.5, 1.25, 0.45, 3.25, -2.5, 0.45, 5, 1.25, 0.45, 1.75, -3.5, 0.45, 5, 2, 0.45, 6, -2, 0.45, 6, 2, 0.45, 6.5, -2.5, 0.45, 7, 3, 0.45, 19.5, 3, 0.45, 7, 19.5, 0.45, 19.5)
-polygons = [PackedInt32Array(2, 1, 0), PackedInt32Array(5, 4, 0), PackedInt32Array(0, 4, 3), PackedInt32Array(3, 7, 6), PackedInt32Array(0, 3, 2), PackedInt32Array(2, 3, 6), PackedInt32Array(2, 6, 8), PackedInt32Array(1, 2, 9), PackedInt32Array(9, 2, 10), PackedInt32Array(13, 12, 11), PackedInt32Array(15, 14, 13), PackedInt32Array(11, 9, 13), PackedInt32Array(13, 9, 15), PackedInt32Array(15, 9, 10), PackedInt32Array(19, 18, 16), PackedInt32Array(16, 18, 17), PackedInt32Array(23, 22, 20), PackedInt32Array(20, 22, 21), PackedInt32Array(25, 24, 12), PackedInt32Array(12, 24, 11), PackedInt32Array(26, 24, 25), PackedInt32Array(27, 29, 28), PackedInt32Array(29, 27, 30), PackedInt32Array(30, 27, 31), PackedInt32Array(32, 4, 26), PackedInt32Array(26, 4, 5), PackedInt32Array(32, 26, 33), PackedInt32Array(33, 26, 25), PackedInt32Array(33, 25, 30), PackedInt32Array(33, 30, 31), PackedInt32Array(37, 36, 34), PackedInt32Array(34, 36, 35), PackedInt32Array(41, 40, 38), PackedInt32Array(38, 40, 39), PackedInt32Array(43, 42, 44), PackedInt32Array(44, 42, 45), PackedInt32Array(46, 14, 15), PackedInt32Array(42, 28, 45), PackedInt32Array(45, 28, 29), PackedInt32Array(45, 29, 47), PackedInt32Array(46, 15, 47), PackedInt32Array(47, 15, 49), PackedInt32Array(47, 49, 45), PackedInt32Array(45, 49, 48), PackedInt32Array(53, 52, 50), PackedInt32Array(50, 52, 51), PackedInt32Array(57, 56, 54), PackedInt32Array(54, 56, 55), PackedInt32Array(59, 58, 60), PackedInt32Array(60, 58, 61), PackedInt32Array(6, 7, 61), PackedInt32Array(61, 58, 6), PackedInt32Array(6, 58, 63), PackedInt32Array(6, 63, 62), PackedInt32Array(58, 64, 63), PackedInt32Array(44, 65, 43), PackedInt32Array(43, 65, 66), PackedInt32Array(67, 69, 66), PackedInt32Array(66, 69, 68), PackedInt32Array(68, 69, 60), PackedInt32Array(68, 60, 33), PackedInt32Array(65, 70, 66), PackedInt32Array(66, 70, 71), PackedInt32Array(66, 71, 67), PackedInt32Array(33, 31, 68), PackedInt32Array(69, 59, 60), PackedInt32Array(71, 70, 72), PackedInt32Array(71, 72, 73), PackedInt32Array(73, 72, 75), PackedInt32Array(73, 75, 74), PackedInt32Array(73, 74, 63), PackedInt32Array(63, 64, 73), PackedInt32Array(75, 48, 74), PackedInt32Array(74, 48, 49), PackedInt32Array(74, 49, 76)]
-geometry_source_geometry_mode = 1
-agent_height = 1.75
-agent_radius = 0.5
+[node name="Shadow" type="Polygon2D" parent="World/Player"]
+color = Color(0, 0, 0, 0.35)
+polygon = PackedVector2Array(46.0, 0.0, 44.4, 3.4, 39.8, 6.5, 32.5, 9.2, 23.0, 11.3, 11.9, 12.6, 0.0, 13.0, -11.9, 12.6, -23.0, 11.3, -32.5, 9.2, -39.8, 6.5, -44.4, 3.4, -46.0, 0.0, -44.4, -3.4, -39.8, -6.5, -32.5, -9.2, -23.0, -11.3, -11.9, -12.6, -0.0, -13.0, 11.9, -12.6, 23.0, -11.3, 32.5, -9.2, 39.8, -6.5, 44.4, -3.4)
 
-[node name="Main" type="Node3D"]
+[node name="Ring" type="Polygon2D" parent="World/Player"]
+color = Color(0.95, 0.75, 0.2, 0.55)
+polygon = PackedVector2Array(40.0, 0.0, 38.6, 2.6, 34.6, 5.0, 28.3, 7.1, 20.0, 8.7, 10.4, 9.7, 0.0, 10.0, -10.4, 9.7, -20.0, 8.7, -28.3, 7.1, -34.6, 5.0, -38.6, 2.6, -40.0, 0.0, -38.6, -2.6, -34.6, -5.0, -28.3, -7.1, -20.0, -8.7, -10.4, -9.7, -0.0, -10.0, 10.4, -9.7, 20.0, -8.7, 28.3, -7.1, 34.6, -5.0, 38.6, -2.6)
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
-environment = SubResource("Environment_1")
+[node name="Body" type="Polygon2D" parent="World/Player"]
+modulate = Color(1, 1, 1, 0.7)
+color = Color(0.32, 0.36, 0.42, 1)
+polygon = PackedVector2Array(-18.0, 0.0, -6.0, 0.0, -4.0, -120.0, 4.0, -120.0, 6.0, 0.0, 18.0, 0.0, 22.0, -140.0, 36.0, -150.0, 40.0, -238.0, 14.0, -250.0, -14.0, -250.0, -40.0, -238.0, -36.0, -150.0, -22.0, -140.0)
 
-[node name="Sun" type="DirectionalLight3D" parent="."]
-transform = Transform3D(0.866, -0.354, 0.354, 0, 0.707, 0.707, -0.5, -0.612, 0.612, 8, 12, 6)
-shadow_enabled = true
-light_energy = 1.15
+[node name="Head" type="Polygon2D" parent="World/Player"]
+modulate = Color(1, 1, 1, 0.7)
+color = Color(0.32, 0.36, 0.42, 1)
+polygon = PackedVector2Array(26.0, -282.0, 25.1, -274.2, 22.5, -267.0, 18.4, -260.8, 13.0, -256.0, 6.7, -253.0, 0.0, -252.0, -6.7, -253.0, -13.0, -256.0, -18.4, -260.8, -22.5, -267.0, -25.1, -274.2, -26.0, -282.0, -25.1, -289.8, -22.5, -297.0, -18.4, -303.2, -13.0, -308.0, -6.7, -311.0, -0.0, -312.0, 6.7, -311.0, 13.0, -308.0, 18.4, -303.2, 22.5, -297.0, 25.1, -289.8)
 
-[node name="Yard" parent="." groups=["navigation_mesh_source_group"] instance=ExtResource("6_yard")]
+[node name="Feet" type="CollisionShape2D" parent="World/Player"]
+shape = SubResource("CircleShape2D_feet")
 
-[node name="NavigationRegion3D" type="NavigationRegion3D" parent="."]
-navigation_mesh = SubResource("NavigationMesh_yard")
+[node name="Left" type="Node2D" parent="World"]
+position = Vector2(400, 610)
+script = ExtResource("3_woman")
 
-[node name="WindowLight" type="OmniLight3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.2, 1.4, -4)
-light_color = Color(1, 0.72, 0.4, 1)
-light_energy = 1.4
-omni_range = 4.0
+[node name="Shadow" type="Polygon2D" parent="World/Left"]
+color = Color(0, 0, 0, 0.3)
+polygon = PackedVector2Array(44.0, 0.0, 42.5, 2.8, 38.1, 5.5, 31.1, 7.8, 22.0, 9.5, 11.4, 10.6, 0.0, 11.0, -11.4, 10.6, -22.0, 9.5, -31.1, 7.8, -38.1, 5.5, -42.5, 2.8, -44.0, 0.0, -42.5, -2.8, -38.1, -5.5, -31.1, -7.8, -22.0, -9.5, -11.4, -10.6, -0.0, -11.0, 11.4, -10.6, 22.0, -9.5, 31.1, -7.8, 38.1, -5.5, 42.5, -2.8)
 
-[node name="Player" parent="." instance=ExtResource("1_char")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1, 4)
-is_player = true
-palette = "player"
-hair_style = 0
-shirt_style = 0
-pants_style = 0
-move_speed = 1.4
+[node name="Sprite" type="Sprite2D" parent="World/Left"]
+texture = ExtResource("4_idle")
+centered = false
+offset = Vector2(-72, -324)
 
-[node name="NPC1" parent="." instance=ExtResource("1_char")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1, 2)
-is_player = false
-palette = "woman_dark"
-pants_style = 0
-move_speed = 1.15
+[node name="Right" type="Node2D" parent="World"]
+position = Vector2(900, 625)
+script = ExtResource("3_woman")
 
-[node name="NPC2" parent="." instance=ExtResource("1_char")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.4, 0.1, -8)
-is_player = false
-palette = "woman_rose"
-move_speed = 1.1
+[node name="Shadow" type="Polygon2D" parent="World/Right"]
+color = Color(0, 0, 0, 0.3)
+polygon = PackedVector2Array(44.0, 0.0, 42.5, 2.8, 38.1, 5.5, 31.1, 7.8, 22.0, 9.5, 11.4, 10.6, 0.0, 11.0, -11.4, 10.6, -22.0, 9.5, -31.1, 7.8, -38.1, 5.5, -42.5, 2.8, -44.0, 0.0, -42.5, -2.8, -38.1, -5.5, -31.1, -7.8, -22.0, -9.5, -11.4, -10.6, -0.0, -11.0, 11.4, -10.6, 22.0, -9.5, 31.1, -7.8, 38.1, -5.5, 42.5, -2.8)
 
-[node name="Gate" type="Marker3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.2, 0.1, -6)
+[node name="Sprite" type="Sprite2D" parent="World/Right"]
+texture = ExtResource("4_idle")
+centered = false
+offset = Vector2(-72, -324)
 
-[node name="Bench" type="Marker3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.4, 0.1, -12)
+[node name="ReachSound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("6_reach")
 
-[node name="Window" type="Marker3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.2, 0.1, -1.2)
+[node name="ListAndClock" type="Node" parent="."]
+script = ExtResource("5_list")
 
-[node name="Chair" type="Marker3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.0, 0.1, 2.2)
+[node name="UI" type="CanvasLayer" parent="."]
 
-[node name="PathB" type="Marker3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0.1, -2)
-
-[node name="PathA" type="Marker3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 0.1, 4)
-
-[node name="Mirror" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.4, 0, -11)
-script = ExtResource("4_mirror")
-
-[node name="Frame" type="CSGBox3D" parent="Mirror"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
-size = Vector3(0.9, 1.8, 0.08)
-material = SubResource("MatWood")
-
-[node name="Portrait" type="Sprite3D" parent="Mirror"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 0.06)
-pixel_size = 0.004
-billboard = 0
-shaded = false
-texture = ExtResource("8_portrait")
-
-[node name="GateSketch" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.47, 1.45, -2.75)
+[node name="Prompt" type="Label" parent="UI"]
 visible = false
-mesh = SubResource("SketchQuad")
+offset_left = 540.0
+offset_top = 24.0
+offset_right = 740.0
+offset_bottom = 58.0
+theme_override_styles/normal = SubResource("StyleBoxFlat_prompt")
+text = "E  Hug, Greeting"
+label_settings = SubResource("LabelSettings_prompt")
+horizontal_alignment = 1
 
-[node name="Reach" type="AudioStreamPlayer" parent="."]
-stream = ExtResource("3_reach")
-volume_db = -8.0
+[node name="List" type="PanelContainer" parent="UI"]
+visible = false
+offset_left = 540.0
+offset_top = 70.0
+offset_right = 740.0
+offset_bottom = 230.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_list")
 
-[node name="Interaction" type="Node" parent="."]
-script = ExtResource("2_interact")
+[node name="Rows" type="VBoxContainer" parent="UI/List"]
+layout_mode = 2
 
-[node name="HUD" parent="." instance=ExtResource("5_hud")]
+[node name="Hug" type="Button" parent="UI/List/Rows"]
+layout_mode = 2
+focus_mode = 0
+theme_override_font_sizes/font_size = 22
+text = "1  Hug"
+alignment = 0
+
+[node name="Greeting" type="Button" parent="UI/List/Rows"]
+layout_mode = 2
+focus_mode = 0
+theme_override_font_sizes/font_size = 22
+text = "2  Greeting"
+alignment = 0
+
+[node name="Close" type="Button" parent="UI/List/Rows"]
+layout_mode = 2
+focus_mode = 0
+theme_override_font_sizes/font_size = 22
+text = "Close"
+alignment = 0
