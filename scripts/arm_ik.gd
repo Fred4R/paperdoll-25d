@@ -24,8 +24,8 @@ func _ready() -> void:
 	var aim_r := _aim(skeleton, "AimR", target_r)
 	_stack = SkeletonModificationStack2D.new()
 	skeleton.set_modification_stack(_stack)
-	_stack.add_modification(_ik(_upper_l, _lower_l, aim_l))
-	_stack.add_modification(_ik(_upper_r, _lower_r, aim_r))
+	_stack.add_modification(_ik(_upper_l, _lower_l, aim_l, true))
+	_stack.add_modification(_ik(_upper_r, _lower_r, aim_r, false))
 	_stack.enable_all_modifications(true)
 	_stack.setup()
 	mark_l = _mark()
@@ -49,11 +49,14 @@ func _aim(parent: Node, aim_name: String, point: Vector2) -> Node2D:
 	parent.add_child(aim)
 	return aim
 
-func _ik(upper: Bone2D, lower: Bone2D, aim: Node2D) -> SkeletonModification2DTwoBoneIK:
+func _ik(upper: Bone2D, lower: Bone2D, aim: Node2D, left: bool) -> SkeletonModification2DTwoBoneIK:
 	var ik := SkeletonModification2DTwoBoneIK.new()
 	ik.set_joint_one_bone2d_node(upper.get_path())
 	ik.set_joint_two_bone2d_node(lower.get_path())
 	ik.target_nodepath = aim.get_path()
+	ik.flip_bend_direction = left
+	ik.target_maximum_distance = 70.0
+	ik.target_minimum_distance = 20.0
 	return ik
 
 func _mark() -> Polygon2D:
