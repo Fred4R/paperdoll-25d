@@ -25,21 +25,25 @@
     "has_skirt": true,
     "body": {
       "front": "res://assets/paperdoll/front/body_f.svg",
+      "quarter": "res://assets/paperdoll/front/body_f_quarter.svg",
       "side": "res://assets/paperdoll/front/body_f_side.svg",
       "back": "res://assets/paperdoll/front/body_f_back.svg"
     },
     "hair": {
       "front": "res://assets/paperdoll/front/hair_f.svg",
+      "quarter": "res://assets/paperdoll/front/hair_f_quarter.svg",
       "side": "res://assets/paperdoll/front/hair_f_side.svg",
       "back": "res://assets/paperdoll/front/hair_f_back.svg"
     },
     "shirt": {
       "front": "res://assets/paperdoll/front/shirt_f.svg",
+      "quarter": "res://assets/paperdoll/front/shirt_f_quarter.svg",
       "side": "res://assets/paperdoll/front/shirt_f_side.svg",
       "back": "res://assets/paperdoll/front/shirt_f_back.svg"
     },
     "skirt": {
       "front": "res://assets/paperdoll/front/skirt_f.svg",
+      "quarter": "res://assets/paperdoll/front/skirt_f_quarter.svg",
       "side": "res://assets/paperdoll/front/skirt_f_side.svg",
       "back": "res://assets/paperdoll/front/skirt_f_back.svg"
     },
@@ -73,23 +77,27 @@
     "has_skirt": true,
     "body": {
       "front": "res://assets/paperdoll/front/body_f.svg",
+      "quarter": "res://assets/paperdoll/front/body_f_quarter.svg",
       "side": "res://assets/paperdoll/front/body_f_side.svg",
       "back": "res://assets/paperdoll/front/body_f_back.svg"
     },
     "hair": {
       "front": "res://assets/paperdoll/front/hair_f_auburn.svg",
-      "side": "res://assets/paperdoll/front/hair_f_side.svg",
-      "back": "res://assets/paperdoll/front/hair_f_back.svg"
+      "quarter": "res://assets/paperdoll/front/hair_f_auburn_quarter.svg",
+      "side": "res://assets/paperdoll/front/hair_f_auburn_side.svg",
+      "back": "res://assets/paperdoll/front/hair_f_auburn_back.svg"
     },
     "shirt": {
       "front": "res://assets/paperdoll/front/shirt_f_rose.svg",
-      "side": "res://assets/paperdoll/front/shirt_f_side.svg",
-      "back": "res://assets/paperdoll/front/shirt_f_back.svg"
+      "quarter": "res://assets/paperdoll/front/shirt_f_rose_quarter.svg",
+      "side": "res://assets/paperdoll/front/shirt_f_rose_side.svg",
+      "back": "res://assets/paperdoll/front/shirt_f_rose_back.svg"
     },
     "skirt": {
       "front": "res://assets/paperdoll/front/skirt_f_rose.svg",
-      "side": "res://assets/paperdoll/front/skirt_f_side.svg",
-      "back": "res://assets/paperdoll/front/skirt_f_back.svg"
+      "quarter": "res://assets/paperdoll/front/skirt_f_rose_quarter.svg",
+      "side": "res://assets/paperdoll/front/skirt_f_rose_side.svg",
+      "back": "res://assets/paperdoll/front/skirt_f_rose_back.svg"
     },
     "arm": {
       "front": "res://assets/paperdoll/front/arm_f.svg",

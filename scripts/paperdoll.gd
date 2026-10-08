@@ -390,7 +390,9 @@ func _apply() -> void:
 	var leg_tex: Texture2D = load(leg_path) if leg_path != "" else null
 	var pant_tex: Texture2D = load("res://assets/paperdoll/pant_leg.svg")
 	if body:
-		body.texture = load("res://assets/paperdoll/front/quarter_front.svg" if _quarter and not nude else (_nude_path() if nude else _layer("body")))
+		## A diagonal shows the palette's own quarter pictures; a palette without them keeps the old stand-in.
+		var quarter_stand_in: bool = _quarter and not nude and not _palette.get("body", {}).has("quarter")
+		body.texture = load("res://assets/paperdoll/front/quarter_front.svg" if quarter_stand_in else (_nude_path() if nude else _layer("body")))
 	if hair:
 		hair.texture = load(_layer("hair"))
 		hair.modulate = hair_tint
@@ -465,7 +467,7 @@ func _slot_sprite(slot_name: String, path: String, show: bool) -> void:
 
 func _layer(part: String) -> String:
 	var views: Dictionary = _palette.get(part, {})
-	var view := "back" if _back else ("side" if _side else "front")
+	var view := "back" if _back else ("side" if _side else ("quarter" if _quarter else "front"))
 	var path := str(views.get(view, views.get("front", "")))
 	if path == "none" or path.is_empty():
 		return ""
