@@ -20,7 +20,7 @@ Living spec for the Godot 4 prototype in this folder. Code follows this file.
 - Prompt radius: **1.2 m**.
 - Esc **cancels only before contact** (list open, or she is still walking in). Once the clock starts, the clip plays out.
 - After: **3 second cooldown**. Prompt hidden until it ends. No other state.
-- Authoring: pivot-curve JSON, both roles, one clock. C opens a timeline preview. V shows the player doll. Save to `user://clips` is not in yet.
+- Authoring: C opens a timeline. You stay visible while it is open. Up and Down nudge the selected arm. S writes `user://clips`. The list does not load those files yet.
 - Schedule: **window, then chair**, loop. Idle, walk, interruptible. On end she resumes the spot she left.
 
 ## Rig

@@ -25,7 +25,7 @@ Walk within 1.2 m of her. E opens the list. 1 starts the embrace and she walks t
 | WASD / arrows | Walk relative to look |
 | Esc | Close the list, or cancel her walk-in. Does not skip a clip that has started. Releases the cursor only when you are free |
 | E | Open the interaction list when the prompt shows |
-| C | Open the clip timeline. Left and Right scrub. V shows your doll. Esc closes. Nothing is saved yet |
+| C | Open the clip timeline. You stay visible. Left and Right scrub. Up and Down nudge the selected arm. A switches arm. R switches role. S saves to user://clips. Esc closes. The list does not load saves yet |
 | 2 | Cycle shirt |
 | 3 | Cycle pants / skirt |
 

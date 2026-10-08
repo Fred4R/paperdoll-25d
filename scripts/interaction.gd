@@ -28,7 +28,8 @@ var _cooldown := 0.0
 var _slot := Vector3.ZERO
 var _editing := false
 var _edit_time := 0.0
-var _preview := false
+var _edit_role := "npc"
+var _edit_pivot := "arm_r"
 
 func _ready() -> void:
 	_clips = {
@@ -98,16 +99,16 @@ func _can_edit() -> bool:
 func _open_editor() -> void:
 	_editing = true
 	_edit_time = 0.0
-	_clip = _clips["embrace"]
+	_clip = _duplicate(_clips["embrace"])
 	player.set_mode_frozen(true)
 	npc.set_mode_frozen(true)
 	player.begin_clip()
 	npc.begin_clip()
+	player.set_preview(true)
 	_apply_edit()
 
 func _close_editor() -> void:
 	_editing = false
-	_preview = false
 	player.set_preview(false)
 	player.end_clip()
 	npc.end_clip()
@@ -119,23 +120,61 @@ func _editor_key(code: int) -> void:
 		_edit_time = minf(duration, _edit_time + 0.1)
 	elif code == KEY_LEFT:
 		_edit_time = maxf(0.0, _edit_time - 0.1)
+	elif code == KEY_UP:
+		_nudge(0.1)
+	elif code == KEY_DOWN:
+		_nudge(-0.1)
+	elif code == KEY_A:
+		_edit_pivot = "arm_l" if _edit_pivot == "arm_r" else "arm_r"
+	elif code == KEY_R:
+		_edit_role = "player" if _edit_role == "npc" else "npc"
 	elif code == KEY_1:
-		_clip = _clips["embrace"]
+		_clip = _duplicate(_clips["embrace"])
 		_edit_time = 0.0
 	elif code == KEY_2:
-		_clip = _clips["greeting"]
+		_clip = _duplicate(_clips["greeting"])
 		_edit_time = 0.0
-	elif code == KEY_V:
-		_preview = not _preview
-		player.set_preview(_preview)
+	elif code == KEY_S:
+		_save_edit()
+		return
 	_apply_edit()
 
 func _apply_edit() -> void:
 	_apply_clock(_edit_time)
 	list_panel.visible = true
-	list_label.text = "Editor  %s  %.1f s\nLeft Right  scrub\n1 Embrace  2 Greeting\nV  preview you: %s\nEsc  close\nNo save yet." % [
-		str(_clip.get("name", "clip")), _edit_time, "on" if _preview else "off"
+	list_label.text = "Editor  %s  %.1f s\n%s  %s\nLeft Right scrub   Up Down nudge\nA arm   R role   S save\nYou stay visible. Esc closes." % [
+		str(_clip.get("name", "clip")), _edit_time, _edit_role, _edit_pivot
 	]
+
+func _nudge(amount: float) -> void:
+	var roles: Dictionary = _clip.get("roles", {})
+	var tracks: Dictionary = roles.get(_edit_role, {})
+	var keys: Array = tracks.get(_edit_pivot, []).duplicate(true)
+	var placed := false
+	for i in keys.size():
+		if absf(float(keys[i][0]) - _edit_time) < 0.05:
+			keys[i][1] = float(keys[i][1]) + amount
+			placed = true
+			break
+	if not placed:
+		keys.append([_edit_time, amount])
+		keys.sort_custom(func(a, b): return float(a[0]) < float(b[0]))
+	tracks[_edit_pivot] = keys
+	roles[_edit_role] = tracks
+	_clip["roles"] = roles
+
+func _save_edit() -> void:
+	DirAccess.make_dir_recursive_absolute("user://clips")
+	var name := str(_clip.get("name", "clip"))
+	var file := FileAccess.open("user://clips/%s.json" % name, FileAccess.WRITE)
+	if file == null:
+		list_label.text = "Save failed."
+		return
+	file.store_string(JSON.stringify(_clip, "  "))
+	list_label.text = "Saved user://clips/%s.json" % name
+
+func _duplicate(source: Dictionary) -> Dictionary:
+	return JSON.parse_string(JSON.stringify(source))
 
 func _can_open() -> bool:
 	if _list_open or _approaching or _playing or _editing or _cooldown > 0.0:
