@@ -217,8 +217,10 @@ func _physics_process(delta: float) -> void:
 				var forward := -global_transform.basis.z
 				forward.y = 0.0
 				if forward.length_squared() > 0.0001:
-					var facing := forward.normalized().dot(to_cam.normalized())
-					paperdoll.set_view(DollMath.view_from_dot(facing))
+					var angle := DollMath.heading(forward, to_cam)
+					var slice := DollMath.view_slice(angle)
+					paperdoll.set_view(DollMath.slice_view(slice))
+					sprite.flip_h = slice > 4
 
 	_bob(delta, input_dir.length() > 0.05 and _mode != Mode.CLIP)
 	if paperdoll and paperdoll.has_method("drive") and _mode != Mode.CLIP:
