@@ -21,10 +21,9 @@ Slice source of truth: SLICE.md. Order source: PLAN.md. GitHub main does not hav
 
 ## Must build next
 
-- [ ] Load the side SVGs already on GitHub (body, eyes, hair, shirt, skirt)
-- [ ] Facing swap: front set when the billboard faces the lens, side set when the camera is beside her
-- [ ] flip_h only mirrors; it does not replace the facing set
-- [ ] Embrace uses the front set for the whole clip
+- [x] Front cut-out pieces for the approved woman, worn by the female doll
+- [ ] Side and back matched to that front
+- [ ] Facing swap from the camera angle
 - [ ] Play the slice in Godot 4.3 and fix anything that does not match SLICE.md
 - [ ] Tune embrace.json keys on the front set (reach, hold, release)
 - [ ] Confirm 0.25 m does not clip the camera near plane; back off only if it does

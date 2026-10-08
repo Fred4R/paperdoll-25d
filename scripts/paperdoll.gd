@@ -17,14 +17,10 @@ const KNEE_SWING := 1.05
 const ELBOW_REST := 0.52
 
 const HAIR_MALE := [
-	"res://assets/paperdoll/hair_short.svg",
-	"res://assets/paperdoll/hair_brown.svg",
-	"res://assets/paperdoll/hair_black.svg",
+	"res://assets/paperdoll/front/hair_m.svg",
 ]
 const HAIR_FEMALE := [
-	"res://assets/paperdoll/hair_long_blonde.svg",
-	"res://assets/paperdoll/hair_long_brown.svg",
-	"res://assets/paperdoll/hair_long_black.svg",
+	"res://assets/paperdoll/front/hair_f.svg",
 ]
 const SHIRT_COLORS := [
 	Color("4682c8"),
@@ -39,12 +35,21 @@ const LOWER_FEMALE := [
 	Color("28325a"),
 	Color("8c2430"),
 ]
-const BODY_MALE := "res://assets/paperdoll/body_male.svg"
-const BODY_FEMALE := "res://assets/paperdoll/body_female.svg"
-const ARM_MALE := "res://assets/paperdoll/arm_male.svg"
-const ARM_FEMALE := "res://assets/paperdoll/arm_female.svg"
-const LEG_MALE := "res://assets/paperdoll/leg_male.svg"
-const LEG_FEMALE := "res://assets/paperdoll/leg_female.svg"
+const BODY_MALE := "res://assets/paperdoll/front/body_m.svg"
+const BODY_FEMALE := "res://assets/paperdoll/front/body_f.svg"
+const ARM_MALE := "res://assets/paperdoll/front/arm_m.svg"
+const ARM_FEMALE := "res://assets/paperdoll/front/arm_f.svg"
+const LEG_MALE := "res://assets/paperdoll/front/leg_m.svg"
+const LEG_FEMALE := "res://assets/paperdoll/front/leg_f.svg"
+const FACE_FEMALE := "res://assets/paperdoll/front/face_f.svg"
+const FACE_MALE := "res://assets/paperdoll/front/face_m.svg"
+const SHIRT_FRONT_F := "res://assets/paperdoll/front/shirt_f.svg"
+const SHIRT_FRONT_M := "res://assets/paperdoll/front/shirt_m.svg"
+const SKIRT_FRONT_F := "res://assets/paperdoll/front/skirt_f.svg"
+const SLEEVE_FRONT_F := "res://assets/paperdoll/front/sleeve_f.svg"
+const SLEEVE_FRONT_M := "res://assets/paperdoll/front/sleeve_m.svg"
+const SHOE_FRONT_F := "res://assets/paperdoll/front/shoe_f.svg"
+const SHOE_FRONT_M := "res://assets/paperdoll/front/shoe_m.svg"
 
 @onready var body: Sprite2D = $Body
 @onready var shirt: Sprite2D = $Shirt
@@ -184,11 +189,18 @@ func _apply() -> void:
 		body.texture = load(BODY_FEMALE if female else BODY_MALE)
 	if hair:
 		hair.texture = load(_hairs()[hair_i])
+	if eyes:
+		eyes.texture = load(FACE_FEMALE if female else FACE_MALE)
 	if shirt:
-		shirt.modulate = SHIRT_COLORS[shirt_i]
+		shirt.texture = load(SHIRT_FRONT_F if female else SHIRT_FRONT_M)
+		shirt.modulate = Color.WHITE
 	if skirt:
 		skirt.visible = female
-		skirt.modulate = _lowers()[pants_i]
+		if female:
+			skirt.texture = load(SKIRT_FRONT_F)
+			skirt.modulate = Color.WHITE
+	var shoe_tex: Texture2D = load(SHOE_FRONT_F if female else SHOE_FRONT_M)
+	var sleeve_tex: Texture2D = load(SLEEVE_FRONT_F if female else SLEEVE_FRONT_M)
 	for pivot in [leg_l, leg_r]:
 		if pivot == null:
 			continue
@@ -200,6 +212,7 @@ func _apply() -> void:
 		_half(shin, false)
 		pivot.get_node("Knee").position = Vector2(0, mid)
 		var shoe: Sprite2D = pivot.get_node("Knee/Shoe")
+		shoe.texture = shoe_tex
 		var shoe_size := shoe.texture.get_size()
 		shoe.offset = Vector2(-shoe_size.x * 0.5, 0)
 		shoe.position = Vector2(0, shin.region_rect.size.y - 2.0)
@@ -221,7 +234,8 @@ func _apply() -> void:
 		_half(forearm, false)
 		pivot.get_node("Elbow").position = Vector2(0, mid)
 		var sleeve: Sprite2D = pivot.get_node("Sleeve")
-		sleeve.modulate = SHIRT_COLORS[shirt_i]
+		sleeve.texture = sleeve_tex
+		sleeve.modulate = Color.WHITE
 		var sleeve_size := sleeve.texture.get_size()
 		sleeve.offset = Vector2(-sleeve_size.x * 0.5, 0)
 
