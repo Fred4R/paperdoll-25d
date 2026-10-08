@@ -110,6 +110,11 @@ func _input(event: InputEvent) -> void:
 		_editor_key(event.keycode)
 		get_viewport().set_input_as_handled()
 		return
+	if event.is_action_pressed("interact") and _near_crate():
+		_sit = not _sit
+		player.head.position.y = 1.15 if _sit else 1.55
+		get_viewport().set_input_as_handled()
+		return
 	if event.is_action_pressed("interact") and _can_open():
 		_open_list()
 		get_viewport().set_input_as_handled()
@@ -158,6 +163,14 @@ func _step(delta: float) -> void:
 		reach.play()
 
 var _step_t := 0.0
+var _sit := false
+
+func _near_crate() -> bool:
+	var crate := Vector3(2.2, 0.1, 2.5)
+	var flat := player.global_position
+	flat.y = 0.0
+	crate.y = 0.0
+	return flat.distance_to(crate) < 1.0
 
 func _can_edit() -> bool:
 	return not _list_open and not _approaching and not _playing and not _editing
@@ -425,6 +438,11 @@ func _finish_clip() -> void:
 		npc.set_palette(_saved_palette)
 		_bare = false
 	prompt.visible = false
+	var away := npc.global_position - player.global_position
+	away.y = 0.0
+	if away.length_squared() < 0.01:
+		away = Vector3.FORWARD
+	npc.begin_approach(player.global_position + away.normalized() * 1.2, player.global_position)
 
 func _open_wardrobe() -> void:
 	_select_nearest()
