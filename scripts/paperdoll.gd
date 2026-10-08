@@ -161,6 +161,8 @@ func _elbow_flex(phase: float) -> float:
 
 func set_clip_locked(locked: bool) -> void:
 	_clip_locked = locked
+	if not locked and female and eyes:
+		eyes.texture = load(FACE_FEMALE)
 
 func apply_pose(pose: Dictionary) -> void:
 	for pivot_name in pose.keys():
@@ -170,6 +172,9 @@ func apply_pose(pose: Dictionary) -> void:
 		var pivot := get_node_or_null(path) as Node2D
 		if pivot:
 			pivot.rotation = float(pose[pivot_name])
+	if pose.has("face") and female and eyes:
+		var smile := float(pose["face"]) >= 0.5
+		eyes.texture = load("res://assets/paperdoll/front/face_f.svg" if smile else "res://assets/paperdoll/front/face_f_calm.svg")
 
 func _swing(pivot: Node2D, angle: float) -> void:
 	if pivot:

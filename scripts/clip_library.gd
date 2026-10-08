@@ -27,6 +27,9 @@ static func sample(clip: Dictionary, role: String, time_sec: float) -> Dictionar
 		if keys.is_empty():
 			continue
 		pose[pivot] = _sample_keys(keys, time_sec)
+	var face_keys: Array = tracks.get("face", [])
+	if not face_keys.is_empty():
+		pose["face"] = _sample_keys(face_keys, time_sec)
 	return pose
 
 static func _sample_keys(keys: Array, time_sec: float) -> float:
