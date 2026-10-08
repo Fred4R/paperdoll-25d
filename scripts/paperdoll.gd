@@ -257,7 +257,7 @@ func _process(delta: float) -> void:
 	if _ik.use_ik:
 		_ik.copy_to(arm_l, elbow_l, arm_r, elbow_r)
 	if _ease < 1.0:
-		_ease = minf(1.0, _ease + delta / 0.25)
+		_ease = minf(1.0, _ease + delta / 0.4)
 		_blend_from(_ease)
 
 func _blend_from(weight: float) -> void:

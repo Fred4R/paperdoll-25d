@@ -38,6 +38,7 @@ var _edit_role := "npc"
 var _hand := "hand_r"
 var _women: Array = []
 var _wardrobe := false
+var _last_slot := "nude"
 var _records: Dictionary = {}
 var _saved_palette := ""
 
@@ -402,7 +403,7 @@ func _show_wardrobe() -> void:
 	_show_icons()
 
 func _show_icons() -> void:
-	var icons := ["icon_hair", "icon_shirt", "icon_skirt", "icon_nude"]
+	var icons := ["hair_f", "shirt_f", "skirt_f", "nude_f"]
 	for child in list_panel.get_children():
 		if str(child.name).begins_with("Icon"):
 			child.queue_free()
@@ -411,7 +412,8 @@ func _show_icons() -> void:
 		rect.name = "Icon%d" % i
 		rect.texture = load("res://assets/paperdoll/front/%s.svg" % icons[i])
 		rect.position = Vector2(250, 36 + i * 28)
-		rect.custom_minimum_size = Vector2(24, 24)
+		rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 		list_panel.add_child(rect)
 
 func _wardrobe_key(code: int) -> void:
@@ -422,24 +424,39 @@ func _wardrobe_key(code: int) -> void:
 	if code == KEY_1:
 		npc.paperdoll.cycle_hair()
 		record["hair"] = true
+		_last_slot = "hair"
 	elif code == KEY_2:
 		npc.paperdoll.cycle_shirt()
 		record["shirt"] = true
+		_last_slot = "shirt"
 	elif code == KEY_3:
 		npc.paperdoll.cycle_pants()
 		record["skirt"] = true
+		_last_slot = "skirt"
 	elif code == KEY_4:
 		var show := not npc.paperdoll.nude
 		npc.set_nude(show)
 		record["nude"] = show
+		_last_slot = "nude"
 	elif code == KEY_5:
 		for woman in _women:
-			if woman == null or woman == npc:
+			if woman == null or woman == npc or woman.paperdoll == null:
 				continue
-			var other: Dictionary = _records.get(woman.name, {})
-			woman.set_nude(npc.paperdoll.nude)
+			_copy_slot(npc.paperdoll, woman.paperdoll, _last_slot)
 	_records[id] = record
 	_show_wardrobe()
+
+func _copy_slot(source: Node2D, dest: Node2D, slot: String) -> void:
+	if slot == "hair":
+		dest.hair_i = source.hair_i
+		dest.hair_tint = source.hair_tint
+	elif slot == "shirt":
+		dest.shirt_i = source.shirt_i
+	elif slot == "skirt":
+		dest.pants_i = source.pants_i
+	else:
+		dest.nude = source.nude
+	dest._apply()
 
 func _load_records() -> void:
 	var file := FileAccess.open("user://characters.json", FileAccess.READ)
