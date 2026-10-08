@@ -3,8 +3,8 @@ extends Node
 
 const EMBRACE_PATH := "res://data/clips/embrace.json"
 const ClipLibrary := preload("res://scripts/clip_library.gd")
-const PROMPT_RADIUS := 1.6
-const SLOT_GAP := 0.25
+const PROMPT_RADIUS := 1.2
+const SLOT_GAP := 0.4
 const COOLDOWN := 5.0
 const ARRIVE := 0.12
 

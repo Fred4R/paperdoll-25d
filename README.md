@@ -11,6 +11,11 @@ Godot 4 prototype: a **3D environment** with **modular 2D paperdoll** characters
 1. Clone this repo.
 2. In Godot: **Import** → select this folder (`project.godot`).
 3. Press F5. Main scene is `scenes/main.tscn`.
+4. Let Godot import the new SVGs before playing.
+
+## Slice check
+
+Walk within 1.2 m of her. E opens the list. 1 starts the embrace. She stops 0.4 m in front of you. Esc cancels only before she arrives. The clip then plays out, and the prompt stays hidden for 5 seconds.
 
 ## Controls
 

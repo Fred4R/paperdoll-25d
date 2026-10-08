@@ -16,12 +16,12 @@ Living spec for the Godot 4 prototype in this folder. Code follows this file.
 - Camera: **first person stays**. Player billboard stays culled. You see her.
 - Start: in range, **E** opens a list. Room **freezes** (look still works) until you pick or Esc.
 - List contents now: **built-in Embrace only**. `user://clips` loads when the editor exists.
-- Who moves: **she comes to you**. Your root does not lerp. Slot is **0.25 m** in front of you (chest-up, high overlap).
+- Who moves: **she comes to you**. Your root does not lerp. Slot is **0.4 m** in front of you, so the face billboard is outside the camera near plane.
+- Prompt radius: **1.2 m**.
 - Esc **cancels only before contact** (list open, or she is still walking in). Once the clock starts, the clip plays out.
 - After: **5 second cooldown**. Prompt hidden until it ends. No other state.
 - Authoring: **pivot-curve JSON**, both roles, one clock. Editor UI is the next milestone. Format must already match what that editor will write.
 - Schedule: **window, then chair**, loop. Idle, walk, interruptible. On end she resumes the spot she left.
-- Prompt radius: **1.6 m**.
 
 ## Rig
 
