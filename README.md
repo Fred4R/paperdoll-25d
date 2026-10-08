@@ -1,6 +1,8 @@
 # Paperdoll 2.5D
 
-Godot 4 prototype: a **3D environment** with **modular 2D paperdoll** characters drawn in a `SubViewport` and shown on Y-billboard `Sprite3D`s.
+A playable simulation: a 3D room, first person, a woman on a 2D paperdoll billboard, and clips that stay.
+
+Play `hud-nodes`. `main` does not load. Success is `SUCCESS.md`.
 
 ## Requirements
 
@@ -8,10 +10,15 @@ Godot 4 prototype: a **3D environment** with **modular 2D paperdoll** characters
 
 ## Run
 
-1. Clone this repo.
-2. In Godot: **Import** → select this folder (`project.godot`).
-3. Press F5. Main scene is `scenes/main.tscn`.
-4. Let Godot import the new SVGs before playing.
+```
+git fetch origin
+git checkout hud-nodes
+git pull
+```
+
+1. In Godot: **Import** → select this folder (`project.godot`).
+2. Press F5. Main scene is `scenes/main.tscn`.
+3. Let Godot import the SVGs before playing.
 
 ## Slice check
 
