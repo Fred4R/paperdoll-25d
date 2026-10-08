@@ -4,6 +4,11 @@ extends CharacterBody3D
 
 enum Mode { FREE, FROZEN, APPROACH, CLIP }
 
+## A tap path ended. arrived is false when manual input cancelled it or he got stuck.
+signal walk_ended(arrived: bool)
+
+const WALK_STUCK_TIME := 0.5
+
 @export var move_speed: float = 1.4
 @export var gravity: float = 18.0
 @export var is_player: bool = false
@@ -32,6 +37,11 @@ var _wait := 0.0
 var _approach_target := Vector3.ZERO
 var _face_point := Vector3.ZERO
 var _resume_spot := 0
+var _walking := false
+var _walk_target := Vector3.ZERO
+var _walk_stop := 0.12
+var _walk_stuck := 0.0
+var _look_index := -1
 
 func _ready() -> void:
 	call_deferred("_bind_viewport")
@@ -84,6 +94,7 @@ func can_interrupt() -> bool:
 
 func set_mode_frozen(frozen: bool) -> void:
 	if frozen:
+		_walking = false
 		_mode = Mode.FROZEN
 		velocity.x = 0.0
 		velocity.z = 0.0
@@ -110,7 +121,22 @@ func cancel_approach() -> void:
 	_spot = _resume_spot
 	_wait = 0.2
 
+## Tap path: walk straight toward point until within stop_distance. Calling again replaces the path.
+func walk_to(point: Vector3, stop_distance: float) -> void:
+	if not _walking:
+		_walk_stuck = 0.0
+	_walk_target = point
+	_walk_stop = stop_distance
+	_walking = true
+
+func stop_walk() -> void:
+	_walking = false
+
+func is_walking() -> bool:
+	return _walking
+
 func begin_clip() -> void:
+	_walking = false
 	_mode = Mode.CLIP
 	velocity.x = 0.0
 	velocity.z = 0.0
@@ -178,16 +204,31 @@ func apply_clip_pose(pose: Dictionary) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if not is_player:
 		return
-	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
-		_yaw -= event.relative.x * mouse_sensitivity
-		_pitch -= event.relative.y * mouse_sensitivity
-		_pitch = clampf(_pitch, deg_to_rad(-80.0), deg_to_rad(80.0))
-		rotation.y = _yaw
-		head.rotation.x = _pitch
+	if event is InputEventScreenTouch:
+		var half := get_viewport().get_visible_rect().size.x * 0.5
+		if event.pressed and _look_index == -1 and event.device != InputEvent.DEVICE_ID_EMULATION and event.position.x >= half:
+			_look_index = event.index
+		elif not event.pressed and event.index == _look_index:
+			_look_index = -1
+		return
+	if event is InputEventScreenDrag:
+		if event.index == _look_index:
+			_look(event.relative)
+		return
+	if event is InputEventMouseMotion and event.device != InputEvent.DEVICE_ID_EMULATION and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
+		_look(event.relative)
 	elif event.is_action_pressed("ui_cancel") and _mode == Mode.FREE:
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	elif event is InputEventMouseButton and event.pressed and Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+
+## Mouse look and right-half touch drag share the same yaw and pitch.
+func _look(relative: Vector2) -> void:
+	_yaw -= relative.x * mouse_sensitivity
+	_pitch -= relative.y * mouse_sensitivity
+	_pitch = clampf(_pitch, deg_to_rad(-80.0), deg_to_rad(80.0))
+	rotation.y = _yaw
+	head.rotation.x = _pitch
 
 func _physics_process(delta: float) -> void:
 	if not is_on_floor():
@@ -203,7 +244,14 @@ func _physics_process(delta: float) -> void:
 
 	velocity.x = input_dir.x * move_speed
 	velocity.z = input_dir.z * move_speed
+	var before := global_position
 	move_and_slide()
+	if is_player and _walking:
+		var moved := Vector2(global_position.x - before.x, global_position.z - before.z).length()
+		_walk_stuck = _walk_stuck + delta if moved < move_speed * delta * 0.2 else 0.0
+		if _walk_stuck > WALK_STUCK_TIME:
+			_walking = false
+			walk_ended.emit(false)
 
 	if not is_player or _preview_on:
 		var cam := get_viewport().get_camera_3d()
@@ -242,6 +290,12 @@ func _player_input() -> Vector3:
 	var input_dir := right * x + forward * z
 	if input_dir.length() > 1.0:
 		input_dir = input_dir.normalized()
+	if input_dir.length_squared() > 0.0001:
+		if _walking:
+			_walking = false
+			walk_ended.emit(false)
+	elif _walking:
+		input_dir = _walk_step()
 	if Input.is_action_just_pressed("cycle_hair") and paperdoll:
 		paperdoll.cycle_hair()
 	if Input.is_action_just_pressed("cycle_shirt") and paperdoll:
@@ -249,6 +303,15 @@ func _player_input() -> Vector3:
 	if Input.is_action_just_pressed("cycle_pants") and paperdoll:
 		paperdoll.cycle_pants()
 	return input_dir
+
+func _walk_step() -> Vector3:
+	var to_goal := _walk_target - global_position
+	to_goal.y = 0.0
+	if to_goal.length() <= _walk_stop:
+		_walking = false
+		walk_ended.emit(true)
+		return Vector3.ZERO
+	return to_goal.normalized()
 
 func _npc_input(delta: float) -> Vector3:
 	if _mode == Mode.FROZEN or _mode == Mode.CLIP:

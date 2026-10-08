@@ -9,6 +9,8 @@ const PROMPT_RADIUS := 1.2
 const SLOT_GAP := 0.4
 const COOLDOWN := 3.0
 const ARRIVE := 0.12
+const TAP_ARRIVE := 0.25
+const TAP_SLOP := 16.0
 
 @onready var player: CharacterBody3D = $"../Player"
 @onready var npc: CharacterBody3D = $"../NPC1"
@@ -44,6 +46,8 @@ var _wardrobe := false
 var _last_slot := "nude"
 var _records: Dictionary = {}
 var _saved_palette := ""
+var _tap_woman: CharacterBody3D = null
+var _touches := {}
 var _bare := false
 var _slot := Vector3.ZERO
 var _reach_played := false
@@ -70,6 +74,8 @@ func _ready() -> void:
 		hud.closed.connect(_on_hud_closed)
 	if hud.has_signal("picked"):
 		hud.picked.connect(_on_hud_picked)
+	if player.has_signal("walk_ended"):
+		player.walk_ended.connect(_on_walk_ended)
 	_set_hint()
 	_load_records()
 
@@ -145,6 +151,63 @@ func _input(event: InputEvent) -> void:
 			_on_hud_picked(index)
 			get_viewport().set_input_as_handled()
 
+## Touch: a short tap (not a drag) on a woman walks him to her; on the floor walks him there.
+func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventScreenTouch:
+		if event.pressed:
+			if _tap_idle():
+				_touches[event.index] = [event.position, 0.0]
+		elif _touches.has(event.index):
+			var touch: Array = _touches[event.index]
+			_touches.erase(event.index)
+			var far := maxf(float(touch[1]), event.position.distance_to(touch[0]))
+			if far <= TAP_SLOP and not event.canceled and _tap_idle():
+				_tap(event.position)
+	elif event is InputEventScreenDrag and _touches.has(event.index):
+		var touch: Array = _touches[event.index]
+		touch[1] = maxf(float(touch[1]), event.position.distance_to(touch[0]))
+
+func _tap_idle() -> bool:
+	return not (_list_open or _approaching or _playing or _editing or _wardrobe)
+
+func _tap(screen_point: Vector2) -> void:
+	var cam := get_viewport().get_camera_3d()
+	if cam == null:
+		return
+	var from := cam.project_ray_origin(screen_point)
+	var to := from + cam.project_ray_normal(screen_point) * 60.0
+	var exclude: Array[RID] = [player.get_rid()]
+	var query := PhysicsRayQueryParameters3D.create(from, to, 0xFFFFFFFF, exclude)
+	var hit := player.get_world_3d().direct_space_state.intersect_ray(query)
+	if hit.is_empty():
+		return
+	var body: Object = hit.get("collider")
+	if body != null and body in _women:
+		_tap_woman = body as CharacterBody3D
+		player.walk_to(_tap_woman.global_position, _tap_stop(_tap_woman))
+	else:
+		_tap_woman = null
+		player.walk_to(hit["position"], ARRIVE)
+	get_viewport().set_input_as_handled()
+
+## 0.25 m, or capsule contact plus 5 cm when the two capsules cannot get that close.
+func _tap_stop(woman: Node) -> float:
+	return maxf(TAP_ARRIVE, _capsule_radius(player) + _capsule_radius(woman) + 0.05)
+
+func _capsule_radius(body: Node) -> float:
+	var shape_node := body.get_node_or_null("CollisionShape3D") as CollisionShape3D
+	if shape_node and shape_node.shape is CapsuleShape3D:
+		return (shape_node.shape as CapsuleShape3D).radius
+	return 0.0
+
+func _on_walk_ended(arrived: bool) -> void:
+	var woman := _tap_woman
+	_tap_woman = null
+	if woman == null or not arrived:
+		return
+	if _can_open():
+		_open_list()
+
 func _process(delta: float) -> void:
 	if _cooldown > 0.0:
 		_cooldown = maxf(0.0, _cooldown - delta)
@@ -161,6 +224,8 @@ func _process(delta: float) -> void:
 			_begin_contact()
 		return
 	_refresh_prompt()
+	if _tap_woman and player.is_walking():
+		player.walk_to(_tap_woman.global_position, _tap_stop(_tap_woman))
 	_dusk(delta)
 	_step(delta)
 
