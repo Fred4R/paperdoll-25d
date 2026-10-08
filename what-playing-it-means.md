@@ -1,10 +1,10 @@
-# Success
+# What playing it means
 
-The simulation is the product. A turn is not success. A commit he can pull and play is.
+The game is the product. A chat reply is not.
 
-Play `hud-nodes`. `main` does not load. Do not push `main` until he has played that commit. He exports the APK. This embrace stays clothed.
+Play `hud-nodes`. `main` does not load. Do not push `main` until Fred has played that save. He presses F5 on his computer. He exports the phone build. This hug stays clothed.
 
-## Pull
+## Get the play copy
 
 ```
 git fetch origin
@@ -12,22 +12,16 @@ git checkout hud-nodes
 git pull
 ```
 
-Godot 4.3+, Forward Plus. Import the folder. F5. Scene is `scenes/main.tscn`.
+Godot 4.3 or newer. Import the folder. F5 means press play. The scene is `scenes/main.tscn`.
 
-## Playable now
+## What is saved
 
-Head `05fc8f6`. Eight views: four drawings, four flips.
+Note rename is `003e230`. Walk through the navigation agent is `e994256`. Eight views are in an earlier save on this same branch: four drawings and four flips.
 
-Ines is the woman who answers. She comes to draw the north yard gate from the window. Tap her or press E. Walk to her. The sheet opens: Embrace, Greeting, Sit with Ines, saved clips, Close.
+She walks to the window, the chair, and the north yard gate on the navigation agent. E opens the list. The hug walks her to 0.25 m. A saved animation walks her to 0.4 m. The greeting is a both-arm reach where she stands. First person. You see her picture.
 
-Sit with Ines puts her in the chair. She talks about the gate her grandfather hung crooked, then gives the sketch. The sketch stays on the wall by the window. She stays in the chair. Both are saved and are there next launch.
-
-Embrace is the clothed 4 second hold. Greeting plays where she stands. First person. Her billboard is what you see.
-
-## Still open
-
-Walking physics on the existing bodies is not the eight-view commit. Build that next, Godot-check, commit, and say the hash. Do not end on a plan.
+There is no grandfather sketch in the scene. Do not describe one.
 
 ## Done when
 
-He can pull `hud-nodes`, press F5, reach her, play embrace, greeting, and Sit with Ines, quit, launch again, and the sketch and the chair are still there. The 360 view shows four drawings and four flips while he walks around her.
+He can pull `hud-nodes`, press F5, reach her, play the hug and the greeting, quit, open the game again, and the room is still there. Walking around her shows four drawings and four flips.
