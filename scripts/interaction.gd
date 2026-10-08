@@ -2,6 +2,7 @@ extends Node
 ## Director. List, freeze, she walks to you, one shared clock, both roles.
 
 const EMBRACE_PATH := "res://data/clips/embrace.json"
+const GREETING_PATH := "res://data/clips/greeting.json"
 const HANDHOLD_PATH := "res://data/clips/handhold.json"
 const ClipLibrary := preload("res://scripts/clip_library.gd")
 const PROMPT_RADIUS := 1.2
@@ -11,6 +12,7 @@ const ARRIVE := 0.12
 
 @onready var player: CharacterBody3D = $"../Player"
 @onready var npc: CharacterBody3D = $"../NPC1"
+@onready var npc2: CharacterBody3D = $"../NPC2"
 @onready var npc3: CharacterBody3D = $"../NPC3"
 @onready var path_a: Marker3D = $"../PathA"
 @onready var path_b: Marker3D = $"../PathB"
@@ -35,12 +37,16 @@ var _list_ids: Array = []
 var _editing := false
 var _edit_time := 0.0
 var _edit_role := "npc"
+var _edit_pivot := "arm_r"
 var _hand := "hand_r"
 var _women: Array = []
 var _wardrobe := false
 var _last_slot := "nude"
 var _records: Dictionary = {}
 var _saved_palette := ""
+var _bare := false
+var _slot := Vector3.ZERO
+var _reach_played := false
 
 func _ready() -> void:
 	_clips = {
@@ -123,7 +129,7 @@ func _input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		return
 	if _list_open and event is InputEventKey and event.keycode >= KEY_1 and event.keycode <= KEY_9:
-		var index := event.keycode - KEY_1
+		var index: int = event.keycode - KEY_1
 		if index < _list_ids.size():
 			_pick(str(_list_ids[index]))
 			get_viewport().set_input_as_handled()
@@ -315,7 +321,7 @@ func _select_nearest() -> void:
 		if candidate == null or not candidate.has_method("can_interrupt") or not candidate.can_interrupt():
 			continue
 		var a := player.global_position
-		var b := candidate.global_position
+		var b: Vector3 = candidate.global_position
 		a.y = 0.0
 		b.y = 0.0
 		var d := a.distance_to(b)
@@ -516,7 +522,7 @@ func _wardrobe_key(code: int) -> void:
 		record.skirt_override = true
 		_last_slot = "skirt"
 	elif code == KEY_4:
-		var show := not npc.paperdoll.nude
+		var show: bool = not npc.paperdoll.nude
 		npc.set_nude(show)
 		record.nude = show
 		record.chest = show
@@ -549,6 +555,7 @@ func _wardrobe_key(code: int) -> void:
 func _generate_woman() -> void:
 	if _women.size() >= 6:
 		return
+	var scene := load("res://scenes/character_3d.tscn") as PackedScene
 	var woman := scene.instantiate() as CharacterBody3D
 	woman.name = "Gen%d" % _women.size()
 	woman.is_player = false

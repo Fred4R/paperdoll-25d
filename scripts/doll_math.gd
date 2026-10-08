@@ -14,7 +14,7 @@ static func smoothstep(weight: float) -> float:
 	return t * t * (3.0 - 2.0 * t)
 
 static func blend_angle(from_angle: float, to_angle: float, weight: float) -> float:
-	return from_angle + shortest_delta(from_angle, to_angle) * smoothstep(weight)
+	return from_angle + shortest_delta(from_angle, to_angle) * DollMath.smoothstep(weight)
 
 static func frame_point(viewport_size: Vector2, margin: float) -> Vector2:
 	return Vector2(-margin, viewport_size.y * 0.36)

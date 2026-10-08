@@ -7,6 +7,7 @@ var use_ik := false
 var mark_l: Polygon2D
 var mark_r: Polygon2D
 var _skeleton: Skeleton2D
+var _stack: SkeletonModificationStack2D
 var _upper_l: Bone2D
 var _lower_l: Bone2D
 var _upper_r: Bone2D

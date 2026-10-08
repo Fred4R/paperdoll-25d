@@ -283,7 +283,7 @@ func _avoid(desired: Vector3) -> Vector3:
 	for body in get_tree().get_nodes_in_group("doll"):
 		if body == self:
 			continue
-		var away := global_position - body.global_position
+		var away: Vector3 = global_position - body.global_position
 		away.y = 0.0
 		var dist := away.length()
 		if dist < 0.7 and dist > 0.001:
@@ -324,6 +324,7 @@ func _face(point: Vector3) -> void:
 	rotation.y = atan2(flat.x, flat.z)
 
 var _slice := 0
+var _bob_t := 0.0
 func _bob(delta: float, moving: bool) -> void:
 	if is_player:
 		return

@@ -67,6 +67,7 @@ const SHOE_FRONT_M := "res://assets/paperdoll/front/shoe_m.svg"
 @onready var elbow_r: Node2D = $ArmR/Elbow
 
 var palette_name := "player"
+var female := false
 var _palette: Dictionary = {}
 var hair_i := 0
 var shirt_i := 0

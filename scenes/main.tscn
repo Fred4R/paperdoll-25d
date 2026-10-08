@@ -1,7 +1,8 @@
-[gd_scene load_steps=11 format=3 uid="uid://bmain25d01"]
+[gd_scene load_steps=14 format=3 uid="uid://bmain25d01"]
 
 [ext_resource type="PackedScene" path="res://scenes/character_3d.tscn" id="1_char"]
 [ext_resource type="Script" path="res://scripts/interaction.gd" id="2_interact"]
+[ext_resource type="AudioStream" path="res://assets/audio/reach.wav" id="3_reach"]
 [ext_resource type="Script" path="res://scripts/mirror.gd" id="4_mirror"]
 [ext_resource type="PackedScene" path="res://scenes/hud.tscn" id="5_hud"]
 [ext_resource type="PackedScene" path="res://scenes/yard.tscn" id="6_yard"]
