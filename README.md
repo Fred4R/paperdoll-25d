@@ -18,8 +18,9 @@ Godot 4 prototype: a **3D environment** with **modular 2D paperdoll** characters
 |---|---|
 | Mouse | Look (POV) |
 | WASD / arrows | Walk relative to look |
-| Esc | Release cursor; click to capture again |
-| 1 | Cycle hair |
+| Esc | Close the list, or cancel her walk-in. Does not skip a clip that has started. Releases the cursor only when you are free |
+| E | Open the interaction list when the prompt shows |
+| 1 | Pick Embrace while the list is open. Cycles hair when you are free |
 | 2 | Cycle shirt |
 | 3 | Cycle pants / skirt |
 
@@ -28,7 +29,7 @@ Godot 4 prototype: a **3D environment** with **modular 2D paperdoll** characters
 ```
 CharacterBody3D          3D move / collide
   CollisionShape3D
-  SubViewport            2D paperdoll composite
+  SubViewport            2D paperdoll: torso, swinging arms and legs
     Paperdoll
       Body, Pants, Shirt, Shoes, Eyes, Hair
   Sprite3D               Y-billboard (hidden from the local POV camera only)

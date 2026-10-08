@@ -3,8 +3,6 @@ extends Node2D
 ## Arms swing opposite the same-side leg (Collins, Adamczyk & Kuo 2009).
 ## Knee: small bend after heel contact, near extension in midstance, about 60° in swing.
 ## Elbows stay bent, about 30–42°, instead of locking straight.
-## Standing uses the front pose. Walking uses a right-facing side pose so the
-## knee bend is a step. Sprite3D.flip_h turns that side toward the travel direction.
 
 const STRIDE_M := 1.7
 const STANCE := 0.6
@@ -18,13 +16,6 @@ const KNEE_PRE := 0.70
 const KNEE_SWING := 1.05
 const ELBOW_REST := 0.52
 
-const HIP_FRONT_L := Vector2(53, 112)
-const HIP_FRONT_R := Vector2(75, 112)
-const HIP_SIDE := Vector2(74, 110)
-const SHOULDER_FRONT_L := Vector2(42, 64)
-const SHOULDER_FRONT_R := Vector2(86, 64)
-const SHOULDER_SIDE := Vector2(76, 60)
-
 const HAIR_MALE := [
 	"res://assets/paperdoll/hair_short.svg",
 	"res://assets/paperdoll/hair_brown.svg",
@@ -34,16 +25,6 @@ const HAIR_FEMALE := [
 	"res://assets/paperdoll/hair_long_blonde.svg",
 	"res://assets/paperdoll/hair_long_brown.svg",
 	"res://assets/paperdoll/hair_long_black.svg",
-]
-const HAIR_TINT_MALE := [
-	Color("3a2a1c"),
-	Color("5a371e"),
-	Color("19161c"),
-]
-const HAIR_TINT_FEMALE := [
-	Color("e6be50"),
-	Color("5a371e"),
-	Color("19161c"),
 ]
 const SHIRT_COLORS := [
 	Color("4682c8"),
@@ -60,20 +41,10 @@ const LOWER_FEMALE := [
 ]
 const BODY_MALE := "res://assets/paperdoll/body_male.svg"
 const BODY_FEMALE := "res://assets/paperdoll/body_female.svg"
-const BODY_SIDE_MALE := "res://assets/paperdoll/body_side_male.svg"
-const BODY_SIDE_FEMALE := "res://assets/paperdoll/body_side_female.svg"
 const ARM_MALE := "res://assets/paperdoll/arm_male.svg"
 const ARM_FEMALE := "res://assets/paperdoll/arm_female.svg"
 const LEG_MALE := "res://assets/paperdoll/leg_male.svg"
 const LEG_FEMALE := "res://assets/paperdoll/leg_female.svg"
-const EYES_FRONT := "res://assets/paperdoll/eyes.svg"
-const EYES_SIDE := "res://assets/paperdoll/eyes_side.svg"
-const SHIRT_FRONT := "res://assets/paperdoll/shirt_torso.svg"
-const SHIRT_SIDE := "res://assets/paperdoll/shirt_side.svg"
-const SKIRT_FRONT := "res://assets/paperdoll/skirt_navy.svg"
-const SKIRT_SIDE := "res://assets/paperdoll/skirt_side.svg"
-const HAIR_SIDE_SHORT := "res://assets/paperdoll/hair_side_short.svg"
-const HAIR_SIDE_LONG := "res://assets/paperdoll/hair_side_long.svg"
 
 @onready var body: Sprite2D = $Body
 @onready var shirt: Sprite2D = $Shirt
@@ -94,13 +65,21 @@ var hair_i := 0
 var shirt_i := 0
 var pants_i := 0
 var _phase := 0.0
-var _pose := 0.0
-var _profile := false
-var _ground_y := 0.0
+var _clip_locked := false
+
+const PIVOT_NODES := {
+	"arm_l": "ArmL",
+	"arm_r": "ArmR",
+	"elbow_l": "ArmL/Elbow",
+	"elbow_r": "ArmR/Elbow",
+	"leg_l": "LegL",
+	"leg_r": "LegR",
+	"knee_l": "LegL/Knee",
+	"knee_r": "LegR/Knee",
+}
 
 func _ready() -> void:
 	_apply()
-	_ground_y = _lowest_sole()
 
 func set_look(p_hair: int, p_shirt: int, p_pants: int, p_female: bool) -> void:
 	female = p_female
@@ -121,15 +100,15 @@ func cycle_pants() -> void:
 	pants_i = (pants_i + 1) % _lowers().size()
 	_apply()
 
-func drive(speed_mps: float, delta: float, _face_right: bool = true) -> void:
-	var moving := speed_mps > 0.2
-	_blend_pose(moving, delta)
+func drive(speed_mps: float, delta: float) -> void:
+	if _clip_locked:
+		return
 	var freq := 0.0
-	if moving:
+	if speed_mps > 0.2:
 		freq = speed_mps / STRIDE_M
 	_phase = fposmod(_phase + freq * delta, 1.0)
 	var blend := minf(1.0, 8.0 * delta)
-	if not moving:
+	if freq <= 0.0:
 		_swing(leg_l, lerpf(leg_l.rotation, 0.0, blend))
 		_swing(leg_r, lerpf(leg_r.rotation, 0.0, blend))
 		_swing(arm_l, lerpf(arm_l.rotation, 0.0, blend))
@@ -138,9 +117,6 @@ func drive(speed_mps: float, delta: float, _face_right: bool = true) -> void:
 		_swing(knee_r, lerpf(knee_r.rotation, KNEE_HEEL, blend))
 		_swing(elbow_l, lerpf(elbow_l.rotation, ELBOW_REST, blend))
 		_swing(elbow_r, lerpf(elbow_r.rotation, -ELBOW_REST, blend))
-		_depth(leg_l, leg_r, 0, 0)
-		_depth(arm_l, arm_r, 0, 0)
-		_plant()
 		return
 	var left_phase := _phase
 	var right_phase := fposmod(_phase + 0.5, 1.0)
@@ -148,78 +124,13 @@ func drive(speed_mps: float, delta: float, _face_right: bool = true) -> void:
 	var right := _leg_angle(right_phase)
 	_swing(leg_l, left)
 	_swing(leg_r, right)
-	var arm_left := -left * (ARM_SWING / LEG_FWD)
-	var arm_right := -right * (ARM_SWING / LEG_FWD)
-	_swing(arm_l, arm_left)
-	_swing(arm_r, arm_right)
-	var flex_l := _knee_flex(left_phase)
-	var flex_r := _knee_flex(right_phase)
-	# Front: shins fold toward the midline. Side: both fold backward, which is a step.
-	_swing(knee_l, -flex_l)
-	_swing(knee_r, lerpf(flex_r, -flex_r, _pose))
-	var elbow_left := _elbow_flex(right_phase)
-	var elbow_right := _elbow_flex(left_phase)
-	_swing(elbow_l, elbow_left)
-	_swing(elbow_r, lerpf(-elbow_right, elbow_right, _pose))
-	if left >= right:
-		_depth(leg_l, leg_r, 2, -1)
-	else:
-		_depth(leg_r, leg_l, 2, -1)
-	if arm_left >= arm_right:
-		_depth(arm_l, arm_r, 3, -1)
-	else:
-		_depth(arm_r, arm_l, 3, -1)
-	_plant()
-
-
-func _lowest_sole() -> float:
-	var saved := position
-	position = Vector2(saved.x, 0.0)
-	var y := maxf(_sole($LegL/Knee/Shoe), _sole($LegR/Knee/Shoe))
-	position = saved
-	return y
-
-func _sole(shoe: Sprite2D) -> float:
-	if shoe == null or shoe.texture == null:
-		return 0.0
-	# Sprite2D.offset moves the drawing only. Sole center is local (0, height).
-	return to_local(shoe.to_global(Vector2(0.0, shoe.texture.get_size().y))).y
-
-func _plant() -> void:
-	if _ground_y == 0.0 or leg_l == null:
-		return
-	var saved_x := position.x
-	position = Vector2(saved_x, 0.0)
-	var low := maxf(_sole($LegL/Knee/Shoe), _sole($LegR/Knee/Shoe))
-	# Positive y is down. Drop the doll so the lower sole stays on the standing ground line.
-	position.y = _ground_y - low
-
-func _blend_pose(moving: bool, delta: float) -> void:
-	_pose = move_toward(_pose, 1.0 if moving else 0.0, delta * 6.0)
-	var now := _pose > 0.5
-	if now != _profile:
-		_profile = now
-		_apply()
-	if leg_l:
-		leg_l.position = HIP_FRONT_L.lerp(HIP_SIDE, _pose)
-	if leg_r:
-		leg_r.position = HIP_FRONT_R.lerp(HIP_SIDE, _pose)
-	if arm_l:
-		arm_l.position = SHOULDER_FRONT_L.lerp(SHOULDER_SIDE, _pose)
-	if arm_r:
-		arm_r.position = SHOULDER_FRONT_R.lerp(SHOULDER_SIDE, _pose)
-
-func _depth(front: Node2D, back: Node2D, front_z: int, back_z: int) -> void:
-	if _pose < 0.5:
-		if front:
-			front.z_index = 0
-		if back:
-			back.z_index = 0
-		return
-	if front:
-		front.z_index = front_z
-	if back:
-		back.z_index = back_z
+	_swing(arm_l, -left * (ARM_SWING / LEG_FWD))
+	_swing(arm_r, -right * (ARM_SWING / LEG_FWD))
+	# Left shin folds toward the midline (negative). Right shin folds the other way.
+	_swing(knee_l, -_knee_flex(left_phase))
+	_swing(knee_r, _knee_flex(right_phase))
+	_swing(elbow_l, _elbow_flex(right_phase))
+	_swing(elbow_r, -_elbow_flex(left_phase))
 
 func _leg_angle(phase: float) -> float:
 	if phase < STANCE:
@@ -243,15 +154,24 @@ func _elbow_flex(phase: float) -> float:
 		lift = sin((phase - STANCE) / (1.0 - STANCE) * PI)
 	return ELBOW_REST + 0.22 * lift
 
+func set_clip_locked(locked: bool) -> void:
+	_clip_locked = locked
+
+func apply_pose(pose: Dictionary) -> void:
+	for pivot_name in pose.keys():
+		var path: String = PIVOT_NODES.get(pivot_name, "")
+		if path.is_empty():
+			continue
+		var pivot := get_node_or_null(path) as Node2D
+		if pivot:
+			pivot.rotation = float(pose[pivot_name])
+
 func _swing(pivot: Node2D, angle: float) -> void:
 	if pivot:
 		pivot.rotation = angle
 
 func _hairs() -> Array:
 	return HAIR_FEMALE if female else HAIR_MALE
-
-func _hair_tints() -> Array:
-	return HAIR_TINT_FEMALE if female else HAIR_TINT_MALE
 
 func _lowers() -> Array:
 	return LOWER_FEMALE if female else LOWER_MALE
@@ -261,21 +181,12 @@ func _apply() -> void:
 	var leg_tex: Texture2D = load(LEG_FEMALE if female else LEG_MALE)
 	var pant_tex: Texture2D = load("res://assets/paperdoll/pant_leg.svg")
 	if body:
-		body.texture = load(BODY_SIDE_FEMALE if _profile and female else BODY_SIDE_MALE if _profile else BODY_FEMALE if female else BODY_MALE)
+		body.texture = load(BODY_FEMALE if female else BODY_MALE)
 	if hair:
-		if _profile:
-			hair.texture = load(HAIR_SIDE_LONG if female else HAIR_SIDE_SHORT)
-			hair.modulate = _hair_tints()[hair_i]
-		else:
-			hair.texture = load(_hairs()[hair_i])
-			hair.modulate = Color.WHITE
-	if eyes:
-		eyes.texture = load(EYES_SIDE if _profile else EYES_FRONT)
+		hair.texture = load(_hairs()[hair_i])
 	if shirt:
-		shirt.texture = load(SHIRT_SIDE if _profile else SHIRT_FRONT)
 		shirt.modulate = SHIRT_COLORS[shirt_i]
 	if skirt:
-		skirt.texture = load(SKIRT_SIDE if _profile else SKIRT_FRONT)
 		skirt.visible = female
 		skirt.modulate = _lowers()[pants_i]
 	for pivot in [leg_l, leg_r]:
