@@ -550,6 +550,7 @@ func _generate_woman() -> void:
 	record.nude = false
 	record.chest = false
 	record.groin = false
+	SaveStore.save_one(record)
 	_women.append(woman)
 
 func _copy_slot(source: Node2D, dest: Node2D, slot: String) -> void:
