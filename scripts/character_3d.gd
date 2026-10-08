@@ -37,6 +37,7 @@ func _ready() -> void:
 	if paperdoll and paperdoll.has_method("set_look"):
 		paperdoll.set_look(hair_style, shirt_style, pants_style, female)
 	if is_player:
+		add_to_group("player")
 		sprite.layers = 2
 		face_billboard.layers = 2
 		camera.current = true
@@ -215,12 +216,24 @@ func _schedule_input(delta: float) -> Vector3:
 	var to_goal := goal - global_position
 	to_goal.y = 0.0
 	if to_goal.length() > 0.2:
+		if _player_near():
+			return Vector3.ZERO
 		return to_goal.normalized()
 	_wait -= delta
 	if _wait <= 0.0:
 		_spot = (_spot + 1) % _schedule.size()
 		_wait = schedule_wait
 	return Vector3.ZERO
+
+func _player_near() -> bool:
+	var players := get_tree().get_nodes_in_group("player")
+	if players.is_empty():
+		return false
+	var flat := global_position
+	var other: Vector3 = players[0].global_position
+	flat.y = 0.0
+	other.y = 0.0
+	return flat.distance_to(other) <= 2.0
 
 func _face(point: Vector3) -> void:
 	var flat := point - global_position

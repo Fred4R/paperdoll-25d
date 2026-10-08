@@ -139,7 +139,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.4, 0.1, -8)
 is_player = false
 female = true
 hair_style = 1
-shirt_style = 0
+shirt_style = 1
 pants_style = 1
 move_speed = 1.1
 

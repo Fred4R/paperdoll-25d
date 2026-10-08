@@ -227,12 +227,12 @@ func _apply() -> void:
 		eyes.visible = false
 	_set_hero_face(true)
 	if shirt:
-		shirt.texture = load("res://assets/paperdoll/front/shirt_f_back.svg" if use_back else ("res://assets/paperdoll/front/shirt_f_side.svg" if use_side else (SHIRT_FRONT_F if female else SHIRT_FRONT_M)))
+		shirt.texture = load(_female_cloth("shirt") if female else SHIRT_FRONT_M)
 		shirt.modulate = Color.WHITE
 	if skirt:
 		skirt.visible = female
 		if female:
-			skirt.texture = load("res://assets/paperdoll/front/skirt_f_back.svg" if use_back else ("res://assets/paperdoll/front/skirt_f_side.svg" if use_side else SKIRT_FRONT_F))
+			skirt.texture = load(_female_cloth("skirt"))
 			skirt.modulate = Color.WHITE
 	var shoe_tex: Texture2D = load("res://assets/paperdoll/front/shoe_f_back.svg" if use_back else ("res://assets/paperdoll/front/shoe_f_side.svg" if use_side else (SHOE_FRONT_F if female else SHOE_FRONT_M)))
 	var sleeve_tex: Texture2D = load("res://assets/paperdoll/front/sleeve_f_back.svg" if use_back else ("res://assets/paperdoll/front/sleeve_f_side.svg" if use_side else (SLEEVE_FRONT_F if female else SLEEVE_FRONT_M)))
@@ -273,6 +273,20 @@ func _apply() -> void:
 		sleeve.modulate = Color.WHITE
 		var sleeve_size := sleeve.texture.get_size()
 		sleeve.offset = Vector2(-sleeve_size.x * 0.5, 0)
+
+func _female_cloth(kind: String) -> String:
+	var rose := shirt_i == 1
+	if kind == "skirt":
+		if _back:
+			return "res://assets/paperdoll/front/skirt_f_back.svg"
+		if _side:
+			return "res://assets/paperdoll/front/skirt_f_side.svg"
+		return "res://assets/paperdoll/front/skirt_f_rose.svg" if rose else SKIRT_FRONT_F
+	if _back:
+		return "res://assets/paperdoll/front/shirt_f_back.svg"
+	if _side:
+		return "res://assets/paperdoll/front/shirt_f_side.svg"
+	return "res://assets/paperdoll/front/shirt_f_rose.svg" if rose else SHIRT_FRONT_F
 
 func _set_hero_face(smile: bool) -> void:
 	var face := get_node_or_null("../../FaceViewport/Face") as Sprite2D
