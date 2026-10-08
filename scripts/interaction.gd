@@ -113,6 +113,7 @@ func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("interact") and _near_crate():
 		_sit = not _sit
 		player.head.position.y = 1.15 if _sit else 1.55
+		player.position.y = 0.35 if _sit else 0.1
 		player.set_seated(_sit)
 		get_viewport().set_input_as_handled()
 		return
@@ -468,8 +469,9 @@ func _close_wardrobe() -> void:
 	player.set_mode_frozen(false)
 	npc.set_mode_frozen(false)
 	_save_records()
-	if npc:
-		SaveStore.save_one(SaveStore.record_for(npc.name))
+	for woman in _women:
+		if woman:
+			SaveStore.save_one(SaveStore.record_for(woman.name))
 
 func _show_wardrobe() -> void:
 	var record := SaveStore.record_for(npc.name)

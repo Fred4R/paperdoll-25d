@@ -51,6 +51,12 @@ light_energy = 1.15
 
 [node name="Yard" parent="." instance=ExtResource("6_yard")]
 
+[node name="WindowLight" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.2, 1.4, -4)
+light_color = Color(1, 0.72, 0.4, 1)
+light_energy = 1.4
+omni_range = 4.0
+
 [node name="Player" parent="." instance=ExtResource("1_char")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1, 4)
 is_player = true
