@@ -210,12 +210,7 @@ func _physics_process(delta: float) -> void:
 				forward.y = 0.0
 				if forward.length_squared() > 0.0001:
 					var facing := forward.normalized().dot(to_cam.normalized())
-					var view := "front"
-					if facing < 0.0:
-						view = "back"
-					elif facing < 0.5:
-						view = "side"
-					paperdoll.set_view(view)
+					paperdoll.set_view(DollMath.view_from_dot(facing))
 
 	_bob(delta, input_dir.length() > 0.05 and _mode != Mode.CLIP)
 	if paperdoll and paperdoll.has_method("drive") and _mode != Mode.CLIP:

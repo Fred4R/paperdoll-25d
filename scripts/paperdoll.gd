@@ -269,7 +269,7 @@ func _blend_from(weight: float) -> void:
 		var path: String = PIVOT_NODES.get(pivot_name, "")
 		var pivot := get_node_or_null(path) as Node2D
 		if pivot:
-			pivot.rotation = lerpf(float(_ease_from[pivot_name]), pivot.rotation, weight)
+			pivot.rotation = DollMath.blend_angle(float(_ease_from[pivot_name]), pivot.rotation, weight)
 
 func set_view(view: String) -> void:
 	var side := view == "side"
