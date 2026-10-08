@@ -323,7 +323,7 @@ func _face(point: Vector3) -> void:
 		return
 	rotation.y = atan2(flat.x, flat.z)
 
-var _bob_t := 0.0
+var _slice := 0
 func _bob(delta: float, moving: bool) -> void:
 	if is_player:
 		return

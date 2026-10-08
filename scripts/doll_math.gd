@@ -66,7 +66,16 @@ static func heading(forward: Vector3, to_camera: Vector3) -> float:
 		return 0.0
 	return flat_forward.signed_angle_to(flat_camera, Vector3.UP)
 
-static func view_slice(angle: float) -> int:
+const HOLD_RAD := 0.14
+
+static func held_slice(angle: float, current: int) -> int:
+	var next := view_slice(angle)
+	if next == current:
+		return current
+	var center := float(current) / 8.0 * TAU - PI
+	if absf(shortest_delta(angle, center)) < PI / 8.0 + HOLD_RAD:
+		return current
+	return next
 	var turns := fposmod(angle + PI / 8.0, TAU) / TAU
 	return int(turns * 8.0) % 8
 
