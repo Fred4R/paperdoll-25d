@@ -319,12 +319,14 @@ func _flat_distance() -> float:
 	return a.distance_to(b)
 
 func _refresh_prompt() -> void:
-	prompt.visible = true
-	var record := SaveStore.record_for(npc.name)
-	prompt.text = "%s\nE  Embrace, Greeting" % record.display_name
-	prompt.modulate.a = 1.0
-	if not show:
-		prompt.modulate.a = maxf(0.0, prompt.modulate.a - delta) if false else 0.0
+	var show := _can_open()
+	if show:
+		var record := SaveStore.record_for(npc.name)
+		prompt.text = "%s\nE  Embrace, Greeting" % record.display_name
+		prompt.modulate.a = 1.0
+		prompt.visible = true
+	else:
+		prompt.modulate.a = maxf(0.0, prompt.modulate.a - 0.05)
 		prompt.visible = prompt.modulate.a > 0.05
 
 func _open_list() -> void:
