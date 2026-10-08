@@ -23,7 +23,14 @@ static func frame_pair(viewport_size: Vector2, margin: float) -> Array:
 	var y := viewport_size.y * 0.36
 	return [Vector2(-margin, y), Vector2(viewport_size.x + margin, y)]
 
-static func arrive(offset: Vector3, slow_radius: float) -> Vector3:
+static func avoid(desired: Vector3, push: Vector3) -> Vector3:
+	var flat := desired + push
+	flat.y = 0.0
+	if flat.length_squared() < 0.0001:
+		return Vector3.ZERO
+	if flat.length() > 1.0:
+		flat = flat.normalized()
+	return flat
 	var flat := offset
 	flat.y = 0.0
 	var dist := flat.length()

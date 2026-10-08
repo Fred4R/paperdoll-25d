@@ -249,7 +249,7 @@ func _npc_input(delta: float) -> Vector3:
 		if to_slot.length() <= 0.12:
 			_face(_face_point)
 			return Vector3.ZERO
-		return DollMath.arrive(to_slot, 0.6)
+		return _avoid(DollMath.arrive(to_slot, 0.6))
 	return _schedule_input(delta)
 
 func _schedule_input(delta: float) -> Vector3:
@@ -261,12 +261,24 @@ func _schedule_input(delta: float) -> Vector3:
 	if to_goal.length() > 0.2:
 		if _player_near():
 			return Vector3.ZERO
-		return DollMath.arrive(to_goal, 0.8)
+		return _avoid(DollMath.arrive(to_goal, 0.8))
 	_wait -= delta
 	if _wait <= 0.0:
 		_spot = (_spot + 1) % _schedule.size()
 		_wait = schedule_wait
 	return Vector3.ZERO
+
+func _avoid(desired: Vector3) -> Vector3:
+	var push := Vector3.ZERO
+	for body in get_tree().get_nodes_in_group("doll"):
+		if body == self:
+			continue
+		var away := global_position - body.global_position
+		away.y = 0.0
+		var dist := away.length()
+		if dist < 0.7 and dist > 0.001:
+			push += away.normalized() * (0.7 - dist)
+	return DollMath.avoid(desired, push)
 
 func _player_near() -> bool:
 	var players := get_tree().get_nodes_in_group("player")
