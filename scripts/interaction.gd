@@ -399,6 +399,20 @@ func _close_wardrobe() -> void:
 
 func _show_wardrobe() -> void:
 	list_label.text = "Wardrobe\n1  Hair\n2  Shirt\n3  Skirt\n4  Nude\n5  Apply to all women\nEsc close"
+	_show_icons()
+
+func _show_icons() -> void:
+	var icons := ["icon_hair", "icon_shirt", "icon_skirt", "icon_nude"]
+	for child in list_panel.get_children():
+		if str(child.name).begins_with("Icon"):
+			child.queue_free()
+	for i in icons.size():
+		var rect := TextureRect.new()
+		rect.name = "Icon%d" % i
+		rect.texture = load("res://assets/paperdoll/front/%s.svg" % icons[i])
+		rect.position = Vector2(250, 36 + i * 28)
+		rect.custom_minimum_size = Vector2(24, 24)
+		list_panel.add_child(rect)
 
 func _wardrobe_key(code: int) -> void:
 	var id := npc.name
@@ -423,8 +437,7 @@ func _wardrobe_key(code: int) -> void:
 			if woman == null or woman == npc:
 				continue
 			var other: Dictionary = _records.get(woman.name, {})
-			if not other.get("nude", false):
-				woman.set_nude(npc.paperdoll.nude)
+			woman.set_nude(npc.paperdoll.nude)
 	_records[id] = record
 	_show_wardrobe()
 

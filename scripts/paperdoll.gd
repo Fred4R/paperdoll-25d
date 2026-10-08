@@ -232,6 +232,15 @@ func begin_ease() -> void:
 		"elbow_r": elbow_r.rotation if elbow_r else 0.0,
 	}
 
+func _nude_path() -> String:
+	if not female:
+		return "res://assets/paperdoll/front/nude_m.svg"
+	if _back:
+		return "res://assets/paperdoll/front/nude_f_back.svg"
+	if _side:
+		return "res://assets/paperdoll/front/nude_f_side.svg"
+	return "res://assets/paperdoll/front/nude_f.svg"
+
 func set_nude(show: bool) -> void:
 	nude = show
 	_apply()
@@ -308,7 +317,7 @@ func _apply() -> void:
 	var leg_tex: Texture2D = load(leg_path) if leg_path != "" else null
 	var pant_tex: Texture2D = load("res://assets/paperdoll/pant_leg.svg")
 	if body:
-		body.texture = load("res://assets/paperdoll/front/nude_f.svg" if nude and female else ("res://assets/paperdoll/front/nude_m.svg" if nude else _layer("body")))
+		body.texture = load(_nude_path() if nude else _layer("body"))
 	if hair:
 		hair.texture = load(_layer("hair"))
 		hair.modulate = hair_tint
