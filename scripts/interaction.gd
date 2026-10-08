@@ -201,7 +201,7 @@ func _can_open() -> bool:
 func _select_nearest() -> void:
 	var best: CharacterBody3D = null
 	var best_d := PROMPT_RADIUS
-	for candidate in [npc, npc2]:
+	for candidate in _women:
 		if candidate == null or not candidate.has_method("can_interrupt") or not candidate.can_interrupt():
 			continue
 		var a := player.global_position
