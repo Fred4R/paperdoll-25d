@@ -393,6 +393,8 @@ func _finish_clip() -> void:
 	player.set_preview(false)
 	player.end_clip()
 	npc.end_clip()
+	player.begin_release()
+	npc.begin_release()
 	if not _side_view():
 		player.begin_ease()
 		npc.begin_ease()
@@ -455,6 +457,9 @@ func _wardrobe_key(code: int) -> void:
 		var show := not npc.paperdoll.nude
 		npc.set_nude(show)
 		record.nude = show
+		record.chest = show
+		record.groin = show
+		npc.set_slots(show, show)
 		record.nude_override = true
 		_last_slot = "nude"
 	elif code == KEY_5:
@@ -481,12 +486,19 @@ func _generate_woman() -> void:
 	woman.is_player = false
 	woman.palette = "woman_rose"
 	get_parent().add_child(woman)
-	var offset := _women.size() * 1.6
-	woman.global_position = Vector3(4.0 + offset, 0.1, 6.0)
-	woman.set_schedule([woman.global_position, woman.global_position + Vector3(0, 0, -4)])
+	var occupied: Array = []
+	for body in _women:
+		if body:
+			occupied.append(body.global_position)
+	var point: Vector3 = DollMath.spawn_point(occupied, Vector3(4.0, 0.1, 6.0), 1.6)
+	woman.global_position = point
+	woman.set_schedule([point, point + Vector3(0, 0, -4)])
 	var record := SaveStore.record_for(woman.name)
-	record.display_name = _next_name("")
+	record.display_name = _next_name(woman.name)
 	record.palette = "woman_rose"
+	record.nude = false
+	record.chest = false
+	record.groin = false
 	_women.append(woman)
 
 func _copy_slot(source: Node2D, dest: Node2D, slot: String) -> void:

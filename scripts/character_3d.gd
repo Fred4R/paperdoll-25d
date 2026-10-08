@@ -149,7 +149,13 @@ func set_face_blend(amount: float) -> void:
 	if paperdoll and paperdoll.has_method("set_face_blend"):
 		paperdoll.set_face_blend(amount)
 
-func begin_ease() -> void:
+func begin_release() -> void:
+	if paperdoll and paperdoll.has_method("begin_release"):
+		paperdoll.begin_release()
+
+func set_slots(show_chest: bool, show_groin: bool) -> void:
+	if paperdoll and paperdoll.has_method("set_slots"):
+		paperdoll.set_slots(show_chest, show_groin)
 	if paperdoll and paperdoll.has_method("begin_ease"):
 		paperdoll.begin_ease()
 

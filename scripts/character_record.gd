@@ -10,3 +10,5 @@ class_name CharacterRecord
 @export var shirt_override := false
 @export var skirt_override := false
 @export var nude_override := false
+@export var chest := false
+@export var groin := false

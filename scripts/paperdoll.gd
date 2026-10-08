@@ -84,6 +84,8 @@ var _player: AnimationPlayer
 var _ease_from: Dictionary = {}
 var hair_tint := Color.WHITE
 var nude := false
+var _show_chest := false
+var _show_groin := false
 
 const PIVOT_NODES := {
 	"arm_l": "ArmL",
@@ -116,8 +118,15 @@ func _ready() -> void:
 	anim.track_insert_key(track, 0.0, 0.0)
 	anim.track_insert_key(track, 0.4, 1.0)
 	anim.length = 0.4
+	var release := Animation.new()
+	var release_track := release.add_track(Animation.TYPE_VALUE)
+	release.track_set_path(release_track, NodePath(".:ease_weight"))
+	release.track_insert_key(release_track, 0.0, 1.0)
+	release.track_insert_key(release_track, 0.4, 0.0)
+	release.length = 0.4
 	var library := AnimationLibrary.new()
 	library.add_animation("blend", anim)
+	library.add_animation("release", release)
 	_player.add_animation_library("", library)
 	_apply()
 
@@ -248,6 +257,16 @@ func begin_ease() -> void:
 		"elbow_r": elbow_r.rotation if elbow_r else 0.0,
 	}
 
+func begin_release() -> void:
+	ease_weight = 1.0
+	if _player:
+		_player.play("release")
+
+func set_slots(show_chest: bool, show_groin: bool) -> void:
+	_show_chest = show_chest
+	_show_groin = show_groin
+	_apply()
+
 func _nude_path() -> String:
 	if not female:
 		if _back:
@@ -354,6 +373,8 @@ func _apply() -> void:
 		if skirt.visible:
 			skirt.texture = load(_layer("skirt"))
 			skirt.modulate = Color.WHITE
+	_slot_sprite("Chest", "res://assets/paperdoll/front/chest_f.svg", _show_chest and nude)
+	_slot_sprite("Groin", "res://assets/paperdoll/front/groin_f.svg", _show_groin and nude)
 	var shoe_path := _layer("shoe")
 	var shoe_tex: Texture2D = load(shoe_path) if shoe_path != "" else null
 	for pivot in [leg_l, leg_r]:
@@ -396,6 +417,16 @@ func _apply() -> void:
 			sleeve.modulate = Color.WHITE
 			var sleeve_size := sleeve.texture.get_size()
 			sleeve.offset = Vector2(-sleeve_size.x * 0.5, 0)
+
+func _slot_sprite(slot_name: String, path: String, show: bool) -> void:
+	var sprite := get_node_or_null(slot_name) as Sprite2D
+	if sprite == null:
+		sprite = Sprite2D.new()
+		sprite.name = slot_name
+		sprite.centered = false
+		add_child(sprite)
+	sprite.texture = load(path)
+	sprite.visible = show and female
 
 func _layer(part: String) -> String:
 	var views: Dictionary = _palette.get(part, {})

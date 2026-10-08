@@ -29,7 +29,8 @@ func record_for(id: String) -> CharacterRecord:
 		record.display_name = str(raw.get("name", id))
 		record.nude = bool(raw.get("nude", false))
 		record.nude_override = bool(raw.get("nude_override", false))
-		record.palette = str(raw.get("palette", "woman_dark"))
+		record.chest = bool(raw.get("chest", false))
+		record.groin = bool(raw.get("groin", false))
 		cast[id] = record
 	return cast[id]
 
@@ -41,6 +42,8 @@ func save_records() -> void:
 			"nude": record.nude,
 			"nude_override": record.nude_override,
 			"palette": record.palette,
+			"chest": record.chest,
+			"groin": record.groin,
 		}
 	records["_last_slot"] = last_slot
 	var file := FileAccess.open(PATH, FileAccess.WRITE)

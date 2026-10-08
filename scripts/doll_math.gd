@@ -31,6 +31,8 @@ static func avoid(desired: Vector3, push: Vector3) -> Vector3:
 	if flat.length() > 1.0:
 		flat = flat.normalized()
 	return flat
+
+static func arrive(offset: Vector3, slow_radius: float) -> Vector3:
 	var flat := offset
 	flat.y = 0.0
 	var dist := flat.length()
@@ -40,6 +42,20 @@ static func avoid(desired: Vector3, push: Vector3) -> Vector3:
 	if dist < slow_radius:
 		speed = dist / slow_radius
 	return flat.normalized() * speed
+
+static func spawn_point(occupied: Array, origin: Vector3, step: float) -> Vector3:
+	var point := origin
+	var clear := false
+	while not clear:
+		clear = true
+		for taken in occupied:
+			var away: Vector3 = point - taken
+			away.y = 0.0
+			if away.length() < step:
+				point.x += step
+				clear = false
+				break
+	return point
 
 static func view_from_dot(facing: float) -> String:
 	if facing < 0.0:
