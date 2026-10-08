@@ -35,6 +35,8 @@ var _edit_time := 0.0
 var _edit_role := "npc"
 var _edit_pivot := "arm_r"
 var _women: Array = []
+var _bare := false
+var _saved_palette := ""
 
 func _ready() -> void:
 	_clips = {
@@ -64,6 +66,9 @@ func _input(event: InputEvent) -> void:
 		elif _approaching:
 			_cancel_approach()
 			get_viewport().set_input_as_handled()
+		elif _playing:
+			_finish_clip()
+			get_viewport().set_input_as_handled()
 		return
 	if event is InputEventKey and event.keycode == KEY_C and _can_edit():
 		_open_editor()
@@ -91,10 +96,6 @@ func _process(delta: float) -> void:
 			_clock += delta
 			var duration := float(_clip.get("duration", 4.0))
 			_apply_clock(minf(_clock, duration))
-			if str(_clip.get("name", "")) == "embrace" and _clock >= 0.7 and not _reach_played:
-				_reach_played = true
-				if reach:
-					reach.play()
 			if _clock >= duration:
 				_finish_clip()
 		return
@@ -232,8 +233,8 @@ func _open_list() -> void:
 	_list_open = true
 	prompt.visible = false
 	list_panel.visible = true
-	_list_ids = ["embrace", "greeting"]
-	var lines := ["1  Embrace", "2  Greeting"]
+	_list_ids = ["embrace", "greeting", "shirtoff"]
+	var lines := ["1  Embrace", "2  Greeting", "3  Shirt off"]
 	var folder := DirAccess.open("user://clips")
 	if folder:
 		folder.list_dir_begin()
@@ -258,7 +259,12 @@ func _close_list() -> void:
 	npc.set_mode_frozen(false)
 
 func _pick(clip_name: String) -> void:
-	_clip = _clips.get(clip_name, _clips["embrace"])
+	if clip_name == "shirtoff":
+		_clip = _clips["embrace"]
+		_bare = true
+	else:
+		_clip = _clips.get(clip_name, _clips["embrace"])
+		_bare = false
 	_list_open = false
 	list_panel.visible = false
 	if str(_clip.get("name", "")) == "greeting":
@@ -288,8 +294,14 @@ func _begin_contact() -> void:
 	_playing = true
 	_clock = 0.0
 	_reach_played = false
+	if _bare and npc.has_method("set_palette"):
+		var current := str(npc.get("palette"))
+		_saved_palette = current
+		npc.set_palette("woman_rose_bare" if current == "woman_rose" else "woman_dark_bare")
 	npc.begin_clip()
 	player.begin_clip()
+	if reach:
+		reach.play()
 	_apply_clock(0.0)
 
 func _apply_clock(time_sec: float) -> void:
@@ -301,6 +313,9 @@ func _finish_clip() -> void:
 	_cooldown = COOLDOWN
 	player.end_clip()
 	npc.end_clip()
+	if _bare and npc.has_method("set_palette"):
+		npc.set_palette(_saved_palette)
+		_bare = false
 	prompt.visible = false
 
 func _set_hint() -> void:

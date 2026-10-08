@@ -227,8 +227,10 @@ func _lowers() -> Array:
 	return LOWER_FEMALE if female else LOWER_MALE
 
 func _apply() -> void:
-	var arm_tex: Texture2D = load(_layer("arm"))
-	var leg_tex: Texture2D = load(_layer("leg"))
+	var arm_path := _layer("arm")
+	var leg_path := _layer("leg")
+	var arm_tex: Texture2D = load(arm_path) if arm_path != "" else null
+	var leg_tex: Texture2D = load(leg_path) if leg_path != "" else null
 	var pant_tex: Texture2D = load("res://assets/paperdoll/pant_leg.svg")
 	if body:
 		body.texture = load(_layer("body"))
@@ -238,15 +240,18 @@ func _apply() -> void:
 		eyes.visible = false
 	_set_hero_face(true)
 	if shirt:
-		shirt.texture = load(_layer("shirt"))
-		shirt.modulate = Color.WHITE
+		var shirt_path := _layer("shirt")
+		shirt.visible = shirt_path != ""
+		if shirt.visible:
+			shirt.texture = load(shirt_path)
+			shirt.modulate = Color.WHITE
 	if skirt:
 		skirt.visible = bool(_palette.get("has_skirt", false))
 		if skirt.visible:
 			skirt.texture = load(_layer("skirt"))
 			skirt.modulate = Color.WHITE
-	var shoe_tex: Texture2D = load(_layer("shoe"))
-	var sleeve_tex: Texture2D = load(_layer("sleeve"))
+	var shoe_path := _layer("shoe")
+	var shoe_tex: Texture2D = load(shoe_path) if shoe_path != "" else null
 	for pivot in [leg_l, leg_r]:
 		if pivot == null:
 			continue
@@ -280,16 +285,21 @@ func _apply() -> void:
 		_half(forearm, false)
 		pivot.get_node("Elbow").position = Vector2(0, mid)
 		var sleeve: Sprite2D = pivot.get_node("Sleeve")
-		sleeve.texture = sleeve_tex
-		sleeve.modulate = Color.WHITE
-		var sleeve_size := sleeve.texture.get_size()
-		sleeve.offset = Vector2(-sleeve_size.x * 0.5, 0)
+		var sleeve_path := _layer("sleeve")
+		sleeve.visible = sleeve_path != ""
+		if sleeve.visible:
+			sleeve.texture = load(sleeve_path)
+			sleeve.modulate = Color.WHITE
+			var sleeve_size := sleeve.texture.get_size()
+			sleeve.offset = Vector2(-sleeve_size.x * 0.5, 0)
 
 func _layer(part: String) -> String:
 	var views: Dictionary = _palette.get(part, {})
 	var view := "back" if _back else ("side" if _side else "front")
 	var path := str(views.get(view, views.get("front", "")))
-	return path if not path.is_empty() else "res://assets/paperdoll/front/body_m.svg"
+	if path == "none" or path.is_empty():
+		return ""
+	return path
 
 func _female_cloth(kind: String) -> String:
 	var rose := shirt_i == 1
@@ -310,6 +320,9 @@ func _set_hero_face(smile: bool) -> void:
 	if face == null:
 		return
 	if _palette.is_empty():
+		return
+	if not female and (_side or _back):
+		face.visible = false
 		return
 	if female and _side:
 		face.texture = load(_layer("face") if _palette.get("face", {}).get("side", "") == "" else str(_palette["face"]["side"]))

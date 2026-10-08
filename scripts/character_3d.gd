@@ -57,6 +57,11 @@ func _bind_viewport() -> void:
 
 var _preview_on := false
 
+func set_palette(name: String) -> void:
+	palette = name
+	if paperdoll and paperdoll.has_method("set_palette"):
+		paperdoll.set_palette(name)
+
 func set_preview(show: bool) -> void:
 	if not is_player:
 		return
@@ -64,6 +69,8 @@ func set_preview(show: bool) -> void:
 	var layer := 1 if show else 2
 	sprite.layers = layer
 	face_billboard.layers = layer
+
+func set_schedule(points: Array) -> void:
 	_schedule.clear()
 	for point in points:
 		_schedule.append(point)
@@ -239,7 +246,7 @@ func _player_near() -> bool:
 	var other: Vector3 = players[0].global_position
 	flat.y = 0.0
 	other.y = 0.0
-	return flat.distance_to(other) <= 2.0
+	return flat.distance_to(other) <= 1.2
 
 func _face(point: Vector3) -> void:
 	var flat := point - global_position
