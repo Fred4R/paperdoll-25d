@@ -1,41 +1,37 @@
-# Next build plan
+# Fix plan
 
-Compared 2026-10-07. GitHub `Fred4R/paperdoll-25d` main (`aaa78cc`) versus this folder, against Godot 4.3 docs.
+Order is the order Godot can run. Do not retune clocks or redraw the female nude pictures in this pass.
 
-## What GitHub actually is
+## 1. Skeleton call
 
-A Godot 4.3 Forward Plus prototype. No interaction director, no clip JSON, no schedule markers.
+`scripts/arm_ik.gd` calls `stack.execute`. Godot runs a `Skeleton2D` stack through `execute_modifications(delta, mode)`.
 
-- `CharacterBody3D` + capsule
-- `SubViewport` (2D only, transparent) draws `paperdoll.tscn`
-- `Sprite3D` with `billboard = 2` (Y-billboard) shows `ViewportTexture`
-- Player head `Camera3D`; own sprite on layer 2, culled from that camera
-- Walk is procedural in `paperdoll.gd`
-- SVG layers under `assets/paperdoll/`, including side files: `body_side_*`, `eyes_side`, `hair_side_*`, `shirt_side`, `skirt_side`
+Edit the solver so the `Skeleton2D` owns that call. Keep the `Bone2D` chain. The drawn pivots may keep copying rotations until a later scene edit turns `ArmL` and `Elbow` into `Bone2D` nodes in `paperdoll.tscn`.
 
-Local folder has the slice those commits do not: `scripts/interaction.gd`, `scripts/clip_library.gd`, `data/clips/embrace.json`, `SLICE.md`. Local also still has leftover PNGs. Do not treat GitHub as the interaction source of truth until we push.
+## 2. Record in use
 
-## What the docs say to keep
+`CharacterRecord` exists and the wardrobe ignores it. `SaveStore` should load and save `CharacterRecord` fields: id, name, palette, nude, and slot overrides.
 
-- SubViewport does not draw by itself. Display it with `Viewport.get_texture()` on the Sprite3D. ViewportTexture is local to the scene and wrong if read before the root is ready. `call_deferred` bind is the documented fix. https://docs.godotengine.org/en/4.3/classes/class_viewporttexture.html
-- `disable_3d` and `transparent_bg` are correct for a 2D paperdoll. Update mode must stay Always while limbs move. Once/When Visible is only for static targets. https://docs.godotengine.org/en/4.3/tutorials/rendering/viewports.html
-- Y-billboard (`billboard = 2`) is the right character mode. Full billboard tilts with pitch. The sprite still always faces the camera, so facing is an art swap plus `flip_h`, not a 3D look-at.
-- One SubViewport per character. That is the cost of live paperdolls. Do not share one viewport across NPCs.
+Tab and F5 read that record. A mass edit still skips an overridden slot. The dictionary in `interaction.gd` becomes a cache of those resources, not the source.
 
-## What not to switch to
+## 3. HUD signals
 
-Godot AnimationPlayer is the official node animator. It is the wrong store for this game. Clips must be pivot-curve JSON so a later in-game editor can write `user://clips` without the Godot editor. The sampler already plays both roles from one clock. Do not add a second animation system.
+`scenes/hud.tscn` is instanced. `hud.gd` already has `closed`, and nothing connects it.
 
-CharacterBody3D and `move_and_slide` stay. The 0.25 m slot is inside both capsules (radius 0.28), so character-character collision has to be off during approach and contact. That is a body constraint, not a billboard one.
+The director sends the clip list, the wardrobe lines, or the timeline text. The panel shows and hides itself. Esc emits `closed`. `interaction.gd` stops writing label text except the string it hands over.
 
-## Order
+## 4. Yard props
 
-1. Facing sets. Wire the side SVGs already on GitHub. First person and the embrace use the front set, because the billboard faces the lens. Walk uses the side set when the camera is beside her. `flip_h` only mirrors. This is the gap that makes the embrace read wrong.
-2. Keep the director as specified: E list, freeze, she walks to 0.25 m, Esc only before contact, 4 s embrace, 5 s cooldown, window then chair.
-3. Playtest the built-in JSON on the front set. Tune keys. No editor UI yet.
-4. Editor milestone: same schema, both roles, preview toggle for the hidden player doll, save `user://clips/*.json`.
-5. Push to `main` only after the facing swap and the slice play in Godot.
+The split dropped the pillars and crates. Add them back on `scenes/yard.tscn`, not on `main.tscn`. Same wood and stone materials. Positions stay the old path-side spots.
 
-## Out until those land
+## 5. Hold shows the player doll
 
-More NPCs, dialogue, day/night, multiplayer, 3D meshes, AnimationPlayer clips.
+For the 4 second hold only, the player billboard moves to the visible layer, then returns to the first-person cull. Tab still cannot edit the player. The mirror already shows the nearest doll within 1.2 m. Leave that.
+
+## 6. Face blend
+
+The face still cuts at 0.5. Add a second face sprite and crossfade modulate over 0.5 s, starting with the clip. Do not replace the textures with new art.
+
+## 7. Left for later
+
+Chest and groin as separate slots. `AnimationPlayer` in place of the 0.4 s ease. Female nude art. Those wait until this plan has been played.
