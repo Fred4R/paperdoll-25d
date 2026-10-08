@@ -14,10 +14,8 @@ const TAP_ARRIVE := 0.25
 const TAP_SLOP := 16.0
 const REACH_AT := 0.7
 ## The woman (NPC1) is a neighbor who comes over to draw the north yard gate from the window.
-const WOMAN_NAME := "Woman"
-const FRIEND_NAME := "Friend"
-## A name an earlier build wrote into saves; it is replaced by the name Fred set.
-const OLD_NAME := "Ines"
+## The women have no names yet. Names an earlier build wrote into saves are cleared back to the node id.
+const CLEARED_NAMES := ["Ines", "Woman", "Friend"]
 const SIT_LINES := [
 	["I come over for this window. It's the only one that sees the yard gate straight on.", "What are you drawing?", "Why the gate?"],
 	["The gate. My grandfather hung it. It sticks every winter and nobody else remembers why.", "Tell me.", "Can I see?"],
@@ -29,7 +27,6 @@ const SIT_WALK_MAX := 8.0
 @onready var player: CharacterBody3D = $"../Player"
 @onready var npc: CharacterBody3D = $"../NPC1"
 @onready var npc2: CharacterBody3D = $"../NPC2"
-@onready var npc3: CharacterBody3D = $"../NPC3"
 @onready var path_a: Marker3D = $"../PathA"
 @onready var path_b: Marker3D = $"../PathB"
 @onready var window_mark: Marker3D = $"../Window"
@@ -82,10 +79,7 @@ func _ready() -> void:
 	_clip = _clips["embrace"]
 	list_panel.visible = false
 	prompt.visible = false
-	_women = [npc, npc2, npc3]
-	if npc3 and npc3.has_method("set_schedule"):
-		npc3.set_schedule([path_a.global_position, path_b.global_position])
-		npc3.set_hair_tint(Color(0.72, 0.42, 0.28))
+	_women = [npc, npc2]
 	if npc and npc.has_method("set_schedule"):
 		npc.set_schedule([window_mark.global_position, chair_mark.global_position])
 	if npc2 and npc2.has_method("set_schedule"):
@@ -471,24 +465,20 @@ func _flat_distance() -> float:
 func _refresh_prompt() -> void:
 	var show := _can_open()
 	if show:
-		var record := SaveStore.record_for(npc.name)
-		prompt.text = "%s\nE  Embrace, Greeting" % record.display_name
+		prompt.text = "E  Hug, Greeting"
 		prompt.modulate.a = 1.0
 		prompt.visible = true
 	else:
 		prompt.modulate.a = maxf(0.0, prompt.modulate.a - 0.05)
 		prompt.visible = prompt.modulate.a > 0.05
 
-## Sheet rows: Embrace, Greeting, Sit with the woman (her list only), each paired save in user://clips, then Close.
+## List rows: Hug, Greeting, each paired save in user://clips, then Close.
 ## Hand hold stays loaded for the editor but is not a sheet row.
 func _open_list() -> void:
 	_list_open = true
 	prompt.visible = false
 	_list_ids = ["embrace", "greeting"]
-	var lines := ["1  Embrace", "2  Greeting"]
-	if npc == woman_npc:
-		_list_ids.append("sit_with_woman")
-		lines.append("%d  Sit with %s" % [_list_ids.size(), _npc1_name()])
+	var lines := ["1  Hug", "2  Greeting"]
 	var folder := DirAccess.open("user://clips")
 	if folder:
 		folder.list_dir_begin()
@@ -506,8 +496,7 @@ func _open_list() -> void:
 			file_name = folder.get_next()
 		folder.list_dir_end()
 	lines.append("Close")
-	var record := SaveStore.record_for(npc.name)
-	$"../HUD".show_choices(PackedStringArray(lines), record.display_name)
+	$"../HUD".show_choices(PackedStringArray(lines), "")
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	player.set_mode_frozen(true)
 	npc.set_mode_frozen(true)
@@ -524,12 +513,9 @@ func _pick(clip_name: String) -> void:
 	if clip_name == "sit_with_woman":
 		_start_scene()
 		return
-	if clip_name == "shirtoff":
-		_clip = _clips["embrace"]
-		_bare = true
-	else:
-		_clip = _clips.get(clip_name, _clips["embrace"])
-		_bare = false
+	## Shirt and skirt stay on for the hug.
+	_clip = _clips.get(clip_name, _clips["embrace"])
+	_bare = false
 	_list_open = false
 	$"../HUD".hide_panel()
 	if str(_clip.get("name", "")) == "greeting":
@@ -787,19 +773,17 @@ func _set_hint() -> void:
 	if npc and npc.paperdoll and npc.paperdoll.get("_quarter"):
 		hint.text += "    Front fallback"
 
-## The woman and her friend keep their paperdolls and clothes; only the shown names are set, unless renamed in the wardrobe.
-## A saved sketch_given hangs the sketch and keeps her schedule at the chair.
+## The women keep their paperdolls and clothes. The gate sketch stays hidden in this first part.
 func _woman_ready() -> void:
 	if woman_npc == null:
 		return
 	var record := SaveStore.record_for(woman_npc.name)
-	if record.display_name == record.id or record.display_name == OLD_NAME:
-		record.display_name = WOMAN_NAME
-	if npc2:
-		var friend_record := SaveStore.record_for(npc2.name)
-		if friend_record.display_name == friend_record.id:
-			friend_record.display_name = FRIEND_NAME
-	_apply_sketch(record.sketch_given)
+	for body in [woman_npc, npc2]:
+		if body:
+			var body_record := SaveStore.record_for(body.name)
+			if CLEARED_NAMES.has(body_record.display_name):
+				body_record.display_name = body_record.id
+	_apply_sketch(false)
 
 ## Godot 4.3 headless (dummy renderer) logs "Parameter m is null" when a mesh instance is freed
 ## still holding its mesh; dropping the sketch mesh as the scene exits keeps that log clean.

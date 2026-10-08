@@ -116,12 +116,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.0, 0.1, 2.2)
 [node name="PathB" type="Marker3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0.1, -2)
 
-[node name="NPC3" parent="." instance=ExtResource("1_char")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.5, 0.1, 2)
-is_player = false
-palette = "woman_dark"
-move_speed = 1.1
-
 [node name="PathA" type="Marker3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 0.1, 4)
 
