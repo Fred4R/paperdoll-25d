@@ -379,6 +379,8 @@ func _lowers() -> Array:
 	return LOWER_FEMALE if female else LOWER_MALE
 
 func _apply() -> void:
+	if _palette.is_empty():
+		return
 	var arm_path := _layer("arm")
 	var leg_path := _layer("leg")
 	var arm_tex: Texture2D = load(arm_path) if arm_path != "" else null
