@@ -143,13 +143,20 @@ func _physics_process(delta: float) -> void:
 	velocity.z = input_dir.z * move_speed
 	move_and_slide()
 
-	if not is_player and _mode != Mode.CLIP and input_dir.length_squared() > 0.002:
+	if not is_player and _mode != Mode.CLIP:
 		var cam := get_viewport().get_camera_3d()
 		if cam:
 			var to_cam := cam.global_position - global_position
 			to_cam.y = 0.0
-			var side := input_dir.cross(Vector3.UP).dot(to_cam)
-			sprite.flip_h = side < 0.0
+			if input_dir.length_squared() > 0.002:
+				var side := input_dir.cross(Vector3.UP).dot(to_cam)
+				sprite.flip_h = side < 0.0
+			if paperdoll and paperdoll.has_method("set_side_view") and to_cam.length_squared() > 0.01:
+				var forward := -global_transform.basis.z
+				forward.y = 0.0
+				if forward.length_squared() > 0.0001:
+					var facing := absf(forward.normalized().dot(to_cam.normalized()))
+					paperdoll.set_side_view(facing < 0.5)
 
 	_bob(delta, input_dir.length() > 0.05 and _mode != Mode.CLIP)
 	if paperdoll and paperdoll.has_method("drive") and _mode != Mode.CLIP:
