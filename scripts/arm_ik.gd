@@ -1,24 +1,33 @@
 extends Node2D
-## Two-bone IK on Bone2D. The paperdoll sprites copy these rotations.
+## Official two-bone IK. Godot 4 SkeletonModificationStack2D executes the solve.
 
-var upper_l: Bone2D
-var lower_l: Bone2D
-var upper_r: Bone2D
-var lower_r: Bone2D
 var target_l := Vector2(-16, 70)
 var target_r := Vector2(144, 70)
 var use_ik := false
 var mark_l: Polygon2D
 var mark_r: Polygon2D
+var _stack: SkeletonModificationStack2D
+var _upper_l: Bone2D
+var _lower_l: Bone2D
+var _upper_r: Bone2D
+var _lower_r: Bone2D
 
 func _ready() -> void:
 	var skeleton := Skeleton2D.new()
 	skeleton.name = "ArmSkeleton"
 	add_child(skeleton)
-	upper_l = _bone(skeleton, "UpperL", Vector2(42, 64))
-	lower_l = _bone(upper_l, "LowerL", Vector2(0, 31))
-	upper_r = _bone(skeleton, "UpperR", Vector2(86, 64))
-	lower_r = _bone(upper_r, "LowerR", Vector2(0, 31))
+	_upper_l = _bone(skeleton, "UpperL", Vector2(42, 64))
+	_lower_l = _bone(_upper_l, "LowerL", Vector2(0, 31))
+	_upper_r = _bone(skeleton, "UpperR", Vector2(86, 64))
+	_lower_r = _bone(_upper_r, "LowerR", Vector2(0, 31))
+	var aim_l := _aim(skeleton, "AimL", target_l)
+	var aim_r := _aim(skeleton, "AimR", target_r)
+	_stack = SkeletonModificationStack2D.new()
+	skeleton.set_modification_stack(_stack)
+	_stack.add_modification(_ik(_upper_l, _lower_l, aim_l))
+	_stack.add_modification(_ik(_upper_r, _lower_r, aim_r))
+	_stack.enable_all_modifications(true)
+	_stack.setup()
 	mark_l = _mark()
 	mark_r = _mark()
 	add_child(mark_l)
@@ -29,9 +38,23 @@ func _bone(parent: Node, bone_name: String, rest: Vector2) -> Bone2D:
 	var bone := Bone2D.new()
 	bone.name = bone_name
 	bone.position = rest
-	bone.rest = Transform2D(0, rest)
+	bone.rest = Transform2D(0.0, rest)
 	parent.add_child(bone)
 	return bone
+
+func _aim(parent: Node, aim_name: String, point: Vector2) -> Node2D:
+	var aim := Marker2D.new()
+	aim.name = aim_name
+	aim.position = point
+	parent.add_child(aim)
+	return aim
+
+func _ik(upper: Bone2D, lower: Bone2D, aim: Node2D) -> SkeletonModification2DTwoBoneIK:
+	var ik := SkeletonModification2DTwoBoneIK.new()
+	ik.set_joint_one_bone2d_node(upper.get_path())
+	ik.set_joint_two_bone2d_node(lower.get_path())
+	ik.target_nodepath = aim.get_path()
+	return ik
 
 func _mark() -> Polygon2D:
 	var mark := Polygon2D.new()
@@ -43,6 +66,12 @@ func _mark() -> Polygon2D:
 func set_targets(left: Vector2, right: Vector2) -> void:
 	target_l = left
 	target_r = right
+	var aim_l := get_node_or_null("ArmSkeleton/AimL") as Node2D
+	var aim_r := get_node_or_null("ArmSkeleton/AimR") as Node2D
+	if aim_l:
+		aim_l.position = left
+	if aim_r:
+		aim_r.position = right
 	_place_marks()
 
 func set_ik(enabled: bool) -> void:
@@ -54,39 +83,22 @@ func set_marks(show: bool) -> void:
 	_place_marks()
 
 func _place_marks() -> void:
-	mark_l.position = target_l
-	mark_r.position = target_r
+	if mark_l:
+		mark_l.position = target_l
+	if mark_r:
+		mark_r.position = target_r
 
-func solve() -> void:
-	if not use_ik:
+func solve(delta: float) -> void:
+	if _stack == null or not use_ik:
 		return
-	_solve(upper_l, lower_l, target_l, true)
-	_solve(upper_r, lower_r, target_r, false)
-
-func _solve(upper: Bone2D, lower: Bone2D, target: Vector2, left: bool) -> void:
-	var shoulder: Vector2 = upper.position
-	var to_target := target - shoulder
-	var reach := to_target.length()
-	var len_a := 31.0
-	var len_b := 31.0
-	reach = clampf(reach, 4.0, len_a + len_b - 1.0)
-	var cos_elbow := clampf((len_a * len_a + len_b * len_b - reach * reach) / (2.0 * len_a * len_b), -1.0, 1.0)
-	var elbow := PI - acos(cos_elbow)
-	if left:
-		elbow = -elbow
-	var cos_shoulder := clampf((len_a * len_a + reach * reach - len_b * len_b) / (2.0 * len_a * reach), -1.0, 1.0)
-	var shoulder_offset := acos(cos_shoulder)
-	if not left:
-		shoulder_offset = -shoulder_offset
-	upper.rotation = to_target.angle() + shoulder_offset - PI * 0.5
-	lower.rotation = elbow
+	_stack.execute(delta, 0)
 
 func copy_to(arm_l: Node2D, elbow_l: Node2D, arm_r: Node2D, elbow_r: Node2D) -> void:
-	if arm_l:
-		arm_l.rotation = upper_l.rotation
-	if elbow_l:
-		elbow_l.rotation = lower_l.rotation
-	if arm_r:
-		arm_r.rotation = upper_r.rotation
-	if elbow_r:
-		elbow_r.rotation = lower_r.rotation
+	if arm_l and _upper_l:
+		arm_l.rotation = _upper_l.rotation
+	if elbow_l and _lower_l:
+		elbow_l.rotation = _lower_l.rotation
+	if arm_r and _upper_r:
+		arm_r.rotation = _upper_r.rotation
+	if elbow_r and _lower_r:
+		elbow_r.rotation = _lower_r.rotation

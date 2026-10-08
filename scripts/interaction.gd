@@ -11,7 +11,9 @@ const ARRIVE := 0.12
 
 @onready var player: CharacterBody3D = $"../Player"
 @onready var npc: CharacterBody3D = $"../NPC1"
-@onready var npc2: CharacterBody3D = $"../NPC2"
+@onready var npc3: CharacterBody3D = $"../NPC3"
+@onready var path_a: Marker3D = $"../PathA"
+@onready var path_b: Marker3D = $"../PathB"
 @onready var window_mark: Marker3D = $"../Window"
 @onready var chair_mark: Marker3D = $"../Chair"
 @onready var gate_mark: Marker3D = $"../Gate"
@@ -46,7 +48,10 @@ func _ready() -> void:
 	_clip = _clips["embrace"]
 	list_panel.visible = false
 	prompt.visible = false
-	_women = [npc, npc2]
+	_women = [npc, npc2, npc3]
+	if npc3 and npc3.has_method("set_schedule"):
+		npc3.set_schedule([path_a.global_position, path_b.global_position])
+		npc3.set_hair_tint(Color(0.72, 0.42, 0.28))
 	if npc and npc.has_method("set_schedule"):
 		npc.set_schedule([window_mark.global_position, chair_mark.global_position])
 	if npc2 and npc2.has_method("set_schedule"):
@@ -327,6 +332,9 @@ func _begin_contact() -> void:
 		npc.set_palette("woman_rose_bare" if current == "woman_rose" else "woman_dark_bare")
 	npc.begin_clip()
 	player.begin_clip()
+	if not _side_view():
+		player.begin_ease()
+		npc.begin_ease()
 	if reach:
 		reach.play()
 	_apply_clock(0.0)
@@ -343,11 +351,17 @@ func _apply_clock(time_sec: float) -> void:
 	player.apply_clip_pose(ClipLibrary.sample(_clip, "player", time_sec))
 	npc.apply_clip_pose(ClipLibrary.sample(_clip, "npc", time_sec))
 
+func _side_view() -> bool:
+	return npc.paperdoll != null and (npc.paperdoll._side or npc.paperdoll._back)
+
 func _finish_clip() -> void:
 	_playing = false
 	_cooldown = COOLDOWN
 	player.end_clip()
 	npc.end_clip()
+	if not _side_view():
+		player.begin_ease()
+		npc.begin_ease()
 	if _bare and npc.has_method("set_palette"):
 		npc.set_palette(_saved_palette)
 		_bare = false

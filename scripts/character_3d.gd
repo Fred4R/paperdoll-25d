@@ -39,6 +39,7 @@ func _ready() -> void:
 		paperdoll.set_palette(palette)
 	elif paperdoll and paperdoll.has_method("set_look"):
 		paperdoll.set_look(hair_style, shirt_style, pants_style, female)
+	add_to_group("doll")
 	if is_player:
 		add_to_group("player")
 		sprite.layers = 2
@@ -147,6 +148,14 @@ func set_ik_enabled(enabled: bool) -> void:
 func set_face_blend(amount: float) -> void:
 	if paperdoll and paperdoll.has_method("set_face_blend"):
 		paperdoll.set_face_blend(amount)
+
+func begin_ease() -> void:
+	if paperdoll and paperdoll.has_method("begin_ease"):
+		paperdoll.begin_ease()
+
+func set_hair_tint(tint: Color) -> void:
+	if paperdoll and paperdoll.has_method("set_hair_tint"):
+		paperdoll.set_hair_tint(tint)
 
 func apply_clip_pose(pose: Dictionary) -> void:
 	if paperdoll and paperdoll.has_method("apply_pose"):

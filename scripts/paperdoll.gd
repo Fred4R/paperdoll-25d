@@ -78,6 +78,9 @@ var _back := false
 var hair_pivot: Node2D
 var _ik: Node2D
 var _face_smile := 0.0
+var _ease := 1.0
+var _ease_from: Dictionary = {}
+var hair_tint := Color.WHITE
 
 const PIVOT_NODES := {
 	"arm_l": "ArmL",
@@ -219,12 +222,36 @@ func set_face_blend(smile: float) -> void:
 	_face_smile = clampf(smile, 0.0, 1.0)
 	_set_hero_face(_face_smile >= 0.5)
 
-func _process(_delta: float) -> void:
+func begin_ease() -> void:
+	_ease = 0.0
+	_ease_from = {
+		"arm_l": arm_l.rotation if arm_l else 0.0,
+		"arm_r": arm_r.rotation if arm_r else 0.0,
+		"elbow_l": elbow_l.rotation if elbow_l else 0.0,
+		"elbow_r": elbow_r.rotation if elbow_r else 0.0,
+	}
+
+func set_hair_tint(tint: Color) -> void:
+	hair_tint = tint
+	if hair:
+		hair.modulate = tint
+
+func _process(delta: float) -> void:
 	if _ik == null:
 		return
-	_ik.solve()
+	_ik.solve(delta)
 	if _ik.use_ik:
 		_ik.copy_to(arm_l, elbow_l, arm_r, elbow_r)
+	if _ease < 1.0:
+		_ease = minf(1.0, _ease + delta / 0.25)
+		_blend_from(_ease)
+
+func _blend_from(weight: float) -> void:
+	for pivot_name in _ease_from.keys():
+		var path: String = PIVOT_NODES.get(pivot_name, "")
+		var pivot := get_node_or_null(path) as Node2D
+		if pivot:
+			pivot.rotation = lerpf(float(_ease_from[pivot_name]), pivot.rotation, weight)
 
 func set_view(view: String) -> void:
 	var side := view == "side"
@@ -279,6 +306,7 @@ func _apply() -> void:
 		body.texture = load(_layer("body"))
 	if hair:
 		hair.texture = load(_layer("hair"))
+		hair.modulate = hair_tint
 	if eyes:
 		eyes.visible = false
 	_set_hero_face(true)
