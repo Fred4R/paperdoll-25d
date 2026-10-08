@@ -57,7 +57,25 @@ static func spawn_point(occupied: Array, origin: Vector3, step: float) -> Vector
 				break
 	return point
 
-static func view_from_dot(facing: float) -> String:
+static func heading(forward: Vector3, to_camera: Vector3) -> float:
+	var flat_forward := forward
+	var flat_camera := to_camera
+	flat_forward.y = 0.0
+	flat_camera.y = 0.0
+	if flat_forward.length_squared() < 0.0001 or flat_camera.length_squared() < 0.0001:
+		return 0.0
+	return flat_forward.signed_angle_to(flat_camera, Vector3.UP)
+
+static func view_slice(angle: float) -> int:
+	var turns := fposmod(angle + PI / 8.0, TAU) / TAU
+	return int(turns * 8.0) % 8
+
+static func slice_view(slice: int) -> String:
+	if slice == 0 or slice == 7 or slice == 1:
+		return "front"
+	if slice == 4 or slice == 3 or slice == 5:
+		return "back"
+	return "side"
 	if facing < 0.0:
 		return "back"
 	if facing < SIDE_DOT:
