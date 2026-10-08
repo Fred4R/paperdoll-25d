@@ -113,6 +113,7 @@ func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("interact") and _near_crate():
 		_sit = not _sit
 		player.head.position.y = 1.15 if _sit else 1.55
+		player.set_seated(_sit)
 		get_viewport().set_input_as_handled()
 		return
 	if event.is_action_pressed("interact") and _can_open():
@@ -157,7 +158,10 @@ func _step(delta: float) -> void:
 	if _step_t > 0.0:
 		return
 	_step_t = 0.45
-	var on_path := absf(player.global_position.x) < 2.0
+	var on_path := false
+	var path := get_parent().get_node_or_null("Yard/PathArea") as Area3D
+	if path:
+		on_path = path.overlaps_body(player)
 	if reach:
 		reach.pitch_scale = 1.3 if on_path else 0.7
 		reach.play()
@@ -464,6 +468,8 @@ func _close_wardrobe() -> void:
 	player.set_mode_frozen(false)
 	npc.set_mode_frozen(false)
 	_save_records()
+	if npc:
+		SaveStore.save_one(SaveStore.record_for(npc.name))
 
 func _show_wardrobe() -> void:
 	var record := SaveStore.record_for(npc.name)

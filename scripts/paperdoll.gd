@@ -338,7 +338,15 @@ func _swing_hair(angle: float, blend: float) -> void:
 	if hair_pivot:
 		hair_pivot.rotation = lerpf(hair_pivot.rotation, angle, blend)
 
-func set_clip_locked(locked: bool) -> void:
+func set_seated(seated: bool) -> void:
+	if leg_l:
+		leg_l.rotation = 1.2 if seated else 0.0
+	if leg_r:
+		leg_r.rotation = -1.2 if seated else 0.0
+	if knee_l:
+		knee_l.rotation = -1.4 if seated else 0.0
+	if knee_r:
+		knee_r.rotation = 1.4 if seated else 0.0
 	_clip_locked = locked
 	if not locked and female:
 		_set_hero_face(true)

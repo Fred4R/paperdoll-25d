@@ -161,7 +161,9 @@ func set_slots(show_chest: bool, show_groin: bool) -> void:
 	if paperdoll and paperdoll.has_method("set_slots"):
 		paperdoll.set_slots(show_chest, show_groin)
 
-func set_nude(show: bool) -> void:
+func set_seated(seated: bool) -> void:
+	if paperdoll and paperdoll.has_method("set_seated"):
+		paperdoll.set_seated(seated)
 	if paperdoll and paperdoll.has_method("set_nude"):
 		paperdoll.set_nude(show)
 
