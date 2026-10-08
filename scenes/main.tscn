@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3 uid="uid://bmain25d01"]
+[gd_scene load_steps=19 format=3 uid="uid://bmain25d01"]
 
 [ext_resource type="PackedScene" path="res://scenes/character_3d.tscn" id="1_char"]
 [ext_resource type="Script" path="res://scripts/interaction.gd" id="2_interact"]
@@ -7,6 +7,7 @@
 [ext_resource type="PackedScene" path="res://scenes/hud.tscn" id="5_hud"]
 [ext_resource type="PackedScene" path="res://scenes/yard.tscn" id="6_yard"]
 [ext_resource type="Texture2D" path="res://assets/scenes/ines_gate_sketch.svg" id="7_sketch"]
+[ext_resource type="Texture2D" path="res://assets/paperdoll/front/face_f_hero.svg" id="8_portrait"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_1"]
 sky_top_color = Color(0.45, 0.62, 0.85, 1)
@@ -50,6 +51,10 @@ material = SubResource("MatSketch")
 size = Vector2(0.512, 0.384)
 orientation = 0
 
+[sub_resource type="NavigationMesh" id="NavigationMesh_yard"]
+vertices = PackedVector3Array(-16, 0.05, -16, 16, 0.05, -16, 16, 0.05, 16, -16, 0.05, 16)
+polygons = [PackedInt32Array(0, 1, 2, 3)]
+
 [node name="Main" type="Node3D"]
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
@@ -61,6 +66,9 @@ shadow_enabled = true
 light_energy = 1.15
 
 [node name="Yard" parent="." instance=ExtResource("6_yard")]
+
+[node name="NavigationRegion3D" type="NavigationRegion3D" parent="."]
+navigation_mesh = SubResource("NavigationMesh_yard")
 
 [node name="WindowLight" type="OmniLight3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.2, 1.4, -4)
@@ -125,8 +133,10 @@ material = SubResource("MatWood")
 
 [node name="Portrait" type="Sprite3D" parent="Mirror"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 0.06)
-pixel_size = 0.01
+pixel_size = 0.004
 billboard = 0
+shaded = false
+texture = ExtResource("8_portrait")
 
 [node name="InesSketch" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.47, 1.45, -2.75)
