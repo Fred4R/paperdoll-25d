@@ -7,8 +7,8 @@ signal closed
 @onready var hint: Label = $Hint
 @onready var prompt: Label = $Prompt
 @onready var list_panel: PanelContainer = $List
-@onready var list_label: Label = $List/Label
-@onready var choices: ItemList = $List/Choices
+@onready var list_label: Label = $List/Rows/Label
+@onready var choices: ItemList = $List/Rows/Choices
 
 func _ready() -> void:
 	list_panel.visible = false

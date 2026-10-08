@@ -33,11 +33,15 @@ offset_top = 200.0
 offset_right = 360.0
 offset_bottom = 320.0
 
-[node name="Choices" type="ItemList" parent="List"]
-offset_right = 300.0
-offset_bottom = 220.0
-theme_override_font_sizes/font_size = 20
+[node name="Rows" type="VBoxContainer" parent="List"]
+layout_mode = 2
 
-[node name="Label" type="Label" parent="List"]
+[node name="Label" type="Label" parent="List/Rows"]
+layout_mode = 2
 theme_override_font_sizes/font_size = 20
 text = "1  Embrace"
+
+[node name="Choices" type="ItemList" parent="List/Rows"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+auto_height = true

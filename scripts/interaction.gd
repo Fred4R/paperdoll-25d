@@ -24,7 +24,7 @@ const ARRIVE := 0.12
 @onready var hint: Label = $"../HUD/Hint"
 @onready var prompt: Label = $"../HUD/Prompt"
 @onready var list_panel: PanelContainer = $"../HUD/List"
-@onready var list_label: Label = $"../HUD/List/Label"
+@onready var list_label: Label = $"../HUD/List/Rows/Label"
 
 var _clip: Dictionary = {}
 var _clips := {}
@@ -68,8 +68,19 @@ func _ready() -> void:
 	var hud := $"../HUD"
 	if hud.has_signal("closed"):
 		hud.closed.connect(_on_hud_closed)
+	if hud.has_signal("picked"):
+		hud.picked.connect(_on_hud_picked)
 	_set_hint()
 	_load_records()
+
+## A row on the HUD list, or number key 1-9. The last row is Close.
+func _on_hud_picked(index: int) -> void:
+	if not _list_open:
+		return
+	if index < _list_ids.size():
+		_pick(str(_list_ids[index]))
+	elif index == _list_ids.size():
+		$"../HUD".hide_panel()
 
 func _on_hud_closed() -> void:
 	if _wardrobe:
@@ -131,7 +142,7 @@ func _input(event: InputEvent) -> void:
 	if _list_open and event is InputEventKey and event.keycode >= KEY_1 and event.keycode <= KEY_9:
 		var index: int = event.keycode - KEY_1
 		if index < _list_ids.size():
-			_pick(str(_list_ids[index]))
+			_on_hud_picked(index)
 			get_viewport().set_input_as_handled()
 
 func _process(delta: float) -> void:
@@ -352,7 +363,6 @@ func _refresh_prompt() -> void:
 func _open_list() -> void:
 	_list_open = true
 	prompt.visible = false
-	list_panel.visible = true
 	_list_ids = ["embrace", "greeting", "handhold"]
 	var lines := ["1  Embrace", "2  Greeting", "3  Hand hold"]
 	var folder := DirAccess.open("user://clips")
@@ -372,7 +382,8 @@ func _open_list() -> void:
 			file_name = folder.get_next()
 		folder.list_dir_end()
 	lines.append("Esc  Close")
-	list_label.text = "\n".join(lines)
+	var record := SaveStore.record_for(npc.name)
+	$"../HUD".show_choices(PackedStringArray(lines), record.display_name)
 	player.set_mode_frozen(true)
 	npc.set_mode_frozen(true)
 
@@ -390,7 +401,7 @@ func _pick(clip_name: String) -> void:
 		_clip = _clips.get(clip_name, _clips["embrace"])
 		_bare = false
 	_list_open = false
-	list_panel.visible = false
+	$"../HUD".hide_panel()
 	if str(_clip.get("name", "")) == "greeting":
 		player.set_mode_frozen(false)
 		npc.set_mode_frozen(false)
