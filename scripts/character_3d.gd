@@ -249,7 +249,7 @@ func _npc_input(delta: float) -> Vector3:
 		if to_slot.length() <= 0.12:
 			_face(_face_point)
 			return Vector3.ZERO
-		return to_slot.normalized()
+		return DollMath.arrive(to_slot, 0.6)
 	return _schedule_input(delta)
 
 func _schedule_input(delta: float) -> Vector3:

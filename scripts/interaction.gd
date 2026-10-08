@@ -207,10 +207,15 @@ func _nudge_hand(delta: Vector2) -> void:
 
 func _apply_targets() -> void:
 	var targets: Dictionary = _clip.get("targets", {})
-	var left: Array = targets.get("hand_l", [-16, 70])
-	var right: Array = targets.get("hand_r", [144, 70])
-	var l := Vector2(float(left[0]), float(left[1]))
-	var r := Vector2(float(right[0]), float(right[1]))
+	var pair: Array = DollMath.frame_pair(Vector2(128, 192), 16.0)
+	var l: Vector2 = pair[0]
+	var r: Vector2 = pair[1]
+	if targets.has("hand_l"):
+		var left: Array = targets["hand_l"]
+		l = Vector2(float(left[0]), float(left[1]))
+	if targets.has("hand_r"):
+		var right: Array = targets["hand_r"]
+		r = Vector2(float(right[0]), float(right[1]))
 	player.set_hand_targets(l, r)
 	npc.set_hand_targets(l, r)
 

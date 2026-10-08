@@ -45,5 +45,6 @@ static func _sample_keys(keys: Array, time_sec: float) -> float:
 			var v1 := float(keys[i][1])
 			if t1 <= t0:
 				return v1
-			return lerpf(v0, v1, (time_sec - t0) / (t1 - t0))
+			var u := (time_sec - t0) / (t1 - t0)
+			return lerpf(v0, v1, DollMath.smoothstep(u))
 	return float(keys[keys.size() - 1][1])
