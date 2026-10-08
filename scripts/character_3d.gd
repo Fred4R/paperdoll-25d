@@ -51,7 +51,12 @@ func _bind_viewport() -> void:
 	sprite.texture = viewport.get_texture()
 	face_billboard.texture = face_viewport.get_texture()
 
-func set_schedule(points: Array) -> void:
+func set_preview(show: bool) -> void:
+	if not is_player:
+		return
+	var layer := 1 if show else 2
+	sprite.layers = layer
+	face_billboard.layers = layer
 	_schedule.clear()
 	for point in points:
 		_schedule.append(point)

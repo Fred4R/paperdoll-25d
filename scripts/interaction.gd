@@ -26,6 +26,9 @@ var _playing := false
 var _clock := 0.0
 var _cooldown := 0.0
 var _slot := Vector3.ZERO
+var _editing := false
+var _edit_time := 0.0
+var _preview := false
 
 func _ready() -> void:
 	_clips = {
@@ -43,12 +46,23 @@ func _input(event: InputEvent) -> void:
 	if not event.is_pressed() or event.is_echo():
 		return
 	if event.is_action_pressed("ui_cancel"):
-		if _list_open:
+		if _editing:
+			_close_editor()
+			get_viewport().set_input_as_handled()
+		elif _list_open:
 			_close_list()
 			get_viewport().set_input_as_handled()
 		elif _approaching:
 			_cancel_approach()
 			get_viewport().set_input_as_handled()
+		return
+	if event is InputEventKey and event.keycode == KEY_C and _can_edit():
+		_open_editor()
+		get_viewport().set_input_as_handled()
+		return
+	if _editing and event is InputEventKey:
+		_editor_key(event.keycode)
+		get_viewport().set_input_as_handled()
 		return
 	if event.is_action_pressed("interact") and _can_open():
 		_open_list()
@@ -64,12 +78,13 @@ func _input(event: InputEvent) -> void:
 func _process(delta: float) -> void:
 	if _cooldown > 0.0:
 		_cooldown = maxf(0.0, _cooldown - delta)
-	if _playing:
-		_clock += delta
-		var duration := float(_clip.get("duration", 4.0))
-		_apply_clock(minf(_clock, duration))
-		if _clock >= duration:
-			_finish_clip()
+	if _playing or _editing:
+		if _playing:
+			_clock += delta
+			var duration := float(_clip.get("duration", 4.0))
+			_apply_clock(minf(_clock, duration))
+			if _clock >= duration:
+				_finish_clip()
 		return
 	if _approaching:
 		if npc.has_method("approach_done") and npc.approach_done():
@@ -77,8 +92,53 @@ func _process(delta: float) -> void:
 		return
 	_refresh_prompt()
 
+func _can_edit() -> bool:
+	return not _list_open and not _approaching and not _playing and not _editing
+
+func _open_editor() -> void:
+	_editing = true
+	_edit_time = 0.0
+	_clip = _clips["embrace"]
+	player.set_mode_frozen(true)
+	npc.set_mode_frozen(true)
+	player.begin_clip()
+	npc.begin_clip()
+	_apply_edit()
+
+func _close_editor() -> void:
+	_editing = false
+	_preview = false
+	player.set_preview(false)
+	player.end_clip()
+	npc.end_clip()
+	list_panel.visible = false
+
+func _editor_key(code: int) -> void:
+	var duration := float(_clip.get("duration", 4.0))
+	if code == KEY_RIGHT:
+		_edit_time = minf(duration, _edit_time + 0.1)
+	elif code == KEY_LEFT:
+		_edit_time = maxf(0.0, _edit_time - 0.1)
+	elif code == KEY_1:
+		_clip = _clips["embrace"]
+		_edit_time = 0.0
+	elif code == KEY_2:
+		_clip = _clips["greeting"]
+		_edit_time = 0.0
+	elif code == KEY_V:
+		_preview = not _preview
+		player.set_preview(_preview)
+	_apply_edit()
+
+func _apply_edit() -> void:
+	_apply_clock(_edit_time)
+	list_panel.visible = true
+	list_label.text = "Editor  %s  %.1f s\nLeft Right  scrub\n1 Embrace  2 Greeting\nV  preview you: %s\nEsc  close\nNo save yet." % [
+		str(_clip.get("name", "clip")), _edit_time, "on" if _preview else "off"
+	]
+
 func _can_open() -> bool:
-	if _list_open or _approaching or _playing or _cooldown > 0.0:
+	if _list_open or _approaching or _playing or _editing or _cooldown > 0.0:
 		return false
 	if player == null or npc == null:
 		return false
