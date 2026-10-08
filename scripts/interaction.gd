@@ -1,5 +1,6 @@
 extends Node
 ## Director. List, freeze, she walks to you, one shared clock, both roles.
+## Esc and Close cancel only before contact. A started clip always plays out.
 
 const EMBRACE_PATH := "res://data/clips/embrace.json"
 const GREETING_PATH := "res://data/clips/greeting.json"
@@ -88,7 +89,9 @@ func _on_hud_picked(index: int) -> void:
 	elif index == _list_ids.size():
 		$"../HUD".hide_panel()
 
+## Every hide_panel lands here, including a pick. Hand the mouse back to look.
 func _on_hud_closed() -> void:
+	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	if _wardrobe:
 		_close_wardrobe()
 	elif _list_open:
@@ -113,9 +116,6 @@ func _input(event: InputEvent) -> void:
 			get_viewport().set_input_as_handled()
 		elif _approaching:
 			_cancel_approach()
-			get_viewport().set_input_as_handled()
-		elif _playing:
-			_finish_clip()
 			get_viewport().set_input_as_handled()
 		return
 	if event.is_action_pressed("wardrobe") and not _list_open and not _editing and not _playing:
@@ -200,6 +200,18 @@ func _capsule_radius(body: Node) -> float:
 		return (shape_node.shape as CapsuleShape3D).radius
 	return 0.0
 
+## Embrace walk-in stops when the two capsules touch (plus 5 cm), so she never shoves him back.
+func _at_contact() -> bool:
+	return _flat_distance() <= _tap_stop(npc)
+
+## Same heading formula as her slot turn, used when contact comes before the slot.
+func _face_player() -> void:
+	var flat := player.global_position - npc.global_position
+	flat.y = 0.0
+	if flat.length_squared() < 0.0001:
+		return
+	npc.rotation.y = atan2(flat.x, flat.z)
+
 func _on_walk_ended(arrived: bool) -> void:
 	var woman := _tap_woman
 	_tap_woman = null
@@ -220,7 +232,8 @@ func _process(delta: float) -> void:
 				_finish_clip()
 		return
 	if _approaching:
-		if npc.has_method("approach_done") and npc.approach_done():
+		if _at_contact() or (npc.has_method("approach_done") and npc.approach_done()):
+			_face_player()
 			_begin_contact()
 		return
 	_refresh_prompt()
@@ -425,11 +438,13 @@ func _refresh_prompt() -> void:
 		prompt.modulate.a = maxf(0.0, prompt.modulate.a - 0.05)
 		prompt.visible = prompt.modulate.a > 0.05
 
+## Sheet rows: Embrace, Greeting, each paired save in user://clips, then Close.
+## Hand hold stays loaded for the editor but is not a sheet row.
 func _open_list() -> void:
 	_list_open = true
 	prompt.visible = false
-	_list_ids = ["embrace", "greeting", "handhold"]
-	var lines := ["1  Embrace", "2  Greeting", "3  Hand hold"]
+	_list_ids = ["embrace", "greeting"]
+	var lines := ["1  Embrace", "2  Greeting"]
 	var folder := DirAccess.open("user://clips")
 	if folder:
 		folder.list_dir_begin()
@@ -446,9 +461,10 @@ func _open_list() -> void:
 				lines.append("%d  %s" % [_list_ids.size(), file_name.trim_suffix(".json")])
 			file_name = folder.get_next()
 		folder.list_dir_end()
-	lines.append("Esc  Close")
+	lines.append("Close")
 	var record := SaveStore.record_for(npc.name)
 	$"../HUD".show_choices(PackedStringArray(lines), record.display_name)
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	player.set_mode_frozen(true)
 	npc.set_mode_frozen(true)
 
@@ -458,6 +474,8 @@ func _close_list() -> void:
 	player.set_mode_frozen(false)
 	npc.set_mode_frozen(false)
 
+## Greeting (built-in or a save named greeting) plays where she stands.
+## Any other row walks her to the slot; the clip clock starts at contact.
 func _pick(clip_name: String) -> void:
 	if clip_name == "shirtoff":
 		_clip = _clips["embrace"]
