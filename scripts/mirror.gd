@@ -24,3 +24,7 @@ func _process(_delta: float) -> void:
 	var viewport := best.get_node_or_null("SubViewport") as SubViewport
 	if viewport:
 		portrait.texture = viewport.get_texture()
+	var forward := -best.global_transform.basis.z
+	var to_frame := global_position - best.global_position
+	var slice := DollMath.view_slice(DollMath.heading(forward, to_frame))
+	portrait.flip_h = slice > 4

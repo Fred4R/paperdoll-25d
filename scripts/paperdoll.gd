@@ -313,6 +313,9 @@ func _process(delta: float) -> void:
 		_ik.copy_to(arm_l, elbow_l, arm_r, elbow_r)
 	if ease_weight < 1.0:
 		_blend_from(ease_weight)
+	if _view_blend < 1.0:
+		_view_blend = minf(1.0, _view_blend + delta / 0.1)
+		modulate.a = lerpf(0.65, 1.0, _view_blend)
 
 func _blend_from(weight: float) -> void:
 	for pivot_name in _ease_from.keys():
