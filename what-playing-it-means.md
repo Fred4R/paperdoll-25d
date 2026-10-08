@@ -20,8 +20,6 @@ Note rename is `003e230`. Walk through the navigation agent is `e994256`. Eight 
 
 She walks to the window, the chair, and the north yard gate on the navigation agent. E opens the list. The hug walks her to 0.25 m. A saved animation walks her to 0.4 m. The greeting is a both-arm reach where she stands. First person. You see her picture.
 
-There is no grandfather sketch in the scene. Do not describe one.
-
 ## Done when
 
 He can pull `hud-nodes`, press F5, reach her, play the hug and the greeting, quit, open the game again, and the room is still there. Walking around her shows four drawings and four flips.

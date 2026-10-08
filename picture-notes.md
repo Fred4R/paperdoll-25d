@@ -30,4 +30,3 @@ Style already chosen: flat-color cut-out. Local color, even contour, rounded lim
 1. Front set for the first woman. Accepted.
 2. Side, back, and diagonal matched to that front.
 3. Hug clock tested on that set.
-4. Second woman only after the first hug reads, with her own pictures on the same paperdoll.

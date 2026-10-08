@@ -10,7 +10,6 @@ Match this list to what-the-game-does.md. The play copy is `hud-nodes`. `main` d
 - [x] First person. Your picture is hidden from your own camera
 - [x] Male and female picture sets: hair, shirt, pants
 - [x] Walk on limb pivots
-- [x] One woman, window, and chair
 - [x] Her day: wait, walk, interrupt, resume
 - [x] E opens the list. The room pauses. Looking still works
 - [x] She walks to 0.25 m in front of you for the hug
@@ -25,7 +24,6 @@ Match this list to what-the-game-does.md. The play copy is `hud-nodes`. `main` d
 
 - [ ] Side, back, and diagonal pictures matched to the approved front
 - [ ] The facing change uses those pictures from the camera angle
-- [ ] Second woman in the room, with her own pictures and a name that stays
 - [ ] Greeting as a both-arm reach where she stands
 - [ ] Saved animation walks her to 0.4 m, which is not the hug stop
 - [ ] Room is still there the next time the game opens
