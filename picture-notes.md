@@ -52,7 +52,7 @@ Production order before any wired layer:
 - Embrace may hide or swap cloth layers during the hold. Still an embrace.
 - Women do not share one body. Each has her own torso and arm shapes. Clips may need per-body keys.
 - New layers wait for a reference Fred describes or sends. Nothing is wired until he accepts the set.
-- Style is not locked. Flat vector, illustrated vector, or painted layers.
+- Style is not decided. Flat vector, illustrated vector, or painted layers.
 
 Planning only. No new layers until Fred says to build.
 

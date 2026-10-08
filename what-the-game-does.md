@@ -1,16 +1,16 @@
-# Paperdoll 2.5D — slice spec
+# Paperdoll 2.5D — what the first version does
 
 Living spec for the Godot 4 prototype in this folder. Code follows this file.
 
-## Pillars (locked 2026-10-07)
+## Rules (set 2026-10-07)
 
 1. Core loop is the interaction: approach, choose, play one synchronized animation.
 2. First milestone is one room, male player, one female NPC, one paired interaction.
 3. Every character is the same 2.5D paperdoll on a Y-billboard. No 3D character meshes.
-4. A synchronized animation is one shared sequence. Both roles lock to it.
+4. A synchronized animation is one shared sequence. Both roles follow it.
 5. The NPC keeps a living schedule. The player interrupts it. Multiplayer is out.
 
-## Locked slice
+## First version rules
 
 - Clip: **Embrace** and **Greeting**. Greeting is a 2 second wave. Embrace is the 4 second hold.
 - Camera: **first person stays**. Player billboard stays culled. You see her.
@@ -41,6 +41,6 @@ Keys are `[time_seconds, rotation_radians]` on `leg_l`, `leg_r`, `knee_l`, `knee
 
 - `scripts/clip_library.gd` loads and samples.
 - `scripts/interaction.gd` is the director on Main.
-- `scripts/paperdoll.gd` applies a pose and skips `drive()` while locked.
-- `scripts/character_3d.gd` schedule, approach, freeze, clip lock.
-- NPC2 is not in the slice scene.
+- `scripts/paperdoll.gd` applies a pose and skips `drive()` while a clip is playing.
+- `scripts/character_3d.gd` schedule, approach, freeze, clip hold.
+- NPC2 is not in the first version scene.

@@ -1,6 +1,6 @@
 # Build checklist
 
-Slice source of truth: SLICE.md. Order source: PLAN.md. GitHub main does not have the slice yet.
+Source of truth for the first version: what-the-game-does.md. Order source: fixes-to-make.md. GitHub main does not have the first version yet.
 
 ## Done
 
@@ -24,7 +24,7 @@ Slice source of truth: SLICE.md. Order source: PLAN.md. GitHub main does not hav
 - [x] Front cut-out pieces for the approved woman, worn by the female doll
 - [ ] Side and back matched to that front
 - [ ] Facing swap from the camera angle
-- [ ] Play the slice in Godot 4.3 and fix anything that does not match SLICE.md
+- [ ] Play the first version in Godot 4.3 and fix anything that does not match what-the-game-does.md
 - [ ] Tune embrace.json keys on the front set (reach, hold, release)
 - [ ] Confirm 0.25 m does not clip the camera near plane; back off only if it does
 
@@ -38,11 +38,11 @@ Slice source of truth: SLICE.md. Order source: PLAN.md. GitHub main does not hav
 
 ## Push
 
-- [x] Commit the slice and planning notes to Fred4R/paperdoll-25d main
+- [x] Commit the first version and planning notes to Fred4R/paperdoll-25d main
 - [ ] Do not push leftover PNGs
 - [ ] Facing swap is not in this commit
 
-## Not in this slice
+## Not in this first version
 
 - [ ] Second choosable NPC
 - [ ] Greeting or hand-hold clips

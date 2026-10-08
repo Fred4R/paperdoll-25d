@@ -14,7 +14,7 @@ Edit the solver so the `Skeleton2D` owns that call. Keep the `Bone2D` chain. The
 
 Tab and F5 read that record. A mass edit still skips an overridden slot. The dictionary in `interaction.gd` becomes a cache of those resources, not the source.
 
-## 3. HUD signals
+## 3. On-screen button signals
 
 `scenes/hud.tscn` is instanced. `hud.gd` already has `closed`, and nothing connects it.
 

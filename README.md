@@ -2,7 +2,7 @@
 
 A playable simulation: a 3D room, first person, a woman on a 2D paperdoll billboard, and clips that stay.
 
-Play `hud-nodes`. `main` does not load. Success is `SUCCESS.md`.
+Play `hud-nodes`. `main` does not load. Success is `what-playing-it-means.md`.
 
 ## Requirements
 
@@ -20,7 +20,7 @@ git pull
 2. Press F5. Main scene is `scenes/main.tscn`.
 3. Let Godot import the SVGs before playing.
 
-## Slice check
+## First version check
 
 Walk within 1.2 m of her. E opens the list. 1 is embrace. 2 is greeting. Saved clips in user://clips appear after those. Greeting plays where she stands. Embrace walks her to 0.4 m. Esc cancels only before an embrace walk-in arrives. The prompt stays hidden for 3 seconds.
 
