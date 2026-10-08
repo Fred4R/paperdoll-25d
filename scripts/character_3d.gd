@@ -44,6 +44,9 @@ var _walk_target := Vector3.ZERO
 var _walk_stop := 0.12
 var _walk_stuck := 0.0
 var _look_index := -1
+var _npc_stuck := 0.0
+var _approach_stuck := false
+var _blocked_wait := 0.0
 
 func _ready() -> void:
 	call_deferred("_bind_viewport")
@@ -107,6 +110,8 @@ func begin_approach(target: Vector3, face_point: Vector3) -> void:
 	_resume_spot = _spot
 	_approach_target = target
 	_face_point = face_point
+	_approach_stuck = false
+	_npc_stuck = 0.0
 	_mode = Mode.APPROACH
 	collision_mask = 1
 	_set_agent_target(target)
@@ -118,7 +123,12 @@ func approach_done() -> bool:
 	goal.y = 0.0
 	return flat.distance_to(goal) <= 0.12
 
+## True when a wall or furniture stopped her walk-in for WALK_STUCK_TIME; the director cancels it.
+func approach_stuck() -> bool:
+	return _approach_stuck
+
 func cancel_approach() -> void:
+	_approach_stuck = false
 	_mode = Mode.FREE
 	collision_mask = 3
 	_spot = _resume_spot
@@ -254,6 +264,8 @@ func _physics_process(delta: float) -> void:
 		if _walk_stuck > WALK_STUCK_TIME:
 			_walking = false
 			walk_ended.emit(false)
+	elif not is_player:
+		_track_stuck(before, input_dir, delta)
 
 	if not is_player and _mode != Mode.CLIP and input_dir.length_squared() > 0.002:
 		_turn_toward(input_dir, delta)
@@ -309,34 +321,57 @@ func _player_input() -> Vector3:
 		paperdoll.cycle_pants()
 	return input_dir
 
+## Arrival is measured to the goal itself; the path only steers, so a corner never counts as arriving.
 func _walk_step() -> Vector3:
-	var to_goal := _path_to(_walk_target)
-	if to_goal.length() <= _walk_stop:
+	if _flat_to(_walk_target).length() <= _walk_stop:
 		_walking = false
 		walk_ended.emit(true)
 		return Vector3.ZERO
-	return to_goal.normalized()
+	return _path_to(_walk_target).normalized()
 
 func _npc_input(delta: float) -> Vector3:
 	if _mode == Mode.FROZEN or _mode == Mode.CLIP:
 		return Vector3.ZERO
 	if _mode == Mode.APPROACH:
-		var to_slot := _path_to(_approach_target)
+		if _approach_stuck:
+			return Vector3.ZERO
+		var to_slot := _flat_to(_approach_target)
 		if to_slot.length() <= 0.12:
 			_face(_face_point)
 			return Vector3.ZERO
-		return _avoid(DollMath.arrive(to_slot, 0.6))
+		return _avoid(_steer(_approach_target, 0.6))
 	return _schedule_input(delta)
+
+## Her walks slide along walls like his tap path. Pressed against something for WALK_STUCK_TIME,
+## a walk-in reports stuck and a schedule leg stops, waits, and moves on to the next spot.
+func _track_stuck(before: Vector3, input_dir: Vector3, delta: float) -> void:
+	if input_dir.length() < 0.05 or (_mode != Mode.FREE and _mode != Mode.APPROACH):
+		_npc_stuck = 0.0
+		return
+	var moved := Vector2(global_position.x - before.x, global_position.z - before.z).length()
+	var expected := input_dir.length() * move_speed * delta
+	_npc_stuck = _npc_stuck + delta if moved < expected * 0.2 else 0.0
+	if _npc_stuck <= WALK_STUCK_TIME:
+		return
+	_npc_stuck = 0.0
+	if _mode == Mode.APPROACH:
+		_approach_stuck = true
+	elif not _schedule.is_empty():
+		_spot = (_spot + 1) % _schedule.size()
+		_blocked_wait = schedule_wait
 
 func _schedule_input(delta: float) -> Vector3:
 	if _schedule.is_empty():
 		return Vector3.ZERO
+	if _blocked_wait > 0.0:
+		_blocked_wait -= delta
+		return Vector3.ZERO
 	var goal := _schedule[_spot]
-	var to_goal := _path_to(goal)
+	var to_goal := _flat_to(goal)
 	if to_goal.length() > 0.2:
 		if _player_near():
 			return Vector3.ZERO
-		return _avoid(DollMath.arrive(to_goal, 0.8))
+		return _avoid(_steer(goal, 0.8))
 	_wait -= delta
 	if _wait <= 0.0:
 		_spot = (_spot + 1) % _schedule.size()
@@ -344,18 +379,34 @@ func _schedule_input(delta: float) -> Vector3:
 		_set_agent_target(_schedule[_spot])
 	return Vector3.ZERO
 
+## A new target only when the goal changes, so the path is not re-requested every frame.
 func _set_agent_target(point: Vector3) -> void:
-	if agent:
+	if agent and agent.target_position != point:
 		agent.target_position = point
 
+## Flat offset to the next path point. Before the first map sync, or when the map gives
+## no path, it is the straight offset to the goal.
 func _path_to(goal: Vector3) -> Vector3:
-	_set_agent_target(goal)
 	var next := goal
-	if agent and not agent.is_navigation_finished():
-		next = agent.get_next_path_position()
+	if agent and NavigationServer3D.map_get_iteration_id(agent.get_navigation_map()) > 0:
+		_set_agent_target(goal)
+		if not agent.is_navigation_finished():
+			next = agent.get_next_path_position()
 	var to_next := next - global_position
 	to_next.y = 0.0
+	if to_next.length_squared() < 0.0001:
+		return _flat_to(goal)
 	return to_next
+
+func _flat_to(goal: Vector3) -> Vector3:
+	var flat := goal - global_position
+	flat.y = 0.0
+	return flat
+
+## Head along the path; slow down by the distance left to the goal (seek and arrive).
+func _steer(goal: Vector3, slow_radius: float) -> Vector3:
+	var speed := DollMath.arrive(_flat_to(goal), slow_radius).length()
+	return _path_to(goal).normalized() * speed
 
 func _avoid(desired: Vector3) -> Vector3:
 	var push := Vector3.ZERO

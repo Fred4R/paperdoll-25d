@@ -271,6 +271,8 @@ func _process(delta: float) -> void:
 		if _at_contact() or (npc.has_method("approach_done") and npc.approach_done()):
 			_face_player()
 			_begin_contact()
+		elif npc.has_method("approach_stuck") and npc.approach_stuck():
+			_cancel_approach()
 		return
 	_refresh_prompt()
 	if _tap_woman and player.is_walking():
@@ -585,7 +587,7 @@ func _end_step_back() -> void:
 	if not is_instance_valid(_stepping_back):
 		_stepping_back = null
 		return
-	if _cooldown <= 0.0 or _stepping_back.approach_done():
+	if _cooldown <= 0.0 or _stepping_back.approach_done() or _stepping_back.approach_stuck():
 		_stepping_back.cancel_approach()
 		_stepping_back = null
 
@@ -829,7 +831,7 @@ func _start_scene() -> void:
 ## She sits when she reaches the chair, or after SIT_WALK_MAX seconds if something blocks her.
 func _scene_walk_step(delta: float) -> void:
 	_scene_walk_t += delta
-	if not ines.approach_done() and _scene_walk_t < SIT_WALK_MAX:
+	if not ines.approach_done() and not ines.approach_stuck() and _scene_walk_t < SIT_WALK_MAX:
 		return
 	_scene_walk = false
 	ines.begin_clip()

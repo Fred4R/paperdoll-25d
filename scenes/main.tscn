@@ -52,8 +52,11 @@ size = Vector2(0.512, 0.384)
 orientation = 0
 
 [sub_resource type="NavigationMesh" id="NavigationMesh_yard"]
-vertices = PackedVector3Array(-16, 0.05, -16, 16, 0.05, -16, 16, 0.05, 16, -16, 0.05, 16)
-polygons = [PackedInt32Array(0, 1, 2, 3)]
+vertices = PackedVector3Array(-3.5, 0.45, -16.25, -1.25, 0.45, -16.5, -1.25, 0.45, -19.5, -10.75, 0.45, -6.5, -5.25, 0.45, -6.5, -3.5, 0.45, -11.75, -19.5, 0.45, -3.75, -11, 0.45, -3.75, -19.5, 0.45, -19.5, 3.5, 0.45, -16.5, 19.5, 0.45, -19.5, 3.75, 0.45, -12, 5.25, 0.45, -9, 10.25, 0.45, -9, 10.5, 0.45, -6.75, 19.5, 0.45, -6.75, -2.5, 2.95, -15.5, -2.5, 2.95, -12.5, 2.5, 2.95, -12.5, 2.5, 2.95, -15.5, -2.25, 0.45, -15.25, -2.25, 0.45, -12.5, 2.5, 0.45, -12.5, 2.5, 0.45, -15.25, 3.25, 0.45, -11.25, 4.75, 0.45, -8.75, -3.25, 0.45, -11.25, 3, 0.45, 1.5, 3.75, 0.45, 2.25, 5.25, 0.45, -2.75, 4.75, 0.45, -3, 1.75, 0.45, 1.5, -4.75, 0.45, -6.25, -4.75, 0.45, -2, 5.5, 3.7, -8.25, 5.5, 3.7, -3.75, 9.5, 3.7, -3.75, 9.5, 3.7, -8.25, 6, 0.45, -7.75, 6, 0.45, -4, 9.25, 0.45, -4, 9.25, 0.45, -7.75, 3.75, 0.45, 3.25, 3, 0.45, 3.5, 3, 0.45, 5, 4, 0.45, 5.5, 10.5, 0.45, -3.25, 10, 0.45, -2.75, 4, 0.45, 6.25, 19.5, 0.45, 6.25, -10.25, 3.2, -5.75, -10.25, 3.2, -2.25, -5.75, 3.2, -2.25, -5.75, 3.2, -5.75, -9.75, 0.45, -5.25, -9.75, 0.45, -2.5, -6, 0.45, -2.5, -6, 0.45, -5.25, -4, 0.45, 6.5, -4, 0.45, 5.75, -5.5, 0.45, -1.25, -10.75, 0.45, -1.25, -19.5, 0.45, 19.5, -3, 0.45, 19.5, -3, 0.45, 7, 2, 0.45, 5.5, 1.25, 0.45, 3.25, -2.5, 0.45, 5, 1.25, 0.45, 1.75, -3.5, 0.45, 5, 2, 0.45, 6, -2, 0.45, 6, 2, 0.45, 6.5, -2.5, 0.45, 7, 3, 0.45, 19.5, 3, 0.45, 7, 19.5, 0.45, 19.5)
+polygons = [PackedInt32Array(2, 1, 0), PackedInt32Array(5, 4, 0), PackedInt32Array(0, 4, 3), PackedInt32Array(3, 7, 6), PackedInt32Array(0, 3, 2), PackedInt32Array(2, 3, 6), PackedInt32Array(2, 6, 8), PackedInt32Array(1, 2, 9), PackedInt32Array(9, 2, 10), PackedInt32Array(13, 12, 11), PackedInt32Array(15, 14, 13), PackedInt32Array(11, 9, 13), PackedInt32Array(13, 9, 15), PackedInt32Array(15, 9, 10), PackedInt32Array(19, 18, 16), PackedInt32Array(16, 18, 17), PackedInt32Array(23, 22, 20), PackedInt32Array(20, 22, 21), PackedInt32Array(25, 24, 12), PackedInt32Array(12, 24, 11), PackedInt32Array(26, 24, 25), PackedInt32Array(27, 29, 28), PackedInt32Array(29, 27, 30), PackedInt32Array(30, 27, 31), PackedInt32Array(32, 4, 26), PackedInt32Array(26, 4, 5), PackedInt32Array(32, 26, 33), PackedInt32Array(33, 26, 25), PackedInt32Array(33, 25, 30), PackedInt32Array(33, 30, 31), PackedInt32Array(37, 36, 34), PackedInt32Array(34, 36, 35), PackedInt32Array(41, 40, 38), PackedInt32Array(38, 40, 39), PackedInt32Array(43, 42, 44), PackedInt32Array(44, 42, 45), PackedInt32Array(46, 14, 15), PackedInt32Array(42, 28, 45), PackedInt32Array(45, 28, 29), PackedInt32Array(45, 29, 47), PackedInt32Array(46, 15, 47), PackedInt32Array(47, 15, 49), PackedInt32Array(47, 49, 45), PackedInt32Array(45, 49, 48), PackedInt32Array(53, 52, 50), PackedInt32Array(50, 52, 51), PackedInt32Array(57, 56, 54), PackedInt32Array(54, 56, 55), PackedInt32Array(59, 58, 60), PackedInt32Array(60, 58, 61), PackedInt32Array(6, 7, 61), PackedInt32Array(61, 58, 6), PackedInt32Array(6, 58, 63), PackedInt32Array(6, 63, 62), PackedInt32Array(58, 64, 63), PackedInt32Array(44, 65, 43), PackedInt32Array(43, 65, 66), PackedInt32Array(67, 69, 66), PackedInt32Array(66, 69, 68), PackedInt32Array(68, 69, 60), PackedInt32Array(68, 60, 33), PackedInt32Array(65, 70, 66), PackedInt32Array(66, 70, 71), PackedInt32Array(66, 71, 67), PackedInt32Array(33, 31, 68), PackedInt32Array(69, 59, 60), PackedInt32Array(71, 70, 72), PackedInt32Array(71, 72, 73), PackedInt32Array(73, 72, 75), PackedInt32Array(73, 75, 74), PackedInt32Array(73, 74, 63), PackedInt32Array(63, 64, 73), PackedInt32Array(75, 48, 74), PackedInt32Array(74, 48, 49), PackedInt32Array(74, 49, 76)]
+geometry_source_geometry_mode = 1
+agent_height = 1.75
+agent_radius = 0.5
 
 [node name="Main" type="Node3D"]
 
@@ -65,7 +68,7 @@ transform = Transform3D(0.866, -0.354, 0.354, 0, 0.707, 0.707, -0.5, -0.612, 0.6
 shadow_enabled = true
 light_energy = 1.15
 
-[node name="Yard" parent="." instance=ExtResource("6_yard")]
+[node name="Yard" parent="." groups=["navigation_mesh_source_group"] instance=ExtResource("6_yard")]
 
 [node name="NavigationRegion3D" type="NavigationRegion3D" parent="."]
 navigation_mesh = SubResource("NavigationMesh_yard")
