@@ -1,53 +1,47 @@
-# Build checklist
+# Build list
 
-Source of truth for the first version: what-the-game-does.md. Order source: fixes-to-make.md. GitHub main does not have the first version yet.
+Match this list to what-the-game-does.md. The play copy is `hud-nodes`. `main` does not load. Do not push `main` until Fred has played that save. He exports the phone build. This chat does not.
 
 ## Done
 
-- [x] 3D room, CharacterBody3D, collision
-- [x] Paperdoll in a SubViewport, shown on a Y-billboard Sprite3D
-- [x] ViewportTexture bound after ready
-- [x] First person; player billboard culled from his own camera
-- [x] Male and female layer sets; hair, shirt, pants
-- [x] Procedural walk on limb pivots
-- [x] One female NPC; window and chair markers
-- [x] Schedule: idle, walk, interrupt, resume
-- [x] E opens Embrace list; room freezes; look still works
-- [x] She paths to 0.25 m in front of the player; player root stays
+- [x] 3D room, body, and collision
+- [x] Paperdoll drawn in a small view and shown on a picture that turns to face the camera
+- [x] That picture is bound after the scene is ready
+- [x] First person. Your picture is hidden from your own camera
+- [x] Male and female picture sets: hair, shirt, pants
+- [x] Walk on limb pivots
+- [x] One woman, window, and chair
+- [x] Her day: wait, walk, interrupt, resume
+- [x] E opens the list. The room pauses. Looking still works
+- [x] She walks to 0.25 m in front of you for the hug
 - [x] Esc cancels only before contact
-- [x] Shared clock samples both roles from JSON
-- [x] 4 second built-in embrace; 5 second cooldown
-- [x] Character collision off during approach and clip
+- [x] One clock reads both people from the animation file
+- [x] Clothed hug, about 4 seconds. Wait after it is 3 seconds for that woman
+- [x] Collision off while she walks in and during the hug
+- [x] Eight views: four drawn, four flips
+- [x] Walk to the window, chair, and gate uses the navigation agent. Save `e994256`
 
-## Must build next
+## Still to build
 
-- [x] Front cut-out pieces for the approved woman, worn by the female doll
-- [ ] Side and back matched to that front
-- [ ] Facing swap from the camera angle
-- [ ] Play the first version in Godot 4.3 and fix anything that does not match what-the-game-does.md
-- [ ] Tune embrace.json keys on the front set (reach, hold, release)
-- [ ] Confirm 0.25 m does not clip the camera near plane; back off only if it does
+- [ ] Side, back, and diagonal pictures matched to the approved front
+- [ ] The facing change uses those pictures from the camera angle
+- [ ] Second woman in the room, with her own pictures and a name that stays
+- [ ] Greeting as a both-arm reach where she stands
+- [ ] Saved animation walks her to 0.4 m, which is not the hug stop
+- [ ] Room is still there the next time the game opens
 
-## Editor milestone, after the clip reads
+## Later, after the hug reads
 
-- [ ] In-game timeline editor, both roles, one clock
-- [ ] Preview toggle that shows the player paperdoll while editing
-- [ ] Save and load user://clips/*.json in the same schema as embrace.json
-- [ ] Director plays a saved clip the same way it plays the built-in
-- [ ] List stays built-in only until that loader exists
+- [ ] In-game editor for both people on one clock
+- [ ] Show your paperdoll while editing
+- [ ] Save and load `user://clips/*.json` in the same shape as the hug file
+- [ ] The list plays a saved animation the same way it plays the built-in hug
 
-## Push
+## Not in this version
 
-- [x] Commit the first version and planning notes to Fred4R/paperdoll-25d main
-- [ ] Do not push leftover PNGs
-- [ ] Facing swap is not in this commit
-
-## Not in this first version
-
-- [ ] Second choosable NPC
-- [ ] Greeting or hand-hold clips
-- [ ] Dialogue
-- [ ] Day and night, needs, world save
+- [ ] Spoken lines
+- [ ] Night, needs, and a full world save beyond the room still being there
 - [ ] Multiplayer
-- [ ] 3D character meshes
-- [ ] AnimationPlayer as a second clip system
+- [ ] 3D character bodies
+- [ ] A second animation system
+- [ ] Clothes coming off. Shirt and skirt stay on for this hug
