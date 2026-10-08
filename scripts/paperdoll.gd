@@ -72,6 +72,7 @@ var pants_i := 0
 var _phase := 0.0
 var _clip_locked := false
 var _side := false
+var _back := false
 var hair_pivot: Node2D
 
 const PIVOT_NODES := {
@@ -171,13 +172,17 @@ func _elbow_flex(phase: float) -> float:
 		lift = sin((phase - STANCE) / (1.0 - STANCE) * PI)
 	return ELBOW_REST + 0.22 * lift
 
-func set_side_view(side: bool) -> void:
-	if _clip_locked:
-		side = false
-	if side == _side:
+func set_view(view: String) -> void:
+	var side := view == "side"
+	var back := view == "back"
+	if side == _side and back == _back:
 		return
 	_side = side
+	_back = back
 	_apply()
+
+func set_side_view(side: bool) -> void:
+	set_view("side" if side else "front")
 
 func _swing_hair(angle: float, blend: float) -> void:
 	if hair_pivot:
@@ -209,26 +214,27 @@ func _lowers() -> Array:
 
 func _apply() -> void:
 	var use_side := female and _side
-	var arm_tex: Texture2D = load("res://assets/paperdoll/front/arm_f_side.svg" if use_side else (ARM_FEMALE if female else ARM_MALE))
-	var leg_tex: Texture2D = load("res://assets/paperdoll/front/leg_f_side.svg" if use_side else (LEG_FEMALE if female else LEG_MALE))
+	var use_back := female and _back
+	var arm_tex: Texture2D = load("res://assets/paperdoll/front/arm_f_back.svg" if use_back else ("res://assets/paperdoll/front/arm_f_side.svg" if use_side else (ARM_FEMALE if female else ARM_MALE)))
+	var leg_tex: Texture2D = load("res://assets/paperdoll/front/leg_f_back.svg" if use_back else ("res://assets/paperdoll/front/leg_f_side.svg" if use_side else (LEG_FEMALE if female else LEG_MALE)))
 	var pant_tex: Texture2D = load("res://assets/paperdoll/pant_leg.svg")
 	if body:
-		body.texture = load("res://assets/paperdoll/front/body_f_side.svg" if use_side else (BODY_FEMALE if female else BODY_MALE))
+		body.texture = load("res://assets/paperdoll/front/body_f_back.svg" if use_back else ("res://assets/paperdoll/front/body_f_side.svg" if use_side else (BODY_FEMALE if female else BODY_MALE)))
 	if hair:
-		hair.texture = load("res://assets/paperdoll/front/hair_f_side.svg" if use_side else _hairs()[hair_i])
+		hair.texture = load("res://assets/paperdoll/front/hair_f_back.svg" if use_back else ("res://assets/paperdoll/front/hair_f_side.svg" if use_side else _hairs()[hair_i]))
 	if eyes:
 		eyes.visible = false
 	_set_hero_face(true)
 	if shirt:
-		shirt.texture = load("res://assets/paperdoll/front/shirt_f_side.svg" if use_side else (SHIRT_FRONT_F if female else SHIRT_FRONT_M))
+		shirt.texture = load("res://assets/paperdoll/front/shirt_f_back.svg" if use_back else ("res://assets/paperdoll/front/shirt_f_side.svg" if use_side else (SHIRT_FRONT_F if female else SHIRT_FRONT_M)))
 		shirt.modulate = Color.WHITE
 	if skirt:
 		skirt.visible = female
 		if female:
-			skirt.texture = load("res://assets/paperdoll/front/skirt_f_side.svg" if use_side else SKIRT_FRONT_F)
+			skirt.texture = load("res://assets/paperdoll/front/skirt_f_back.svg" if use_back else ("res://assets/paperdoll/front/skirt_f_side.svg" if use_side else SKIRT_FRONT_F))
 			skirt.modulate = Color.WHITE
-	var shoe_tex: Texture2D = load("res://assets/paperdoll/front/shoe_f_side.svg" if use_side else (SHOE_FRONT_F if female else SHOE_FRONT_M))
-	var sleeve_tex: Texture2D = load("res://assets/paperdoll/front/sleeve_f_side.svg" if use_side else (SLEEVE_FRONT_F if female else SLEEVE_FRONT_M))
+	var shoe_tex: Texture2D = load("res://assets/paperdoll/front/shoe_f_back.svg" if use_back else ("res://assets/paperdoll/front/shoe_f_side.svg" if use_side else (SHOE_FRONT_F if female else SHOE_FRONT_M)))
+	var sleeve_tex: Texture2D = load("res://assets/paperdoll/front/sleeve_f_back.svg" if use_back else ("res://assets/paperdoll/front/sleeve_f_side.svg" if use_side else (SLEEVE_FRONT_F if female else SLEEVE_FRONT_M)))
 	for pivot in [leg_l, leg_r]:
 		if pivot == null:
 			continue
@@ -274,6 +280,10 @@ func _set_hero_face(smile: bool) -> void:
 	if female and _side:
 		face.texture = load("res://assets/paperdoll/front/face_f_side_hero.svg")
 		return
+	if female and _back:
+		face.visible = false
+		return
+	face.visible = true
 	if female:
 		face.texture = load("res://assets/paperdoll/front/face_f_hero.svg" if smile else "res://assets/paperdoll/front/face_f_calm_hero.svg")
 	else:

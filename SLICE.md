@@ -25,7 +25,7 @@ Living spec for the Godot 4 prototype in this folder. Code follows this file.
 
 ## Rig
 
-The body cut-out stays on a 128 by 192 viewport. The face is a separate 256 texture on its own billboard, so the eyes are not limited to a few texels at 0.25 m. Front set during the hold. Walking beside her uses the left profile; flip_h covers the right. Hair swings from a crown pivot. Back is not in this slice.
+The body cut-out stays on a 128 by 192 viewport. The face is a separate 256 texture on its own billboard, so the eyes are not limited to a few texels at 0.25 m. Walking beside her uses the left profile. Following her uses the back set. The hold uses whichever set the camera is on, with the same keys. flip_h covers the right. Hair swings from a crown pivot. His back set is not in this slice.
 
 Arms are out of frame by 0.7 s, held to 3.2 s, and back at 4.0 s. Her face track swaps calm and smile. Player keys share the clock.
 
