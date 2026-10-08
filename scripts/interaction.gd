@@ -399,7 +399,7 @@ func _close_wardrobe() -> void:
 	_save_records()
 
 func _show_wardrobe() -> void:
-	list_label.text = "Wardrobe\n1  Hair\n2  Shirt\n3  Skirt\n4  Nude\n5  Apply to all women\nEsc close"
+	list_label.text = "Wardrobe  %s\n1  Hair\n2  Shirt\n3  Skirt\n4  Nude\n5  Apply to all women\n6  Name\nEsc close" % _woman_name(npc)
 	_show_icons()
 
 func _show_icons() -> void:
@@ -443,7 +443,10 @@ func _wardrobe_key(code: int) -> void:
 			if woman == null or woman == npc or woman.paperdoll == null:
 				continue
 			_copy_slot(npc.paperdoll, woman.paperdoll, _last_slot)
+	elif code == KEY_6:
+		record["name"] = _next_name(str(record.get("name", npc.name)))
 	_records[id] = record
+	_save_records()
 	_show_wardrobe()
 
 func _copy_slot(source: Node2D, dest: Node2D, slot: String) -> void:
@@ -458,6 +461,15 @@ func _copy_slot(source: Node2D, dest: Node2D, slot: String) -> void:
 		dest.nude = source.nude
 	dest._apply()
 
+func _woman_name(body: Node) -> String:
+	var record: Dictionary = _records.get(body.name, {})
+	return str(record.get("name", body.name))
+
+func _next_name(current: String) -> String:
+	var names := ["Mara", "Lena", "Nora", "Iris"]
+	var index := names.find(current)
+	return names[(index + 1) % names.size()]
+
 func _load_records() -> void:
 	var file := FileAccess.open("user://characters.json", FileAccess.READ)
 	if file == null:
@@ -466,6 +478,7 @@ func _load_records() -> void:
 	if typeof(parsed) != TYPE_DICTIONARY:
 		return
 	_records = parsed
+	_last_slot = str(_records.get("_last_slot", "nude"))
 	for woman in _women:
 		if woman == null:
 			continue
@@ -474,6 +487,7 @@ func _load_records() -> void:
 			woman.set_nude(true)
 
 func _save_records() -> void:
+	_records["_last_slot"] = _last_slot
 	var file := FileAccess.open("user://characters.json", FileAccess.WRITE)
 	if file:
 		file.store_string(JSON.stringify(_records))

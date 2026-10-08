@@ -234,6 +234,10 @@ func begin_ease() -> void:
 
 func _nude_path() -> String:
 	if not female:
+		if _back:
+			return "res://assets/paperdoll/front/nude_m_back.svg"
+		if _side:
+			return "res://assets/paperdoll/front/nude_m_side.svg"
 		return "res://assets/paperdoll/front/nude_m.svg"
 	if _back:
 		return "res://assets/paperdoll/front/nude_f_back.svg"
