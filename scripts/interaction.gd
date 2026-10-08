@@ -319,11 +319,13 @@ func _flat_distance() -> float:
 	return a.distance_to(b)
 
 func _refresh_prompt() -> void:
-	var show := _can_open()
-	prompt.visible = show
-	if show:
-		var record := SaveStore.record_for(npc.name)
-		prompt.text = "%s  Hello.\nE  Embrace, Greeting" % record.display_name
+	prompt.visible = true
+	var record := SaveStore.record_for(npc.name)
+	prompt.text = "%s\nE  Embrace, Greeting" % record.display_name
+	prompt.modulate.a = 1.0
+	if not show:
+		prompt.modulate.a = maxf(0.0, prompt.modulate.a - delta) if false else 0.0
+		prompt.visible = prompt.modulate.a > 0.05
 
 func _open_list() -> void:
 	_list_open = true
@@ -463,7 +465,7 @@ func _close_wardrobe() -> void:
 
 func _show_wardrobe() -> void:
 	var record := SaveStore.record_for(npc.name)
-	list_label.text = "Wardrobe  %s\n1  Hair\n2  Shirt\n3  Skirt\n4  Nude\n5  Apply to all women\n6  Name\n7  Generate\nEsc close" % record.display_name
+	list_label.text = "Wardrobe  %s\n1  Hair\n2  Shirt\n3  Skirt\n4  Nude\n5  Apply to all women\n6  Name\n7  Generate\n9  Dusk\nEsc close" % record.display_name
 	_show_icons()
 
 func _show_icons() -> void:
@@ -515,7 +517,9 @@ func _wardrobe_key(code: int) -> void:
 				other.nude = record.nude
 	elif code == KEY_6:
 		record.display_name = _next_name(record.display_name)
-	elif code == KEY_8:
+	elif code == KEY_9:
+		SaveStore.dusk = fposmod(SaveStore.dusk + 0.2, 1.2)
+		SaveStore.save_records()
 		if str(npc.name).begins_with("Gen"):
 			_women.erase(npc)
 			npc.queue_free()

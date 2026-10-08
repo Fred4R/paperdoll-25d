@@ -61,7 +61,10 @@ func _ik(upper: Bone2D, lower: Bone2D, aim: Node2D, left: bool) -> SkeletonModif
 
 func _mark() -> Polygon2D:
 	var mark := Polygon2D.new()
-	mark.polygon = PackedVector2Array([Vector2(-4, -4), Vector2(4, -4), Vector2(4, 4), Vector2(-4, 4)])
+	mark.polygon = PackedVector2Array([
+		Vector2(4, 0), Vector2(3, 3), Vector2(0, 4), Vector2(-3, 3),
+		Vector2(-4, 0), Vector2(-3, -3), Vector2(0, -4), Vector2(3, -3)
+	])
 	mark.color = Color(0.9, 0.75, 0.3, 0.9)
 	mark.visible = false
 	return mark

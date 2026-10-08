@@ -284,7 +284,23 @@ func _avoid(desired: Vector3) -> Vector3:
 		var dist := away.length()
 		if dist < 0.7 and dist > 0.001:
 			push += away.normalized() * (0.7 - dist)
+			_mark_push(body.global_position)
 	return DollMath.avoid(desired, push)
+
+func _mark_push(other: Vector3) -> void:
+	var line := get_node_or_null("Push") as MeshInstance3D
+	if line == null:
+		line = MeshInstance3D.new()
+		line.name = "Push"
+		var mesh := ImmediateMesh.new()
+		line.mesh = mesh
+		add_child(line)
+	var mesh := line.mesh as ImmediateMesh
+	mesh.clear_surfaces()
+	mesh.surface_begin(Mesh.PRIMITIVE_LINES)
+	mesh.surface_add_vertex(Vector3(0, 0.05, 0))
+	mesh.surface_add_vertex(to_local(other))
+	mesh.surface_end()
 
 func _player_near() -> bool:
 	var players := get_tree().get_nodes_in_group("player")
