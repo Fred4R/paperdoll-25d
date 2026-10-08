@@ -2,10 +2,11 @@ extends Node
 ## Director. List, freeze, she walks to you, one shared clock, both roles.
 
 const EMBRACE_PATH := "res://data/clips/embrace.json"
+const GREETING_PATH := "res://data/clips/greeting.json"
 const ClipLibrary := preload("res://scripts/clip_library.gd")
 const PROMPT_RADIUS := 1.2
 const SLOT_GAP := 0.4
-const COOLDOWN := 5.0
+const COOLDOWN := 3.0
 const ARRIVE := 0.12
 
 @onready var player: CharacterBody3D = $"../Player"
@@ -18,6 +19,7 @@ const ARRIVE := 0.12
 @onready var list_label: Label = $"../HUD/List/Label"
 
 var _clip: Dictionary = {}
+var _clips := {}
 var _list_open := false
 var _approaching := false
 var _playing := false
@@ -26,7 +28,11 @@ var _cooldown := 0.0
 var _slot := Vector3.ZERO
 
 func _ready() -> void:
-	_clip = ClipLibrary.load_file(EMBRACE_PATH)
+	_clips = {
+		"embrace": ClipLibrary.load_file(EMBRACE_PATH),
+		"greeting": ClipLibrary.load_file(GREETING_PATH),
+	}
+	_clip = _clips["embrace"]
 	list_panel.visible = false
 	prompt.visible = false
 	if npc and npc.has_method("set_schedule"):
@@ -49,7 +55,10 @@ func _input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		return
 	if _list_open and event is InputEventKey and event.keycode == KEY_1:
-		_pick_embrace()
+		_pick("embrace")
+		get_viewport().set_input_as_handled()
+	elif _list_open and event is InputEventKey and event.keycode == KEY_2:
+		_pick("greeting")
 		get_viewport().set_input_as_handled()
 
 func _process(delta: float) -> void:
@@ -94,7 +103,7 @@ func _open_list() -> void:
 	_list_open = true
 	prompt.visible = false
 	list_panel.visible = true
-	list_label.text = "1  Embrace\nEsc  Close"
+	list_label.text = "1  Embrace\n2  Greeting\nEsc  Close"
 	player.set_mode_frozen(true)
 	npc.set_mode_frozen(true)
 
@@ -104,7 +113,8 @@ func _close_list() -> void:
 	player.set_mode_frozen(false)
 	npc.set_mode_frozen(false)
 
-func _pick_embrace() -> void:
+func _pick(clip_name: String) -> void:
+	_clip = _clips.get(clip_name, _clips["embrace"])
 	_list_open = false
 	list_panel.visible = false
 	npc.set_mode_frozen(false)
@@ -144,4 +154,4 @@ func _finish_clip() -> void:
 	prompt.visible = false
 
 func _set_hint() -> void:
-	hint.text = "Mouse: look    WASD: walk    E: interact    Esc: close list or cancel approach\nClip plays out once she arrives. 5s cooldown.\nFirst person. Built-in embrace only."
+	hint.text = "Mouse: look    WASD: walk    E: interact    Esc: close list or cancel approach\nClip plays out once she arrives. 3s cooldown.\nFirst person. Embrace or Greeting."
