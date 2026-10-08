@@ -25,7 +25,7 @@ var _approaching := false
 var _playing := false
 var _clock := 0.0
 var _cooldown := 0.0
-var _slot := Vector3.ZERO
+var _list_ids: Array = []
 var _editing := false
 var _edit_time := 0.0
 var _edit_role := "npc"
@@ -69,12 +69,11 @@ func _input(event: InputEvent) -> void:
 		_open_list()
 		get_viewport().set_input_as_handled()
 		return
-	if _list_open and event is InputEventKey and event.keycode == KEY_1:
-		_pick("embrace")
-		get_viewport().set_input_as_handled()
-	elif _list_open and event is InputEventKey and event.keycode == KEY_2:
-		_pick("greeting")
-		get_viewport().set_input_as_handled()
+	if _list_open and event is InputEventKey and event.keycode >= KEY_1 and event.keycode <= KEY_9:
+		var index := event.keycode - KEY_1
+		if index < _list_ids.size():
+			_pick(str(_list_ids[index]))
+			get_viewport().set_input_as_handled()
 
 func _process(delta: float) -> void:
 	if _cooldown > 0.0:
@@ -125,7 +124,8 @@ func _editor_key(code: int) -> void:
 	elif code == KEY_DOWN:
 		_nudge(-0.1)
 	elif code == KEY_A:
-		_edit_pivot = "arm_l" if _edit_pivot == "arm_r" else "arm_r"
+		var pivots := ["arm_l", "arm_r", "elbow_l", "elbow_r"]
+		_edit_pivot = pivots[(pivots.find(_edit_pivot) + 1) % pivots.size()]
 	elif code == KEY_R:
 		_edit_role = "player" if _edit_role == "npc" else "npc"
 	elif code == KEY_1:
@@ -142,7 +142,7 @@ func _editor_key(code: int) -> void:
 func _apply_edit() -> void:
 	_apply_clock(_edit_time)
 	list_panel.visible = true
-	list_label.text = "Editor  %s  %.1f s\n%s  %s\nLeft Right scrub   Up Down nudge\nA arm   R role   S save\nYou stay visible. Esc closes." % [
+	list_label.text = "Editor  %s  %.1f s\n%s  %s\nLeft Right scrub   Up Down nudge\nA arm or elbow   R role   S save\nYou stay visible. Esc closes." % [
 		str(_clip.get("name", "clip")), _edit_time, _edit_role, _edit_pivot
 	]
 
@@ -202,7 +202,22 @@ func _open_list() -> void:
 	_list_open = true
 	prompt.visible = false
 	list_panel.visible = true
-	list_label.text = "1  Embrace\n2  Greeting\nEsc  Close"
+	_list_ids = ["embrace", "greeting"]
+	var lines := ["1  Embrace", "2  Greeting"]
+	var folder := DirAccess.open("user://clips")
+	if folder:
+		folder.list_dir_begin()
+		var file_name := folder.get_next()
+		while file_name != "":
+			if file_name.ends_with(".json") and _list_ids.size() < 9:
+				var id := "user:%s" % file_name
+				_clips[id] = ClipLibrary.load_file("user://clips/%s" % file_name)
+				_list_ids.append(id)
+				lines.append("%d  %s" % [_list_ids.size(), file_name.trim_suffix(".json")])
+			file_name = folder.get_next()
+		folder.list_dir_end()
+	lines.append("Esc  Close")
+	list_label.text = "\n".join(lines)
 	player.set_mode_frozen(true)
 	npc.set_mode_frozen(true)
 
@@ -216,7 +231,7 @@ func _pick(clip_name: String) -> void:
 	_clip = _clips.get(clip_name, _clips["embrace"])
 	_list_open = false
 	list_panel.visible = false
-	if clip_name == "greeting":
+	if str(_clip.get("name", "")) == "greeting":
 		player.set_mode_frozen(false)
 		npc.set_mode_frozen(false)
 		_begin_contact()

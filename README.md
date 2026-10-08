@@ -15,7 +15,7 @@ Godot 4 prototype: a **3D environment** with **modular 2D paperdoll** characters
 
 ## Slice check
 
-Walk within 1.2 m of her. E opens the list. 1 starts the embrace and she walks to 0.4 m. 2 starts the greeting where she stands. Esc cancels only before an embrace walk-in arrives. The clip then plays out, and the prompt stays hidden for 3 seconds.
+Walk within 1.2 m of her. E opens the list. 1 is embrace. 2 is greeting. Saved clips in user://clips appear after those. Greeting plays where she stands. Embrace walks her to 0.4 m. Esc cancels only before an embrace walk-in arrives. The prompt stays hidden for 3 seconds.
 
 ## Controls
 
