@@ -153,6 +153,12 @@ func _dusk(delta: float) -> void:
 		env.environment.ambient_light_energy = lerpf(0.55, 0.18, SaveStore.dusk)
 
 func _step(delta: float) -> void:
+	if _sit and player.velocity.length() > 0.2:
+		_sit = false
+		player.position.y = 0.1
+		player.head.position.y = 1.55
+		player.set_seated(false)
+		return
 	if player.velocity.length() < 0.2:
 		return
 	_step_t -= delta
