@@ -13,6 +13,15 @@ const ARRIVE := 0.12
 const TAP_ARRIVE := 0.25
 const TAP_SLOP := 16.0
 const REACH_AT := 0.7
+## Ines (NPC1) is a neighbor who comes over to draw the north yard gate from the window.
+const INES_NAME := "Ines"
+const INES_BEATS := [
+	["I come over for this window. It's the only one that sees the yard gate straight on.", "What are you drawing?", "Why the gate?"],
+	["The gate. My grandfather hung it. It sticks every winter and nobody else remembers why.", "Tell me.", "Can I see?"],
+	["He set it crooked on purpose so it would swing shut by itself. Here, keep this one. I'll start another.", "Thank you.", "Put it on the wall."],
+]
+const INES_AGAIN := ["Still crooked. Still shuts by itself.", "Sit a while."]
+const SIT_WALK_MAX := 8.0
 
 @onready var player: CharacterBody3D = $"../Player"
 @onready var npc: CharacterBody3D = $"../NPC1"
@@ -29,6 +38,8 @@ const REACH_AT := 0.7
 @onready var prompt: Label = $"../HUD/Prompt"
 @onready var list_panel: PanelContainer = $"../HUD/List"
 @onready var list_label: Label = $"../HUD/List/Rows/Label"
+@onready var ines: CharacterBody3D = $"../NPC1"
+@onready var ines_sketch: MeshInstance3D = get_node_or_null("../InesSketch")
 
 var _clip: Dictionary = {}
 var _clips := {}
@@ -54,6 +65,10 @@ var _bare := false
 var _slot := Vector3.ZERO
 var _reach_played := false
 var _stepping_back: CharacterBody3D = null
+var _scene_beat := -1
+var _scene_walk := false
+var _scene_walk_t := 0.0
+var _scene_again := false
 
 func _ready() -> void:
 	_clips = {
@@ -81,9 +96,13 @@ func _ready() -> void:
 		player.walk_ended.connect(_on_walk_ended)
 	_set_hint()
 	_load_records()
+	_ines_ready()
 
 ## A row on the HUD list, or number key 1-9. The last row is Close.
 func _on_hud_picked(index: int) -> void:
+	if _scene_beat >= 0:
+		_scene_reply(index)
+		return
 	if not _list_open:
 		return
 	if index < _list_ids.size():
@@ -98,13 +117,19 @@ func _on_hud_closed() -> void:
 		_close_wardrobe()
 	elif _list_open:
 		_close_list()
+	elif _scene_beat >= 0:
+		_end_scene(false)
 
 func _input(event: InputEvent) -> void:
 	if not event.is_pressed() or event.is_echo():
 		return
 	if event.is_action_pressed("ui_cancel"):
-		if _wardrobe or _list_open:
+		if _wardrobe or _list_open or _scene_beat >= 0:
 			$"../HUD".hide_panel()
+			get_viewport().set_input_as_handled()
+			return
+		if _scene_walk:
+			_end_scene(false)
 			get_viewport().set_input_as_handled()
 			return
 		if _editing:
@@ -120,7 +145,7 @@ func _input(event: InputEvent) -> void:
 			_cancel_approach()
 			get_viewport().set_input_as_handled()
 		return
-	if event.is_action_pressed("wardrobe") and not _list_open and not _editing and not _playing:
+	if event.is_action_pressed("wardrobe") and not _list_open and not _editing and not _playing and not _scene_active():
 		_open_wardrobe()
 		get_viewport().set_input_as_handled()
 		return
@@ -147,9 +172,10 @@ func _input(event: InputEvent) -> void:
 		_open_list()
 		get_viewport().set_input_as_handled()
 		return
-	if _list_open and event is InputEventKey and event.keycode >= KEY_1 and event.keycode <= KEY_9:
+	if (_list_open or _scene_beat >= 0) and event is InputEventKey and event.keycode >= KEY_1 and event.keycode <= KEY_9:
 		var index: int = event.keycode - KEY_1
-		if index < _list_ids.size():
+		var rows: int = _scene_rows() if _scene_beat >= 0 else _list_ids.size()
+		if index < rows:
 			_on_hud_picked(index)
 			get_viewport().set_input_as_handled()
 
@@ -170,7 +196,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		touch[1] = maxf(float(touch[1]), event.position.distance_to(touch[0]))
 
 func _tap_idle() -> bool:
-	return not (_list_open or _approaching or _playing or _editing or _wardrobe)
+	return not (_list_open or _approaching or _playing or _editing or _wardrobe or _scene_active())
 
 func _tap(screen_point: Vector2) -> void:
 	var cam := get_viewport().get_camera_3d()
@@ -236,6 +262,11 @@ func _process(delta: float) -> void:
 				_finish_clip()
 		return
 	_end_step_back()
+	if _scene_walk:
+		_scene_walk_step(delta)
+		return
+	if _scene_beat >= 0:
+		return
 	if _approaching:
 		if _at_contact() or (npc.has_method("approach_done") and npc.approach_done()):
 			_face_player()
@@ -285,7 +316,7 @@ func _near_crate() -> bool:
 	return flat.distance_to(crate) < 1.0
 
 func _can_edit() -> bool:
-	return not _list_open and not _approaching and not _playing and not _editing
+	return not _list_open and not _approaching and not _playing and not _editing and not _scene_active()
 
 func _open_editor() -> void:
 	_editing = true
@@ -399,7 +430,7 @@ func _duplicate(source: Dictionary) -> Dictionary:
 	return JSON.parse_string(JSON.stringify(source))
 
 func _can_open() -> bool:
-	if _list_open or _approaching or _playing or _editing or _cooldown > 0.0:
+	if _list_open or _approaching or _playing or _editing or _cooldown > 0.0 or _scene_active():
 		return false
 	if player == null:
 		return false
@@ -443,13 +474,16 @@ func _refresh_prompt() -> void:
 		prompt.modulate.a = maxf(0.0, prompt.modulate.a - 0.05)
 		prompt.visible = prompt.modulate.a > 0.05
 
-## Sheet rows: Embrace, Greeting, each paired save in user://clips, then Close.
+## Sheet rows: Embrace, Greeting, Sit with Ines (her sheet only), each paired save in user://clips, then Close.
 ## Hand hold stays loaded for the editor but is not a sheet row.
 func _open_list() -> void:
 	_list_open = true
 	prompt.visible = false
 	_list_ids = ["embrace", "greeting"]
 	var lines := ["1  Embrace", "2  Greeting"]
+	if npc == ines:
+		_list_ids.append("sit_ines")
+		lines.append("%d  Sit with %s" % [_list_ids.size(), _ines_name()])
 	var folder := DirAccess.open("user://clips")
 	if folder:
 		folder.list_dir_begin()
@@ -482,6 +516,9 @@ func _close_list() -> void:
 ## Greeting (built-in or a save named greeting) plays where she stands.
 ## Any other row walks her to the slot; the clip clock starts at contact.
 func _pick(clip_name: String) -> void:
+	if clip_name == "sit_ines":
+		_start_scene()
+		return
 	if clip_name == "shirtoff":
 		_clip = _clips["embrace"]
 		_bare = true
@@ -744,3 +781,108 @@ func _set_hint() -> void:
 	hint.text = "Mouse: look    WASD: walk    E: clips    Tab: wardrobe"
 	if npc and npc.paperdoll and npc.paperdoll.get("_quarter"):
 		hint.text += "    Front fallback"
+
+## Ines keeps her paperdoll and clothes; only the shown name changes, unless it was renamed in the wardrobe.
+## A saved sketch_given hangs the sketch and keeps her schedule at the chair.
+func _ines_ready() -> void:
+	if ines == null:
+		return
+	var record := SaveStore.record_for(ines.name)
+	if record.display_name == record.id:
+		record.display_name = INES_NAME
+	_apply_sketch(record.sketch_given)
+
+## Godot 4.3 headless (dummy renderer) logs "Parameter m is null" when a mesh instance is freed
+## still holding its mesh; dropping the sketch mesh as the scene exits keeps that log clean.
+func _exit_tree() -> void:
+	if ines_sketch:
+		ines_sketch.mesh = null
+
+func _ines_name() -> String:
+	return SaveStore.record_for(ines.name).display_name
+
+func _apply_sketch(given: bool) -> void:
+	if ines_sketch:
+		ines_sketch.visible = given
+	if given and ines.has_method("set_schedule"):
+		ines.set_schedule([chair_mark.global_position])
+
+func _scene_active() -> bool:
+	return _scene_beat >= 0 or _scene_walk
+
+func _scene_rows() -> int:
+	return 1 if _scene_again else 2
+
+## Sit with Ines: she walks to the chair on her approach walk, sits, then the beats play on the HUD sheet.
+## The player stays where he is, frozen in first person, and can still look around.
+func _start_scene() -> void:
+	_list_open = false
+	$"../HUD".hide_panel()
+	_scene_again = SaveStore.record_for(ines.name).sketch_given
+	_scene_walk = true
+	_scene_walk_t = 0.0
+	player.set_mode_frozen(true)
+	var seat := chair_mark.global_position
+	seat.y = ines.global_position.y
+	ines.begin_approach(seat, window_mark.global_position)
+
+## She sits when she reaches the chair, or after SIT_WALK_MAX seconds if something blocks her.
+func _scene_walk_step(delta: float) -> void:
+	_scene_walk_t += delta
+	if not ines.approach_done() and _scene_walk_t < SIT_WALK_MAX:
+		return
+	_scene_walk = false
+	ines.begin_clip()
+	if ines.paperdoll:
+		ines.paperdoll.set_seated(true)
+	_show_beat(0)
+
+func _show_beat(beat: int) -> void:
+	_scene_beat = beat
+	var title := ""
+	var lines := PackedStringArray()
+	if _scene_again:
+		title = "%s: %s" % [_ines_name(), INES_AGAIN[0]]
+		lines.append("1  %s" % INES_AGAIN[1])
+	else:
+		var row: Array = INES_BEATS[beat]
+		title = "%s: %s" % [_ines_name(), row[0]]
+		lines.append("1  %s" % row[1])
+		lines.append("2  %s" % row[2])
+		lines.append("Close")
+	$"../HUD".show_choices(lines, title)
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+
+## Either reply advances. The last reply (or Sit a while) ends the scene; Close ends it early without the keep.
+func _scene_reply(index: int) -> void:
+	if index >= _scene_rows():
+		$"../HUD".hide_panel()
+		return
+	if not _scene_again and _scene_beat + 1 < INES_BEATS.size():
+		_show_beat(_scene_beat + 1)
+		return
+	var kept := not _scene_again
+	_scene_beat = -1
+	$"../HUD".hide_panel()
+	_end_scene(kept)
+
+func _end_scene(kept: bool) -> void:
+	var was_walking := _scene_walk
+	_scene_beat = -1
+	_scene_walk = false
+	if was_walking:
+		ines.cancel_approach()
+	else:
+		if ines.paperdoll:
+			ines.paperdoll.set_seated(false)
+		ines.end_clip()
+	player.set_mode_frozen(false)
+	if kept:
+		_give_sketch()
+
+func _give_sketch() -> void:
+	var record := SaveStore.record_for(ines.name)
+	record.sketch_given = true
+	SaveStore.save_records()
+	SaveStore.save_one(record)
+	_apply_sketch(true)

@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://bmain25d01"]
+[gd_scene load_steps=17 format=3 uid="uid://bmain25d01"]
 
 [ext_resource type="PackedScene" path="res://scenes/character_3d.tscn" id="1_char"]
 [ext_resource type="Script" path="res://scripts/interaction.gd" id="2_interact"]
@@ -6,6 +6,7 @@
 [ext_resource type="Script" path="res://scripts/mirror.gd" id="4_mirror"]
 [ext_resource type="PackedScene" path="res://scenes/hud.tscn" id="5_hud"]
 [ext_resource type="PackedScene" path="res://scenes/yard.tscn" id="6_yard"]
+[ext_resource type="Texture2D" path="res://assets/scenes/ines_gate_sketch.svg" id="7_sketch"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_1"]
 sky_top_color = Color(0.45, 0.62, 0.85, 1)
@@ -39,6 +40,15 @@ roughness = 0.9
 [sub_resource type="StandardMaterial3D" id="MatRoof"]
 albedo_color = Color(0.45, 0.22, 0.18, 1)
 roughness = 0.8
+
+[sub_resource type="StandardMaterial3D" id="MatSketch"]
+shading_mode = 0
+albedo_texture = ExtResource("7_sketch")
+
+[sub_resource type="QuadMesh" id="SketchQuad"]
+material = SubResource("MatSketch")
+size = Vector2(0.512, 0.384)
+orientation = 0
 
 [node name="Main" type="Node3D"]
 
@@ -117,6 +127,11 @@ material = SubResource("MatWood")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 0.06)
 pixel_size = 0.01
 billboard = 0
+
+[node name="InesSketch" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.47, 1.45, -2.75)
+visible = false
+mesh = SubResource("SketchQuad")
 
 [node name="Reach" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("3_reach")

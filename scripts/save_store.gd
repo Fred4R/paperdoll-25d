@@ -33,6 +33,7 @@ func record_for(id: String) -> CharacterRecord:
 		record.nude_override = bool(raw.get("nude_override", false))
 		record.chest = bool(raw.get("chest", false))
 		record.groin = bool(raw.get("groin", false))
+		record.sketch_given = bool(raw.get("sketch_given", false))
 		cast[id] = record
 	return cast[id]
 
@@ -58,6 +59,7 @@ func save_records() -> void:
 			"palette": record.palette,
 			"chest": record.chest,
 			"groin": record.groin,
+			"sketch_given": record.sketch_given,
 		}
 	records["_last_slot"] = last_slot
 	records["_dusk"] = dusk

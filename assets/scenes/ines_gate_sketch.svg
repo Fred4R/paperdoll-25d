@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="192" viewBox="0 0 256 192">
+  <!-- Ines's pencil sketch of the north yard gate: paper, two posts, a crooked gate. -->
+  <rect x="2" y="2" width="252" height="188" rx="3" fill="#f2ecdc" stroke="#c9bfa6" stroke-width="2"/>
+  <g fill="none" stroke="#4a4a4f" stroke-linecap="round" stroke-linejoin="round">
+    <!-- ground line -->
+    <path d="M18 158 C70 154 150 161 238 156" stroke-width="1.5" opacity="0.7"/>
+    <!-- posts -->
+    <path d="M58 158 L58 46 L72 44 L72 158" stroke-width="2.2"/>
+    <path d="M186 158 L186 44 L200 46 L200 158" stroke-width="2.2"/>
+    <path d="M58 46 L65 38 L72 44 M186 44 L193 37 L200 46" stroke-width="1.6"/>
+    <!-- gate frame, hung slightly crooked -->
+    <path d="M74 64 L183 70 L183 150 L74 146 Z" stroke-width="2"/>
+    <!-- slats -->
+    <path d="M96 65 L96 147 M118 66 L118 148 M140 67 L140 148 M162 69 L162 149" stroke-width="1.4"/>
+    <!-- diagonal brace -->
+    <path d="M76 144 L181 72" stroke-width="2"/>
+    <!-- hinges -->
+    <path d="M70 74 L84 74 M70 136 L84 137" stroke-width="2.6"/>
+    <!-- latch -->
+    <path d="M180 108 L192 108" stroke-width="2.4"/>
+    <!-- hatching shadows -->
+    <path d="M60 150 L70 140 M60 140 L70 130 M188 150 L198 140 M188 140 L198 130" stroke-width="0.8" opacity="0.6"/>
+  </g>
+  <!-- initials -->
+  <path d="M214 176 L214 168 M220 176 L220 168 L226 176 L226 168" fill="none" stroke="#6b6b70" stroke-width="1" stroke-linecap="round"/>
+</svg>
