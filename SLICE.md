@@ -16,7 +16,9 @@ Living spec for the Godot 4 prototype in this folder. Code follows this file.
 - Camera: **first person stays**. Player billboard stays culled. You see her.
 - Start: in range, **E** opens a list. Room **freezes** (look still works) until you pick or Esc.
 - List contents: built-in Embrace and Greeting, plus any `user://clips` JSON. Saved greeting plays in place. Other saved clips walk her in.
-- Greeting plays where she stands. Embrace still brings her to the 0.4 m slot.
+- Greeting is a small both-arm reach, not a wave, and plays where she stands.
+- Two women. The nearer one answers E. The second walks the gate and the bench. A yard room is north of the path.
+- Embrace plays a short reach sound at 0.7 s. Clothes stay on.
 - Prompt radius: **1.2 m**.
 - Esc **cancels only before contact** (list open, or she is still walking in). Once the clock starts, the clip plays out.
 - After: **3 second cooldown**. Prompt hidden until it ends. No other state.

@@ -21,6 +21,7 @@ const HAIR_MALE := [
 ]
 const HAIR_FEMALE := [
 	"res://assets/paperdoll/front/hair_f.svg",
+	"res://assets/paperdoll/front/hair_f_auburn.svg",
 ]
 const SHIRT_COLORS := [
 	Color("4682c8"),

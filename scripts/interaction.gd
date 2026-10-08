@@ -11,8 +11,12 @@ const ARRIVE := 0.12
 
 @onready var player: CharacterBody3D = $"../Player"
 @onready var npc: CharacterBody3D = $"../NPC1"
+@onready var npc2: CharacterBody3D = $"../NPC2"
 @onready var window_mark: Marker3D = $"../Window"
 @onready var chair_mark: Marker3D = $"../Chair"
+@onready var gate_mark: Marker3D = $"../Gate"
+@onready var bench_mark: Marker3D = $"../Bench"
+@onready var reach: AudioStreamPlayer = $"../Reach"
 @onready var hint: Label = $"../HUD/Hint"
 @onready var prompt: Label = $"../HUD/Prompt"
 @onready var list_panel: PanelContainer = $"../HUD/List"
@@ -30,6 +34,7 @@ var _editing := false
 var _edit_time := 0.0
 var _edit_role := "npc"
 var _edit_pivot := "arm_r"
+var _women: Array = []
 
 func _ready() -> void:
 	_clips = {
@@ -39,8 +44,11 @@ func _ready() -> void:
 	_clip = _clips["embrace"]
 	list_panel.visible = false
 	prompt.visible = false
+	_women = [npc, npc2]
 	if npc and npc.has_method("set_schedule"):
 		npc.set_schedule([window_mark.global_position, chair_mark.global_position])
+	if npc2 and npc2.has_method("set_schedule"):
+		npc2.set_schedule([gate_mark.global_position, bench_mark.global_position])
 	_set_hint()
 
 func _input(event: InputEvent) -> void:
@@ -83,6 +91,10 @@ func _process(delta: float) -> void:
 			_clock += delta
 			var duration := float(_clip.get("duration", 4.0))
 			_apply_clock(minf(_clock, duration))
+			if str(_clip.get("name", "")) == "embrace" and _clock >= 0.7 and not _reach_played:
+				_reach_played = true
+				if reach:
+					reach.play()
 			if _clock >= duration:
 				_finish_clip()
 		return
@@ -179,11 +191,29 @@ func _duplicate(source: Dictionary) -> Dictionary:
 func _can_open() -> bool:
 	if _list_open or _approaching or _playing or _editing or _cooldown > 0.0:
 		return false
-	if player == null or npc == null:
+	if player == null:
 		return false
-	if not npc.has_method("can_interrupt") or not npc.can_interrupt():
+	_select_nearest()
+	if npc == null or not npc.has_method("can_interrupt") or not npc.can_interrupt():
 		return false
 	return _flat_distance() <= PROMPT_RADIUS
+
+func _select_nearest() -> void:
+	var best: CharacterBody3D = null
+	var best_d := PROMPT_RADIUS
+	for candidate in [npc, npc2]:
+		if candidate == null or not candidate.has_method("can_interrupt") or not candidate.can_interrupt():
+			continue
+		var a := player.global_position
+		var b := candidate.global_position
+		a.y = 0.0
+		b.y = 0.0
+		var d := a.distance_to(b)
+		if d <= best_d:
+			best_d = d
+			best = candidate
+	if best:
+		npc = best
 
 func _flat_distance() -> float:
 	var a := player.global_position
@@ -257,6 +287,7 @@ func _begin_contact() -> void:
 	_approaching = false
 	_playing = true
 	_clock = 0.0
+	_reach_played = false
 	npc.begin_clip()
 	player.begin_clip()
 	_apply_clock(0.0)
