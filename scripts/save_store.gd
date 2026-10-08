@@ -5,6 +5,7 @@ const PATH := "user://characters.json"
 
 var records: Dictionary = {}
 var last_slot := "nude"
+var dusk := 0.0
 
 func _ready() -> void:
 	load_records()
@@ -18,6 +19,7 @@ func load_records() -> void:
 		return
 	records = parsed
 	last_slot = str(records.get("_last_slot", "nude"))
+	dusk = float(records.get("_dusk", 0.0))
 
 var cast: Dictionary = {}
 
@@ -46,6 +48,7 @@ func save_records() -> void:
 			"groin": record.groin,
 		}
 	records["_last_slot"] = last_slot
+	records["_dusk"] = dusk
 	var file := FileAccess.open(PATH, FileAccess.WRITE)
 	if file:
 		file.store_string(JSON.stringify(records))

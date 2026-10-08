@@ -136,6 +136,28 @@ func _process(delta: float) -> void:
 			_begin_contact()
 		return
 	_refresh_prompt()
+	_dusk(delta)
+	_step(delta)
+
+func _dusk(delta: float) -> void:
+	SaveStore.dusk = minf(1.0, SaveStore.dusk + delta / 180.0)
+	var env := get_parent().get_node_or_null("WorldEnvironment") as WorldEnvironment
+	if env and env.environment:
+		env.environment.ambient_light_energy = lerpf(0.55, 0.18, SaveStore.dusk)
+
+func _step(delta: float) -> void:
+	if player.velocity.length() < 0.2:
+		return
+	_step_t -= delta
+	if _step_t > 0.0:
+		return
+	_step_t = 0.45
+	var on_path := absf(player.global_position.x) < 2.0
+	if reach:
+		reach.pitch_scale = 1.3 if on_path else 0.7
+		reach.play()
+
+var _step_t := 0.0
 
 func _can_edit() -> bool:
 	return not _list_open and not _approaching and not _playing and not _editing
@@ -287,7 +309,8 @@ func _refresh_prompt() -> void:
 	var show := _can_open()
 	prompt.visible = show
 	if show:
-		prompt.text = "E  Embrace, Greeting"
+		var record := SaveStore.record_for(npc.name)
+		prompt.text = "%s  Hello.\nE  Embrace, Greeting" % record.display_name
 
 func _open_list() -> void:
 	_list_open = true
@@ -474,13 +497,17 @@ func _wardrobe_key(code: int) -> void:
 				other.nude = record.nude
 	elif code == KEY_6:
 		record.display_name = _next_name(record.display_name)
-	elif code == KEY_7:
-		_generate_woman()
+	elif code == KEY_8:
+		if str(npc.name).begins_with("Gen"):
+			_women.erase(npc)
+			npc.queue_free()
+			_close_wardrobe()
 	SaveStore.save_records()
 	_show_wardrobe()
 
 func _generate_woman() -> void:
-	var scene := load("res://scenes/character_3d.tscn") as PackedScene
+	if _women.size() >= 6:
+		return
 	var woman := scene.instantiate() as CharacterBody3D
 	woman.name = "Gen%d" % _women.size()
 	woman.is_player = false
