@@ -84,6 +84,7 @@ var _player: AnimationPlayer
 var _ease_from: Dictionary = {}
 var hair_tint := Color.WHITE
 var nude := false
+var _view_blend := 1.0
 var _show_chest := false
 var _show_groin := false
 
