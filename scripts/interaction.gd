@@ -227,7 +227,7 @@ func _refresh_prompt() -> void:
 	var show := _can_open()
 	prompt.visible = show
 	if show:
-		prompt.text = "E  Two clips"
+		prompt.text = "E  Embrace, Greeting"
 
 func _open_list() -> void:
 	_list_open = true
