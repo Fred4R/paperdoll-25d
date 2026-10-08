@@ -79,6 +79,8 @@ var hair_pivot: Node2D
 var _ik: Node2D
 var _face_smile := 0.0
 var _ease := 1.0
+var ease_weight := 1.0
+var _player: AnimationPlayer
 var _ease_from: Dictionary = {}
 var hair_tint := Color.WHITE
 var nude := false
@@ -106,6 +108,17 @@ func _ready() -> void:
 	_ik = load("res://scripts/arm_ik.gd").new()
 	_ik.name = "ArmIK"
 	add_child(_ik)
+	_player = AnimationPlayer.new()
+	add_child(_player)
+	var anim := Animation.new()
+	var track := anim.add_track(Animation.TYPE_VALUE)
+	anim.track_set_path(track, NodePath(".:ease_weight"))
+	anim.track_insert_key(track, 0.0, 0.0)
+	anim.track_insert_key(track, 0.4, 1.0)
+	anim.length = 0.4
+	var library := AnimationLibrary.new()
+	library.add_animation("blend", anim)
+	_player.add_animation_library("", library)
 	_apply()
 
 func set_palette(name: String) -> void:
@@ -225,6 +238,9 @@ func set_face_blend(smile: float) -> void:
 
 func begin_ease() -> void:
 	_ease = 0.0
+	ease_weight = 0.0
+	if _player:
+		_player.play("blend")
 	_ease_from = {
 		"arm_l": arm_l.rotation if arm_l else 0.0,
 		"arm_r": arm_r.rotation if arm_r else 0.0,
@@ -260,9 +276,8 @@ func _process(delta: float) -> void:
 	_ik.solve(delta)
 	if _ik.use_ik:
 		_ik.copy_to(arm_l, elbow_l, arm_r, elbow_r)
-	if _ease < 1.0:
-		_ease = minf(1.0, _ease + delta / 0.4)
-		_blend_from(_ease)
+	if ease_weight < 1.0:
+		_blend_from(ease_weight)
 
 func _blend_from(weight: float) -> void:
 	for pivot_name in _ease_from.keys():

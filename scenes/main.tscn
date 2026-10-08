@@ -61,7 +61,7 @@ pants_style = 0
 move_speed = 1.4
 
 [node name="NPC1" parent="." instance=ExtResource("1_char")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.5, 0.1, 1.5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1, 2)
 is_player = false
 palette = "woman_dark"
 pants_style = 0

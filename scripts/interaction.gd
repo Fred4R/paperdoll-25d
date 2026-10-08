@@ -420,7 +420,7 @@ func _close_wardrobe() -> void:
 
 func _show_wardrobe() -> void:
 	var record := SaveStore.record_for(npc.name)
-	list_label.text = "Wardrobe  %s\n1  Hair\n2  Shirt\n3  Skirt\n4  Nude\n5  Apply to all women\n6  Name\nEsc close" % record.display_name
+	list_label.text = "Wardrobe  %s\n1  Hair\n2  Shirt\n3  Skirt\n4  Nude\n5  Apply to all women\n6  Name\n7  Generate\nEsc close" % record.display_name
 	_show_icons()
 
 func _show_icons() -> void:
@@ -469,8 +469,25 @@ func _wardrobe_key(code: int) -> void:
 				other.nude = record.nude
 	elif code == KEY_6:
 		record.display_name = _next_name(record.display_name)
+	elif code == KEY_7:
+		_generate_woman()
 	SaveStore.save_records()
 	_show_wardrobe()
+
+func _generate_woman() -> void:
+	var scene := load("res://scenes/character_3d.tscn") as PackedScene
+	var woman := scene.instantiate() as CharacterBody3D
+	woman.name = "Gen%d" % _women.size()
+	woman.is_player = false
+	woman.palette = "woman_rose"
+	get_parent().add_child(woman)
+	var offset := _women.size() * 1.6
+	woman.global_position = Vector3(4.0 + offset, 0.1, 6.0)
+	woman.set_schedule([woman.global_position, woman.global_position + Vector3(0, 0, -4)])
+	var record := SaveStore.record_for(woman.name)
+	record.display_name = _next_name("")
+	record.palette = "woman_rose"
+	_women.append(woman)
 
 func _copy_slot(source: Node2D, dest: Node2D, slot: String) -> void:
 	if slot == "hair":
