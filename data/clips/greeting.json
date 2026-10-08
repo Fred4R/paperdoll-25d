@@ -1,6 +1,10 @@
 {
   "name": "greeting",
   "duration": 2.0,
+  "targets": {
+    "hand_l": [-16, 70],
+    "hand_r": [144, 70]
+  },
   "roles": {
     "player": {
       "arm_l": [[0.0, 0.0], [0.4, -0.35], [1.4, -0.35], [2.0, 0.0]],

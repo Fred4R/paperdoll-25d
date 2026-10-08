@@ -128,6 +128,26 @@ func end_clip() -> void:
 		_spot = _resume_spot
 		_wait = 0.2
 
+func set_target_marks(show: bool) -> void:
+	if paperdoll and paperdoll.has_method("set_target_marks"):
+		paperdoll.set_target_marks(show)
+
+func set_hand_targets(left: Vector2, right: Vector2) -> void:
+	if paperdoll and paperdoll.has_method("set_hand_targets"):
+		paperdoll.set_hand_targets(left, right)
+
+func nudge_target(hand: String, delta: Vector2) -> void:
+	if paperdoll and paperdoll.has_method("nudge_target"):
+		paperdoll.nudge_target(hand, delta)
+
+func set_ik_enabled(enabled: bool) -> void:
+	if paperdoll and paperdoll.has_method("set_ik_enabled"):
+		paperdoll.set_ik_enabled(enabled)
+
+func set_face_blend(amount: float) -> void:
+	if paperdoll and paperdoll.has_method("set_face_blend"):
+		paperdoll.set_face_blend(amount)
+
 func apply_clip_pose(pose: Dictionary) -> void:
 	if paperdoll and paperdoll.has_method("apply_pose"):
 		paperdoll.apply_pose(pose)
@@ -176,9 +196,9 @@ func _physics_process(delta: float) -> void:
 				if forward.length_squared() > 0.0001:
 					var facing := forward.normalized().dot(to_cam.normalized())
 					var view := "front"
-					if facing < -0.5:
+					if facing < 0.0:
 						view = "back"
-					elif absf(facing) < 0.5:
+					elif facing < 0.5:
 						view = "side"
 					paperdoll.set_view(view)
 

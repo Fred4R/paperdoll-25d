@@ -27,7 +27,7 @@ Living spec for the Godot 4 prototype in this folder. Code follows this file.
 
 ## Rig
 
-Every character, including the player, uses `data/palettes.json`. A palette names the front, side, and back layer for each part. Missing views fall back to front. `player`, `woman_dark`, and `woman_rose` are the current palettes.
+Hands aim through a Skeleton2D two-bone solve when the view is front. Side and back use authored angles and may pop. Past sideways shows the back art. The editor arrows move the hand targets. Comma and period scrub. A save without targets is skipped.
 
 Arms are out of frame by 0.7 s, held to 3.2 s, and back at 4.0 s. Her face track swaps calm and smile. Player keys share the clock.
 

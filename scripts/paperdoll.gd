@@ -76,6 +76,8 @@ var _clip_locked := false
 var _side := false
 var _back := false
 var hair_pivot: Node2D
+var _ik: Node2D
+var _face_smile := 0.0
 
 const PIVOT_NODES := {
 	"arm_l": "ArmL",
@@ -97,6 +99,9 @@ func _ready() -> void:
 		var kept := hair.position
 		hair.reparent(hair_pivot)
 		hair.position = kept - hair_pivot.position
+	_ik = load("res://scripts/arm_ik.gd").new()
+	_ik.name = "ArmIK"
+	add_child(_ik)
 	_apply()
 
 func set_palette(name: String) -> void:
@@ -184,6 +189,43 @@ func _elbow_flex(phase: float) -> float:
 		lift = sin((phase - STANCE) / (1.0 - STANCE) * PI)
 	return ELBOW_REST + 0.22 * lift
 
+func set_hand_targets(left: Vector2, right: Vector2) -> void:
+	if _ik:
+		_ik.set_targets(left, right)
+
+func nudge_target(hand: String, delta: Vector2) -> void:
+	if _ik == null:
+		return
+	if hand == "hand_l":
+		_ik.target_l += delta
+	else:
+		_ik.target_r += delta
+	_ik._place_marks()
+
+func selected_target(hand: String) -> Vector2:
+	if _ik == null:
+		return Vector2.ZERO
+	return _ik.target_l if hand == "hand_l" else _ik.target_r
+
+func set_ik_enabled(enabled: bool) -> void:
+	if _ik:
+		_ik.set_ik(enabled and not _side and not _back)
+
+func set_target_marks(show: bool) -> void:
+	if _ik:
+		_ik.set_marks(show)
+
+func set_face_blend(smile: float) -> void:
+	_face_smile = clampf(smile, 0.0, 1.0)
+	_set_hero_face(_face_smile >= 0.5)
+
+func _process(_delta: float) -> void:
+	if _ik == null:
+		return
+	_ik.solve()
+	if _ik.use_ik:
+		_ik.copy_to(arm_l, elbow_l, arm_r, elbow_r)
+
 func set_view(view: String) -> void:
 	var side := view == "side"
 	var back := view == "back"
@@ -191,6 +233,7 @@ func set_view(view: String) -> void:
 		return
 	_side = side
 	_back = back
+	set_ik_enabled(_ik.use_ik if _ik else false)
 	_apply()
 
 func set_side_view(side: bool) -> void:

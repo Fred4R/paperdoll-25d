@@ -33,7 +33,7 @@ var _list_ids: Array = []
 var _editing := false
 var _edit_time := 0.0
 var _edit_role := "npc"
-var _edit_pivot := "arm_r"
+var _hand := "hand_r"
 var _women: Array = []
 var _bare := false
 var _saved_palette := ""
@@ -117,6 +117,9 @@ func _open_editor() -> void:
 	player.begin_clip()
 	npc.begin_clip()
 	player.set_preview(true)
+	player.set_target_marks(true)
+	npc.set_target_marks(true)
+	_apply_targets()
 	_apply_edit()
 
 func _close_editor() -> void:
@@ -128,17 +131,20 @@ func _close_editor() -> void:
 
 func _editor_key(code: int) -> void:
 	var duration := float(_clip.get("duration", 4.0))
-	if code == KEY_RIGHT:
+	if code == KEY_PERIOD:
 		_edit_time = minf(duration, _edit_time + 0.1)
-	elif code == KEY_LEFT:
+	elif code == KEY_COMMA:
 		_edit_time = maxf(0.0, _edit_time - 0.1)
+	elif code == KEY_RIGHT:
+		_nudge_hand(Vector2(8, 0))
+	elif code == KEY_LEFT:
+		_nudge_hand(Vector2(-8, 0))
 	elif code == KEY_UP:
-		_nudge(0.1)
+		_nudge_hand(Vector2(0, -8))
 	elif code == KEY_DOWN:
-		_nudge(-0.1)
+		_nudge_hand(Vector2(0, 8))
 	elif code == KEY_A:
-		var pivots := ["arm_l", "arm_r", "elbow_l", "elbow_r"]
-		_edit_pivot = pivots[(pivots.find(_edit_pivot) + 1) % pivots.size()]
+		_hand = "hand_l" if _hand == "hand_r" else "hand_r"
 	elif code == KEY_R:
 		_edit_role = "player" if _edit_role == "npc" else "npc"
 	elif code == KEY_1:
@@ -155,8 +161,8 @@ func _editor_key(code: int) -> void:
 func _apply_edit() -> void:
 	_apply_clock(_edit_time)
 	list_panel.visible = true
-	list_label.text = "Editor  %s  %.1f s\n%s  %s\nLeft Right scrub   Up Down nudge\nA arm or elbow   R role   S save\nYou stay visible. Esc closes." % [
-		str(_clip.get("name", "clip")), _edit_time, _edit_role, _edit_pivot
+	list_label.text = "Editor  %s  %.1f s\n%s\nArrows move the hand\nComma Period scrub\nA hand   S save\nMarks hide when this closes." % [
+		str(_clip.get("name", "clip")), _edit_time, _hand
 	]
 
 func _nudge(amount: float) -> void:
@@ -176,6 +182,19 @@ func _nudge(amount: float) -> void:
 	roles[_edit_role] = tracks
 	_clip["roles"] = roles
 
+func _nudge_hand(delta: Vector2) -> void:
+	player.nudge_target(_hand, delta)
+	npc.nudge_target(_hand, delta)
+
+func _apply_targets() -> void:
+	var targets: Dictionary = _clip.get("targets", {})
+	var left: Array = targets.get("hand_l", [-16, 70])
+	var right: Array = targets.get("hand_r", [144, 70])
+	var l := Vector2(float(left[0]), float(left[1]))
+	var r := Vector2(float(right[0]), float(right[1]))
+	player.set_hand_targets(l, r)
+	npc.set_hand_targets(l, r)
+
 func _save_edit() -> void:
 	DirAccess.make_dir_recursive_absolute("user://clips")
 	var name := str(_clip.get("name", "clip"))
@@ -183,6 +202,10 @@ func _save_edit() -> void:
 	if file == null:
 		list_label.text = "Save failed."
 		return
+	_clip["targets"] = {
+		"hand_l": [player.paperdoll.selected_target("hand_l").x, player.paperdoll.selected_target("hand_l").y],
+		"hand_r": [player.paperdoll.selected_target("hand_r").x, player.paperdoll.selected_target("hand_r").y],
+	}
 	file.store_string(JSON.stringify(_clip, "  "))
 	list_label.text = "Saved user://clips/%s.json" % name
 
@@ -241,8 +264,12 @@ func _open_list() -> void:
 		var file_name := folder.get_next()
 		while file_name != "":
 			if file_name.ends_with(".json") and _list_ids.size() < 9:
+				var loaded: Dictionary = ClipLibrary.load_file("user://clips/%s" % file_name)
+				if not loaded.has("targets"):
+					file_name = folder.get_next()
+					continue
 				var id := "user:%s" % file_name
-				_clips[id] = ClipLibrary.load_file("user://clips/%s" % file_name)
+				_clips[id] = loaded
 				_list_ids.append(id)
 				lines.append("%d  %s" % [_list_ids.size(), file_name.trim_suffix(".json")])
 			file_name = folder.get_next()
@@ -305,6 +332,14 @@ func _begin_contact() -> void:
 	_apply_clock(0.0)
 
 func _apply_clock(time_sec: float) -> void:
+	_apply_targets()
+	var side := false
+	if npc.paperdoll and npc.paperdoll.has_method("set_view"):
+		side = npc.paperdoll._side or npc.paperdoll._back
+	player.set_ik_enabled(not side)
+	npc.set_ik_enabled(not side)
+	player.set_face_blend(clampf(time_sec / 0.5, 0.0, 1.0))
+	npc.set_face_blend(clampf(time_sec / 0.5, 0.0, 1.0))
 	player.apply_clip_pose(ClipLibrary.sample(_clip, "player", time_sec))
 	npc.apply_clip_pose(ClipLibrary.sample(_clip, "npc", time_sec))
 
