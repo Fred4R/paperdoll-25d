@@ -12,6 +12,7 @@ const COOLDOWN := 3.0
 const ARRIVE := 0.12
 const TAP_ARRIVE := 0.25
 const TAP_SLOP := 16.0
+const REACH_AT := 0.7
 
 @onready var player: CharacterBody3D = $"../Player"
 @onready var npc: CharacterBody3D = $"../NPC1"
@@ -52,6 +53,7 @@ var _touches := {}
 var _bare := false
 var _slot := Vector3.ZERO
 var _reach_played := false
+var _stepping_back: CharacterBody3D = null
 
 func _ready() -> void:
 	_clips = {
@@ -228,9 +230,12 @@ func _process(delta: float) -> void:
 			_clock += delta
 			var duration := float(_clip.get("duration", 4.0))
 			_apply_clock(minf(_clock, duration))
+			if not _reach_played and _clock >= REACH_AT:
+				_play_reach()
 			if _clock >= duration:
 				_finish_clip()
 		return
+	_end_step_back()
 	if _approaching:
 		if _at_contact() or (npc.has_method("approach_done") and npc.approach_done()):
 			_face_player()
@@ -522,9 +527,30 @@ func _begin_contact() -> void:
 	if not _side_view():
 		player.begin_ease()
 		npc.begin_ease()
+	if not _is_embrace():
+		_play_reach()
+	_apply_clock(0.0)
+
+## Embrace plays its reach sound at 0.7 s on the clip clock; other clips keep it at contact.
+func _is_embrace() -> bool:
+	return str(_clip.get("name", "")) == "embrace"
+
+func _play_reach() -> void:
+	_reach_played = true
 	if reach:
 		reach.play()
-	_apply_clock(0.0)
+
+## The step back after a clip ends when she reaches it or the cooldown runs out,
+## then she is free again and walks back to the spot she left.
+func _end_step_back() -> void:
+	if _stepping_back == null:
+		return
+	if not is_instance_valid(_stepping_back):
+		_stepping_back = null
+		return
+	if _cooldown <= 0.0 or _stepping_back.approach_done():
+		_stepping_back.cancel_approach()
+		_stepping_back = null
 
 func _apply_clock(time_sec: float) -> void:
 	_apply_targets()
@@ -561,6 +587,7 @@ func _finish_clip() -> void:
 	if away.length_squared() < 0.01:
 		away = Vector3.FORWARD
 	npc.begin_approach(player.global_position + away.normalized() * 1.2, player.global_position)
+	_stepping_back = npc
 
 func _open_wardrobe() -> void:
 	_select_nearest()
