@@ -12,11 +12,11 @@ The `Skeleton2D` should own that call. Keep the `Bone2D` chain.
 
 `CharacterRecord` exists and the clothes ignore it. `SaveStore` should load and save her id, name, colors, and clothes overrides.
 
-The list in `interaction.gd` should cache those records, not be the source.
+The list in `list_and_clock.gd` should cache those records, not be the source.
 
 ## 3. On-screen buttons
 
-`scenes/hud.tscn` is in the scene. `hud.gd` has `closed`, and nothing connects it.
+`scenes/on_screen_buttons.tscn` is in the scene. `on_screen_buttons.gd` has `closed`, and nothing connects it.
 
 The list code sends the animation names, the clothes lines, or the editor text. The panel shows and hides itself. Esc emits `closed`.
 

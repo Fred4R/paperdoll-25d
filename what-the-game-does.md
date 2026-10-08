@@ -30,13 +30,13 @@ Hands aim through a two-bone arm solve on the front view. Side and back use save
 
 ## Saved animation file
 
-The built-in hug is `res://data/clips/embrace.json`. Later saved files go in `user://clips/*.json`.
+The built-in hug is `res://data/animations/hug.json`. Later saved files go in `user://clips/*.json`.
 
 Keys are time in seconds and rotation in radians on `leg_l`, `leg_r`, `knee_l`, `knee_r`, `arm_l`, `arm_r`, `elbow_l`, `elbow_r`. Her face key is 0 for calm and 1 for smile.
 
 ## Code
 
-- `scripts/clip_library.gd` loads the animation and reads a time on it.
-- `scripts/interaction.gd` opens the list and runs the shared clock.
+- `scripts/animation_list.gd` loads the animation and reads a time on it.
+- `scripts/list_and_clock.gd` opens the list and runs the shared clock.
 - `scripts/paperdoll.gd` applies the pose.
 - `scripts/character_3d.gd` walks her day, walks her to you, and holds the animation.

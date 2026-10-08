@@ -1,5 +1,5 @@
 extends RefCounted
-class_name ClipLibrary
+class_name AnimationList
 ## Pivot-curve clips. Same schema the in-game editor will write to user://clips.
 
 const PIVOTS := [

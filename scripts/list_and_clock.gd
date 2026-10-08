@@ -2,10 +2,10 @@ extends Node
 ## Director. List, freeze, she walks to you, one shared clock, both roles.
 ## Esc and Close cancel only before contact. A started clip always plays out.
 
-const EMBRACE_PATH := "res://data/clips/embrace.json"
-const GREETING_PATH := "res://data/clips/greeting.json"
-const HANDHOLD_PATH := "res://data/clips/handhold.json"
-const ClipLibrary := preload("res://scripts/clip_library.gd")
+const HUG_PATH := "res://data/animations/hug.json"
+const GREETING_PATH := "res://data/animations/greeting.json"
+const HAND_HOLD_PATH := "res://data/animations/hand_hold.json"
+const AnimationList := preload("res://scripts/animation_list.gd")
 const PROMPT_RADIUS := 1.2
 const SLOT_GAP := 0.4
 const COOLDOWN := 3.0
@@ -13,14 +13,17 @@ const ARRIVE := 0.12
 const TAP_ARRIVE := 0.25
 const TAP_SLOP := 16.0
 const REACH_AT := 0.7
-## Ines (NPC1) is a neighbor who comes over to draw the north yard gate from the window.
-const INES_NAME := "Ines"
-const INES_BEATS := [
+## The woman (NPC1) is a neighbor who comes over to draw the north yard gate from the window.
+const WOMAN_NAME := "Woman"
+const FRIEND_NAME := "Friend"
+## A name an earlier build wrote into saves; it is replaced by the name Fred set.
+const OLD_NAME := "Ines"
+const SIT_LINES := [
 	["I come over for this window. It's the only one that sees the yard gate straight on.", "What are you drawing?", "Why the gate?"],
 	["The gate. My grandfather hung it. It sticks every winter and nobody else remembers why.", "Tell me.", "Can I see?"],
 	["He set it crooked on purpose so it would swing shut by itself. Here, keep this one. I'll start another.", "Thank you.", "Put it on the wall."],
 ]
-const INES_AGAIN := ["Still crooked. Still shuts by itself.", "Sit a while."]
+const SIT_AGAIN := ["Still crooked. Still shuts by itself.", "Sit a while."]
 const SIT_WALK_MAX := 8.0
 
 @onready var player: CharacterBody3D = $"../Player"
@@ -38,8 +41,8 @@ const SIT_WALK_MAX := 8.0
 @onready var prompt: Label = $"../HUD/Prompt"
 @onready var list_panel: PanelContainer = $"../HUD/List"
 @onready var list_label: Label = $"../HUD/List/Rows/Label"
-@onready var ines: CharacterBody3D = $"../NPC1"
-@onready var ines_sketch: MeshInstance3D = get_node_or_null("../InesSketch")
+@onready var woman_npc: CharacterBody3D = $"../NPC1"
+@onready var gate_sketch: MeshInstance3D = get_node_or_null("../GateSketch")
 
 var _clip: Dictionary = {}
 var _clips := {}
@@ -72,9 +75,9 @@ var _scene_again := false
 
 func _ready() -> void:
 	_clips = {
-		"embrace": ClipLibrary.load_file(EMBRACE_PATH),
-		"greeting": ClipLibrary.load_file(GREETING_PATH),
-		"handhold": ClipLibrary.load_file(HANDHOLD_PATH),
+		"embrace": AnimationList.load_file(HUG_PATH),
+		"greeting": AnimationList.load_file(GREETING_PATH),
+		"handhold": AnimationList.load_file(HAND_HOLD_PATH),
 	}
 	_clip = _clips["embrace"]
 	list_panel.visible = false
@@ -96,7 +99,7 @@ func _ready() -> void:
 		player.walk_ended.connect(_on_walk_ended)
 	_set_hint()
 	_load_records()
-	_ines_ready()
+	_woman_ready()
 
 ## A row on the HUD list, or number key 1-9. The last row is Close.
 func _on_hud_picked(index: int) -> void:
@@ -476,23 +479,23 @@ func _refresh_prompt() -> void:
 		prompt.modulate.a = maxf(0.0, prompt.modulate.a - 0.05)
 		prompt.visible = prompt.modulate.a > 0.05
 
-## Sheet rows: Embrace, Greeting, Sit with Ines (her sheet only), each paired save in user://clips, then Close.
+## Sheet rows: Embrace, Greeting, Sit with the woman (her list only), each paired save in user://clips, then Close.
 ## Hand hold stays loaded for the editor but is not a sheet row.
 func _open_list() -> void:
 	_list_open = true
 	prompt.visible = false
 	_list_ids = ["embrace", "greeting"]
 	var lines := ["1  Embrace", "2  Greeting"]
-	if npc == ines:
-		_list_ids.append("sit_ines")
-		lines.append("%d  Sit with %s" % [_list_ids.size(), _ines_name()])
+	if npc == woman_npc:
+		_list_ids.append("sit_with_woman")
+		lines.append("%d  Sit with %s" % [_list_ids.size(), _npc1_name()])
 	var folder := DirAccess.open("user://clips")
 	if folder:
 		folder.list_dir_begin()
 		var file_name := folder.get_next()
 		while file_name != "":
 			if file_name.ends_with(".json") and _list_ids.size() < 9:
-				var loaded: Dictionary = ClipLibrary.load_file("user://clips/%s" % file_name)
+				var loaded: Dictionary = AnimationList.load_file("user://clips/%s" % file_name)
 				if not _paired(loaded):
 					file_name = folder.get_next()
 					continue
@@ -518,7 +521,7 @@ func _close_list() -> void:
 ## Greeting (built-in or a save named greeting) plays where she stands.
 ## Any other row walks her to the slot; the clip clock starts at contact.
 func _pick(clip_name: String) -> void:
-	if clip_name == "sit_ines":
+	if clip_name == "sit_with_woman":
 		_start_scene()
 		return
 	if clip_name == "shirtoff":
@@ -600,8 +603,8 @@ func _apply_clock(time_sec: float) -> void:
 	npc.set_ik_enabled(not side)
 	player.set_face_blend(clampf(time_sec / 0.5, 0.0, 1.0))
 	npc.set_face_blend(clampf(time_sec / 0.5, 0.0, 1.0))
-	player.apply_clip_pose(ClipLibrary.sample(_clip, "player", time_sec))
-	npc.apply_clip_pose(ClipLibrary.sample(_clip, "npc", time_sec))
+	player.apply_clip_pose(AnimationList.sample(_clip, "player", time_sec))
+	npc.apply_clip_pose(AnimationList.sample(_clip, "npc", time_sec))
 
 func _side_view() -> bool:
 	return npc.paperdoll != null and (npc.paperdoll._side or npc.paperdoll._back)
@@ -784,30 +787,34 @@ func _set_hint() -> void:
 	if npc and npc.paperdoll and npc.paperdoll.get("_quarter"):
 		hint.text += "    Front fallback"
 
-## Ines keeps her paperdoll and clothes; only the shown name changes, unless it was renamed in the wardrobe.
+## The woman and her friend keep their paperdolls and clothes; only the shown names are set, unless renamed in the wardrobe.
 ## A saved sketch_given hangs the sketch and keeps her schedule at the chair.
-func _ines_ready() -> void:
-	if ines == null:
+func _woman_ready() -> void:
+	if woman_npc == null:
 		return
-	var record := SaveStore.record_for(ines.name)
-	if record.display_name == record.id:
-		record.display_name = INES_NAME
+	var record := SaveStore.record_for(woman_npc.name)
+	if record.display_name == record.id or record.display_name == OLD_NAME:
+		record.display_name = WOMAN_NAME
+	if npc2:
+		var friend_record := SaveStore.record_for(npc2.name)
+		if friend_record.display_name == friend_record.id:
+			friend_record.display_name = FRIEND_NAME
 	_apply_sketch(record.sketch_given)
 
 ## Godot 4.3 headless (dummy renderer) logs "Parameter m is null" when a mesh instance is freed
 ## still holding its mesh; dropping the sketch mesh as the scene exits keeps that log clean.
 func _exit_tree() -> void:
-	if ines_sketch:
-		ines_sketch.mesh = null
+	if gate_sketch:
+		gate_sketch.mesh = null
 
-func _ines_name() -> String:
-	return SaveStore.record_for(ines.name).display_name
+func _npc1_name() -> String:
+	return SaveStore.record_for(woman_npc.name).display_name
 
 func _apply_sketch(given: bool) -> void:
-	if ines_sketch:
-		ines_sketch.visible = given
-	if given and ines.has_method("set_schedule"):
-		ines.set_schedule([chair_mark.global_position])
+	if gate_sketch:
+		gate_sketch.visible = given
+	if given and woman_npc.has_method("set_schedule"):
+		woman_npc.set_schedule([chair_mark.global_position])
 
 func _scene_active() -> bool:
 	return _scene_beat >= 0 or _scene_walk
@@ -815,28 +822,28 @@ func _scene_active() -> bool:
 func _scene_rows() -> int:
 	return 1 if _scene_again else 2
 
-## Sit with Ines: she walks to the chair on her approach walk, sits, then the beats play on the HUD sheet.
+## Sit with the woman: she walks to the chair on her approach walk, sits, then the beats play on the HUD sheet.
 ## The player stays where he is, frozen in first person, and can still look around.
 func _start_scene() -> void:
 	_list_open = false
 	$"../HUD".hide_panel()
-	_scene_again = SaveStore.record_for(ines.name).sketch_given
+	_scene_again = SaveStore.record_for(woman_npc.name).sketch_given
 	_scene_walk = true
 	_scene_walk_t = 0.0
 	player.set_mode_frozen(true)
 	var seat := chair_mark.global_position
-	seat.y = ines.global_position.y
-	ines.begin_approach(seat, window_mark.global_position)
+	seat.y = woman_npc.global_position.y
+	woman_npc.begin_approach(seat, window_mark.global_position)
 
 ## She sits when she reaches the chair, or after SIT_WALK_MAX seconds if something blocks her.
 func _scene_walk_step(delta: float) -> void:
 	_scene_walk_t += delta
-	if not ines.approach_done() and not ines.approach_stuck() and _scene_walk_t < SIT_WALK_MAX:
+	if not woman_npc.approach_done() and not woman_npc.approach_stuck() and _scene_walk_t < SIT_WALK_MAX:
 		return
 	_scene_walk = false
-	ines.begin_clip()
-	if ines.paperdoll:
-		ines.paperdoll.set_seated(true)
+	woman_npc.begin_clip()
+	if woman_npc.paperdoll:
+		woman_npc.paperdoll.set_seated(true)
 	_show_beat(0)
 
 func _show_beat(beat: int) -> void:
@@ -844,11 +851,11 @@ func _show_beat(beat: int) -> void:
 	var title := ""
 	var lines := PackedStringArray()
 	if _scene_again:
-		title = "%s: %s" % [_ines_name(), INES_AGAIN[0]]
-		lines.append("1  %s" % INES_AGAIN[1])
+		title = "%s: %s" % [_npc1_name(), SIT_AGAIN[0]]
+		lines.append("1  %s" % SIT_AGAIN[1])
 	else:
-		var row: Array = INES_BEATS[beat]
-		title = "%s: %s" % [_ines_name(), row[0]]
+		var row: Array = SIT_LINES[beat]
+		title = "%s: %s" % [_npc1_name(), row[0]]
 		lines.append("1  %s" % row[1])
 		lines.append("2  %s" % row[2])
 		lines.append("Close")
@@ -860,7 +867,7 @@ func _scene_reply(index: int) -> void:
 	if index >= _scene_rows():
 		$"../HUD".hide_panel()
 		return
-	if not _scene_again and _scene_beat + 1 < INES_BEATS.size():
+	if not _scene_again and _scene_beat + 1 < SIT_LINES.size():
 		_show_beat(_scene_beat + 1)
 		return
 	var kept := not _scene_again
@@ -873,17 +880,17 @@ func _end_scene(kept: bool) -> void:
 	_scene_beat = -1
 	_scene_walk = false
 	if was_walking:
-		ines.cancel_approach()
+		woman_npc.cancel_approach()
 	else:
-		if ines.paperdoll:
-			ines.paperdoll.set_seated(false)
-		ines.end_clip()
+		if woman_npc.paperdoll:
+			woman_npc.paperdoll.set_seated(false)
+		woman_npc.end_clip()
 	player.set_mode_frozen(false)
 	if kept:
 		_give_sketch()
 
 func _give_sketch() -> void:
-	var record := SaveStore.record_for(ines.name)
+	var record := SaveStore.record_for(woman_npc.name)
 	record.sketch_given = true
 	SaveStore.save_records()
 	SaveStore.save_one(record)

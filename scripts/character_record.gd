@@ -12,5 +12,5 @@ class_name CharacterRecord
 @export var nude_override := false
 @export var chest := false
 @export var groin := false
-## Ines only: she gave the player her gate sketch. It hangs on the wall from then on.
+## The woman (NPC1) only: she gave the player her gate sketch. It hangs on the wall from then on.
 @export var sketch_given := false

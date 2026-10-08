@@ -1,12 +1,12 @@
 [gd_scene load_steps=19 format=3 uid="uid://bmain25d01"]
 
 [ext_resource type="PackedScene" path="res://scenes/character_3d.tscn" id="1_char"]
-[ext_resource type="Script" path="res://scripts/interaction.gd" id="2_interact"]
+[ext_resource type="Script" path="res://scripts/list_and_clock.gd" id="2_interact"]
 [ext_resource type="AudioStream" path="res://assets/audio/reach.wav" id="3_reach"]
 [ext_resource type="Script" path="res://scripts/mirror.gd" id="4_mirror"]
-[ext_resource type="PackedScene" path="res://scenes/hud.tscn" id="5_hud"]
+[ext_resource type="PackedScene" path="res://scenes/on_screen_buttons.tscn" id="5_hud"]
 [ext_resource type="PackedScene" path="res://scenes/yard.tscn" id="6_yard"]
-[ext_resource type="Texture2D" path="res://assets/scenes/ines_gate_sketch.svg" id="7_sketch"]
+[ext_resource type="Texture2D" path="res://assets/scenes/gate_sketch.svg" id="7_sketch"]
 [ext_resource type="Texture2D" path="res://assets/paperdoll/front/face_f_hero.svg" id="8_portrait"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_1"]
@@ -141,7 +141,7 @@ billboard = 0
 shaded = false
 texture = ExtResource("8_portrait")
 
-[node name="InesSketch" type="MeshInstance3D" parent="."]
+[node name="GateSketch" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.47, 1.45, -2.75)
 visible = false
 mesh = SubResource("SketchQuad")
