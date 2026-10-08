@@ -2,6 +2,7 @@ extends Node
 ## Director. List, freeze, she walks to you, one shared clock, both roles.
 
 const EMBRACE_PATH := "res://data/clips/embrace.json"
+const ClipLibrary := preload("res://scripts/clip_library.gd")
 const PROMPT_RADIUS := 1.6
 const SLOT_GAP := 0.25
 const COOLDOWN := 5.0
