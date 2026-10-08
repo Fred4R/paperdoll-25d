@@ -5,7 +5,7 @@
 [ext_resource type="Texture2D" path="res://assets/paperdoll/front/face_f_hero.svg" id="3_face"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_1"]
-radius = 0.28
+radius = 0.4
 height = 1.7
 
 [node name="Character3D" type="CharacterBody3D"]

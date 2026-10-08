@@ -583,8 +583,10 @@ func _load_records() -> void:
 	for woman in _women:
 		if woman == null:
 			continue
-		var record := SaveStore.record_for(woman.name)
-		if record.nude:
+		var saved := SaveStore.load_one(woman.name)
+		if saved == null:
+			list_label.text = "Missing record for %s" % woman.name
+		elif saved.nude:
 			woman.set_nude(true)
 
 func _save_records() -> void:

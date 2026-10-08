@@ -158,6 +158,30 @@ texture = ExtResource("8_arm")
 region_enabled = true
 region_rect = Rect2(0, 31, 18, 31)
 
+[node name="ArmSkeleton" type="Skeleton2D" parent="."]
+
+[node name="UpperL" type="Bone2D" parent="ArmSkeleton"]
+position = Vector2(42, 64)
+rest = Transform2D(1, 0, 0, 1, 42, 64)
+
+[node name="LowerL" type="Bone2D" parent="ArmSkeleton/UpperL"]
+position = Vector2(0, 31)
+rest = Transform2D(1, 0, 0, 1, 0, 31)
+
+[node name="UpperR" type="Bone2D" parent="ArmSkeleton"]
+position = Vector2(86, 64)
+rest = Transform2D(1, 0, 0, 1, 86, 64)
+
+[node name="LowerR" type="Bone2D" parent="ArmSkeleton/UpperR"]
+position = Vector2(0, 31)
+rest = Transform2D(1, 0, 0, 1, 0, 31)
+
+[node name="AimL" type="Marker2D" parent="ArmSkeleton"]
+position = Vector2(-16, 70)
+
+[node name="AimR" type="Marker2D" parent="ArmSkeleton"]
+position = Vector2(144, 70)
+
 [node name="Eyes" type="Sprite2D" parent="."]
 position = Vector2(64, 96)
 texture = ExtResource("10_eyes")

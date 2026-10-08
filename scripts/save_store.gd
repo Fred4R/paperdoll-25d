@@ -36,6 +36,18 @@ func record_for(id: String) -> CharacterRecord:
 		cast[id] = record
 	return cast[id]
 
+func save_one(record: CharacterRecord) -> void:
+	DirAccess.make_dir_recursive_absolute("user://records")
+	var err := ResourceSaver.save(record, "user://records/%s.tres" % record.id)
+	if err != OK:
+		push_warning("Record save failed for %s" % record.id)
+
+func load_one(id: String) -> CharacterRecord:
+	var path := "user://records/%s.tres" % id
+	if not FileAccess.file_exists(path):
+		return null
+	return load(path) as CharacterRecord
+
 func save_records() -> void:
 	for id in cast.keys():
 		var record: CharacterRecord = cast[id]

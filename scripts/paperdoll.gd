@@ -130,6 +130,22 @@ func _ready() -> void:
 	_player.add_animation_library("", library)
 	_apply()
 
+func _reparent_arms() -> void:
+	var upper_l := get_node_or_null("ArmSkeleton/UpperL")
+	var lower_l := get_node_or_null("ArmSkeleton/LowerL")
+	var upper_r := get_node_or_null("ArmSkeleton/UpperR")
+	var lower_r := get_node_or_null("ArmSkeleton/LowerR")
+	if upper_l and arm_l:
+		arm_l.get_node("Upper").reparent(upper_l)
+		arm_l.get_node("Sleeve").reparent(upper_l)
+	if lower_l and arm_l:
+		arm_l.get_node("Elbow/Forearm").reparent(lower_l)
+	if upper_r and arm_r:
+		arm_r.get_node("Upper").reparent(upper_r)
+		arm_r.get_node("Sleeve").reparent(upper_r)
+	if lower_r and arm_r:
+		arm_r.get_node("Elbow/Forearm").reparent(lower_r)
+
 func set_palette(name: String) -> void:
 	palette_name = name
 	var file := FileAccess.open("res://data/palettes.json", FileAccess.READ)
