@@ -54,9 +54,8 @@ func _ik(upper: Bone2D, lower: Bone2D, aim: Node2D, left: bool) -> SkeletonModif
 	ik.set_joint_one_bone2d_node(upper.get_path())
 	ik.set_joint_two_bone2d_node(lower.get_path())
 	ik.target_nodepath = aim.get_path()
-	ik.flip_bend_direction = left
-	ik.target_maximum_distance = 70.0
-	ik.target_minimum_distance = 20.0
+	ik.flip_bend_direction = not left
+	ik.target_minimum_distance = 12.0
 	return ik
 
 func _mark() -> Polygon2D:

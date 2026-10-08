@@ -466,7 +466,7 @@ func _woman_name(body: Node) -> String:
 	return str(record.get("name", body.name))
 
 func _next_name(current: String) -> String:
-	var names := ["Mara", "Lena", "Nora", "Iris"]
+	var names := ["Ada", "Ruth", "Cora", "June"]
 	var index := names.find(current)
 	return names[(index + 1) % names.size()]
 
