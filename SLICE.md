@@ -23,15 +23,17 @@ Living spec for the Godot 4 prototype in this folder. Code follows this file.
 - Schedule: **window, then chair**, loop. Idle, walk, interruptible. On end she resumes the spot she left.
 - Prompt radius: **1.6 m**.
 
-## Rig limit
+## Rig
 
-Current paperdoll art is a profile rig. The embrace poses in the sprite plane. A true front-facing wrap needs front-view layers later. The sampler does not care which art is on the pivots.
+The body cut-out stays on a 128 by 192 viewport. The face is a separate 256 texture on its own billboard, so the eyes are not limited to a few texels at 0.25 m. Front set only during the hold. Side and back are not in this slice.
+
+Arms are out of frame by 0.7 s, held to 3.2 s, and back at 4.0 s. Her face track swaps calm and smile. Player keys share the clock.
 
 ## Clip schema
 
 `res://data/clips/embrace.json` now. Later player files: `user://clips/*.json`.
 
-Keys are `[time_seconds, rotation_radians]` on `leg_l`, `leg_r`, `knee_l`, `knee_r`, `arm_l`, `arm_r`, `elbow_l`, `elbow_r`.
+Keys are `[time_seconds, rotation_radians]` on `leg_l`, `leg_r`, `knee_l`, `knee_r`, `arm_l`, `arm_r`, `elbow_l`, `elbow_r`. Her role also has `face`: 0 calm, 1 smile.
 
 ## Code
 

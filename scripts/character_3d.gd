@@ -15,6 +15,8 @@ enum Mode { FREE, FROZEN, APPROACH, CLIP }
 @export var schedule_wait: float = 3.5
 
 @onready var sprite: Sprite3D = $Sprite3D
+@onready var face_billboard: Sprite3D = $Sprite3D/FaceBillboard
+@onready var face_viewport: SubViewport = $FaceViewport
 @onready var viewport: SubViewport = $SubViewport
 @onready var paperdoll: Node2D = $SubViewport/Paperdoll
 @onready var head: Node3D = $Head
@@ -36,6 +38,7 @@ func _ready() -> void:
 		paperdoll.set_look(hair_style, shirt_style, pants_style, female)
 	if is_player:
 		sprite.layers = 2
+		face_billboard.layers = 2
 		camera.current = true
 		camera.cull_mask = camera.cull_mask & ~2
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
@@ -46,6 +49,7 @@ func _ready() -> void:
 
 func _bind_viewport() -> void:
 	sprite.texture = viewport.get_texture()
+	face_billboard.texture = face_viewport.get_texture()
 
 func set_schedule(points: Array) -> void:
 	_schedule.clear()

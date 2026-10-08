@@ -161,8 +161,8 @@ func _elbow_flex(phase: float) -> float:
 
 func set_clip_locked(locked: bool) -> void:
 	_clip_locked = locked
-	if not locked and female and eyes:
-		eyes.texture = load(FACE_FEMALE)
+	if not locked and female:
+		_set_hero_face(true)
 
 func apply_pose(pose: Dictionary) -> void:
 	for pivot_name in pose.keys():
@@ -172,9 +172,8 @@ func apply_pose(pose: Dictionary) -> void:
 		var pivot := get_node_or_null(path) as Node2D
 		if pivot:
 			pivot.rotation = float(pose[pivot_name])
-	if pose.has("face") and female and eyes:
-		var smile := float(pose["face"]) >= 0.5
-		eyes.texture = load("res://assets/paperdoll/front/face_f.svg" if smile else "res://assets/paperdoll/front/face_f_calm.svg")
+	if pose.has("face") and female:
+		_set_hero_face(float(pose["face"]) >= 0.5)
 
 func _swing(pivot: Node2D, angle: float) -> void:
 	if pivot:
@@ -195,7 +194,8 @@ func _apply() -> void:
 	if hair:
 		hair.texture = load(_hairs()[hair_i])
 	if eyes:
-		eyes.texture = load(FACE_FEMALE if female else FACE_MALE)
+		eyes.visible = false
+	_set_hero_face(true)
 	if shirt:
 		shirt.texture = load(SHIRT_FRONT_F if female else SHIRT_FRONT_M)
 		shirt.modulate = Color.WHITE
@@ -243,6 +243,15 @@ func _apply() -> void:
 		sleeve.modulate = Color.WHITE
 		var sleeve_size := sleeve.texture.get_size()
 		sleeve.offset = Vector2(-sleeve_size.x * 0.5, 0)
+
+func _set_hero_face(smile: bool) -> void:
+	var face := get_node_or_null("../../FaceViewport/Face") as Sprite2D
+	if face == null:
+		return
+	if female:
+		face.texture = load("res://assets/paperdoll/front/face_f_hero.svg" if smile else "res://assets/paperdoll/front/face_f_calm_hero.svg")
+	else:
+		face.texture = load("res://assets/paperdoll/front/face_m_hero.svg")
 
 func _half(sprite: Sprite2D, top: bool) -> float:
 	var size := sprite.texture.get_size()
