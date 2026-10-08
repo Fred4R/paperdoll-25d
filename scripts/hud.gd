@@ -25,7 +25,20 @@ func _ready() -> void:
 	list_panel.visible = false
 	prompt.visible = false
 
-func show_panel(text: String) -> void:
+signal picked(index: int)
+
+@onready var choices: ItemList = $List/Choices
+
+func show_choices(lines: PackedStringArray) -> void:
+	list_panel.visible = true
+	choices.clear()
+	for line in lines:
+		choices.add_item(line)
+	if not choices.item_selected.is_connected(_on_pick):
+		choices.item_selected.connect(_on_pick)
+
+func _on_pick(index: int) -> void:
+	picked.emit(index)
 	list_panel.visible = true
 	list_label.text = text
 
