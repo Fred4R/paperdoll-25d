@@ -28,6 +28,7 @@ const TURN_RATE := 10.0
 @onready var paperdoll: Node2D = $SubViewport/Paperdoll
 @onready var head: Node3D = $Head
 @onready var camera: Camera3D = $Head/Camera3D
+@onready var agent: NavigationAgent3D = get_node_or_null("NavigationAgent3D")
 
 var _yaw := 0.0
 var _pitch := 0.0
@@ -108,6 +109,7 @@ func begin_approach(target: Vector3, face_point: Vector3) -> void:
 	_face_point = face_point
 	_mode = Mode.APPROACH
 	collision_mask = 1
+	_set_agent_target(target)
 
 func approach_done() -> bool:
 	var flat := global_position
@@ -129,6 +131,7 @@ func walk_to(point: Vector3, stop_distance: float) -> void:
 	_walk_target = point
 	_walk_stop = stop_distance
 	_walking = true
+	_set_agent_target(point)
 
 func stop_walk() -> void:
 	_walking = false
@@ -191,8 +194,6 @@ func set_slots(show_chest: bool, show_groin: bool) -> void:
 func set_seated(seated: bool) -> void:
 	if paperdoll and paperdoll.has_method("set_seated"):
 		paperdoll.set_seated(seated)
-	if paperdoll and paperdoll.has_method("set_nude"):
-		paperdoll.set_nude(show)
 
 func set_hair_tint(tint: Color) -> void:
 	if paperdoll and paperdoll.has_method("set_hair_tint"):
@@ -309,8 +310,7 @@ func _player_input() -> Vector3:
 	return input_dir
 
 func _walk_step() -> Vector3:
-	var to_goal := _walk_target - global_position
-	to_goal.y = 0.0
+	var to_goal := _path_to(_walk_target)
 	if to_goal.length() <= _walk_stop:
 		_walking = false
 		walk_ended.emit(true)
@@ -321,8 +321,7 @@ func _npc_input(delta: float) -> Vector3:
 	if _mode == Mode.FROZEN or _mode == Mode.CLIP:
 		return Vector3.ZERO
 	if _mode == Mode.APPROACH:
-		var to_slot := _approach_target - global_position
-		to_slot.y = 0.0
+		var to_slot := _path_to(_approach_target)
 		if to_slot.length() <= 0.12:
 			_face(_face_point)
 			return Vector3.ZERO
@@ -333,8 +332,7 @@ func _schedule_input(delta: float) -> Vector3:
 	if _schedule.is_empty():
 		return Vector3.ZERO
 	var goal := _schedule[_spot]
-	var to_goal := goal - global_position
-	to_goal.y = 0.0
+	var to_goal := _path_to(goal)
 	if to_goal.length() > 0.2:
 		if _player_near():
 			return Vector3.ZERO
@@ -343,7 +341,21 @@ func _schedule_input(delta: float) -> Vector3:
 	if _wait <= 0.0:
 		_spot = (_spot + 1) % _schedule.size()
 		_wait = schedule_wait
+		_set_agent_target(_schedule[_spot])
 	return Vector3.ZERO
+
+func _set_agent_target(point: Vector3) -> void:
+	if agent:
+		agent.target_position = point
+
+func _path_to(goal: Vector3) -> Vector3:
+	_set_agent_target(goal)
+	var next := goal
+	if agent and not agent.is_navigation_finished():
+		next = agent.get_next_path_position()
+	var to_next := next - global_position
+	to_next.y = 0.0
+	return to_next
 
 func _avoid(desired: Vector3) -> Vector3:
 	var push := Vector3.ZERO
