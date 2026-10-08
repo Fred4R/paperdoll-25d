@@ -81,7 +81,7 @@ func _input(event: InputEvent) -> void:
 			_finish_clip()
 			get_viewport().set_input_as_handled()
 		return
-	if event is InputEventKey and event.keycode == KEY_TAB and not _list_open and not _editing and not _playing:
+	if event.is_action_pressed("wardrobe") and not _list_open and not _editing and not _playing:
 		_open_wardrobe()
 		get_viewport().set_input_as_handled()
 		return
@@ -89,7 +89,7 @@ func _input(event: InputEvent) -> void:
 		_wardrobe_key(event.keycode)
 		get_viewport().set_input_as_handled()
 		return
-	if event is InputEventKey and event.keycode == KEY_C and _can_edit():
+	if event.is_action_pressed("editor") and _can_edit():
 		_open_editor()
 		get_viewport().set_input_as_handled()
 		return
@@ -471,14 +471,12 @@ func _next_name(current: String) -> String:
 	return names[(index + 1) % names.size()]
 
 func _load_records() -> void:
-	var file := FileAccess.open("user://characters.json", FileAccess.READ)
-	if file == null:
-		return
-	var parsed: Variant = JSON.parse_string(file.get_as_text())
-	if typeof(parsed) != TYPE_DICTIONARY:
+	SaveStore.load_records()
+	var parsed: Dictionary = SaveStore.records
+	if parsed.is_empty():
 		return
 	_records = parsed
-	_last_slot = str(_records.get("_last_slot", "nude"))
+	_last_slot = SaveStore.last_slot
 	for woman in _women:
 		if woman == null:
 			continue
@@ -487,10 +485,9 @@ func _load_records() -> void:
 			woman.set_nude(true)
 
 func _save_records() -> void:
-	_records["_last_slot"] = _last_slot
-	var file := FileAccess.open("user://characters.json", FileAccess.WRITE)
-	if file:
-		file.store_string(JSON.stringify(_records))
+	SaveStore.last_slot = _last_slot
+	SaveStore.records = _records
+	SaveStore.save_records()
 
 func _set_hint() -> void:
 	hint.text = "Mouse: look    WASD: walk    E: clips    Tab: wardrobe"

@@ -3,6 +3,8 @@
 [ext_resource type="PackedScene" path="res://scenes/character_3d.tscn" id="1_char"]
 [ext_resource type="Script" path="res://scripts/interaction.gd" id="2_interact"]
 [ext_resource type="Script" path="res://scripts/mirror.gd" id="4_mirror"]
+[ext_resource type="PackedScene" path="res://scenes/hud.tscn" id="5_hud"]
+[ext_resource type="PackedScene" path="res://scenes/yard.tscn" id="6_yard"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_1"]
 sky_top_color = Color(0.45, 0.62, 0.85, 1)
@@ -47,68 +49,7 @@ transform = Transform3D(0.866, -0.354, 0.354, 0, 0.707, 0.707, -0.5, -0.612, 0.6
 shadow_enabled = true
 light_energy = 1.15
 
-[node name="Floor" type="CSGBox3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.15, 0)
-use_collision = true
-collision_layer = 1
-size = Vector3(40, 0.3, 40)
-material = SubResource("MatFloor")
-
-[node name="Path" type="CSGBox3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.02, 0)
-use_collision = false
-size = Vector3(4, 0.05, 24)
-material = SubResource("MatStone")
-
-[node name="HouseA" type="CSGBox3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 1.2, -4)
-use_collision = true
-size = Vector3(5, 2.4, 4)
-material = SubResource("MatWood")
-
-[node name="RoofA" type="CSGBox3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 2.55, -4)
-use_collision = true
-size = Vector3(5.4, 0.3, 4.4)
-material = SubResource("MatRoof")
-
-[node name="HouseB" type="CSGBox3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.5, 1.5, -6)
-use_collision = true
-size = Vector3(4.5, 3, 5)
-material = SubResource("MatStone")
-
-[node name="RoofB" type="CSGBox3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.5, 3.15, -6)
-use_collision = true
-size = Vector3(4.9, 0.3, 5.4)
-material = SubResource("MatRoof")
-
-[node name="Pillar1" type="CSGCylinder3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 1.1, 6)
-use_collision = true
-radius = 0.35
-height = 2.2
-material = SubResource("MatStone")
-
-[node name="Pillar2" type="CSGCylinder3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 1.1, 6)
-use_collision = true
-radius = 0.35
-height = 2.2
-material = SubResource("MatStone")
-
-[node name="Crate1" type="CSGBox3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.2, 0.35, 2.5)
-use_collision = true
-size = Vector3(0.7, 0.7, 0.7)
-material = SubResource("MatWood")
-
-[node name="Crate2" type="CSGBox3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.85, 0.25, 2.7)
-use_collision = true
-size = Vector3(0.5, 0.5, 0.5)
-material = SubResource("MatWood")
+[node name="Yard" parent="." instance=ExtResource("6_yard")]
 
 [node name="Player" parent="." instance=ExtResource("1_char")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1, 4)
@@ -125,12 +66,6 @@ is_player = false
 palette = "woman_dark"
 pants_style = 0
 move_speed = 1.15
-
-[node name="Yard" type="CSGBox3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3, -14)
-use_collision = true
-size = Vector3(6, 2.6, 4)
-material = SubResource("MatWood")
 
 [node name="NPC2" parent="." instance=ExtResource("1_char")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.4, 0.1, -8)
@@ -183,33 +118,4 @@ volume_db = -8.0
 [node name="Interaction" type="Node" parent="."]
 script = ExtResource("2_interact")
 
-[node name="HUD" type="CanvasLayer" parent="."]
-
-[node name="Hint" type="Label" parent="HUD"]
-offset_left = 16.0
-offset_top = 12.0
-offset_right = 720.0
-offset_bottom = 110.0
-theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.7)
-theme_override_constants/shadow_offset_x = 1
-theme_override_constants/shadow_offset_y = 1
-theme_override_font_sizes/font_size = 16
-text = "Mouse: look    WASD: walk    E: interact"
-
-[node name="Prompt" type="Label" parent="HUD"]
-offset_left = 16.0
-offset_top = 620.0
-offset_right = 480.0
-offset_bottom = 660.0
-theme_override_font_sizes/font_size = 22
-text = "E  Embrace"
-
-[node name="List" type="PanelContainer" parent="HUD"]
-offset_left = 24.0
-offset_top = 200.0
-offset_right = 360.0
-offset_bottom = 320.0
-
-[node name="Label" type="Label" parent="HUD/List"]
-theme_override_font_sizes/font_size = 20
-text = "1  Embrace"
+[node name="HUD" parent="." instance=ExtResource("5_hud")]
