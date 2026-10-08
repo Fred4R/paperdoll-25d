@@ -221,7 +221,7 @@ func set_target_marks(show: bool) -> void:
 
 func set_face_blend(smile: float) -> void:
 	_face_smile = clampf(smile, 0.0, 1.0)
-	_set_hero_face(_face_smile >= 0.5)
+	_set_hero_face(true)
 
 func begin_ease() -> void:
 	_ease = 0.0
@@ -421,11 +421,21 @@ func _set_hero_face(smile: bool) -> void:
 		face.visible = false
 		return
 	face.visible = true
+	var calm := face.get_node_or_null("Calm") as Sprite2D
+	if calm == null:
+		calm = Sprite2D.new()
+		calm.name = "Calm"
+		calm.centered = face.centered
+		face.add_child(calm)
 	var faces: Dictionary = _palette.get("face", {})
 	if female:
-		face.texture = load(str(faces.get("front" if smile else "calm", faces.get("front", ""))))
+		face.texture = load(str(faces.get("front", "")))
+		calm.texture = load(str(faces.get("calm", faces.get("front", ""))))
+		calm.modulate.a = 1.0 - _face_smile
+		face.modulate.a = _face_smile
 	else:
 		face.texture = load(str(faces.get("front", "res://assets/paperdoll/front/face_m_hero.svg")))
+		calm.modulate.a = 0.0
 
 func _half(sprite: Sprite2D, top: bool) -> float:
 	var size := sprite.texture.get_size()

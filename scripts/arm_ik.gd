@@ -6,7 +6,7 @@ var target_r := Vector2(144, 70)
 var use_ik := false
 var mark_l: Polygon2D
 var mark_r: Polygon2D
-var _stack: SkeletonModificationStack2D
+var _skeleton: Skeleton2D
 var _upper_l: Bone2D
 var _lower_l: Bone2D
 var _upper_r: Bone2D
@@ -22,6 +22,7 @@ func _ready() -> void:
 	_lower_r = _bone(_upper_r, "LowerR", Vector2(0, 31))
 	var aim_l := _aim(skeleton, "AimL", target_l)
 	var aim_r := _aim(skeleton, "AimR", target_r)
+	_skeleton = skeleton
 	_stack = SkeletonModificationStack2D.new()
 	skeleton.set_modification_stack(_stack)
 	_stack.add_modification(_ik(_upper_l, _lower_l, aim_l, true))
@@ -91,9 +92,9 @@ func _place_marks() -> void:
 		mark_r.position = target_r
 
 func solve(delta: float) -> void:
-	if _stack == null or not use_ik:
+	if _skeleton == null or not use_ik:
 		return
-	_stack.execute(delta, 0)
+	_skeleton.execute_modifications(delta, 0)
 
 func copy_to(arm_l: Node2D, elbow_l: Node2D, arm_r: Node2D, elbow_r: Node2D) -> void:
 	if arm_l and _upper_l:

@@ -19,13 +19,30 @@ func load_records() -> void:
 	records = parsed
 	last_slot = str(records.get("_last_slot", "nude"))
 
+var cast: Dictionary = {}
+
+func record_for(id: String) -> CharacterRecord:
+	if not cast.has(id):
+		var record := CharacterRecord.new()
+		record.id = id
+		var raw: Dictionary = records.get(id, {})
+		record.display_name = str(raw.get("name", id))
+		record.nude = bool(raw.get("nude", false))
+		record.nude_override = bool(raw.get("nude_override", false))
+		record.palette = str(raw.get("palette", "woman_dark"))
+		cast[id] = record
+	return cast[id]
+
 func save_records() -> void:
+	for id in cast.keys():
+		var record: CharacterRecord = cast[id]
+		records[id] = {
+			"name": record.display_name,
+			"nude": record.nude,
+			"nude_override": record.nude_override,
+			"palette": record.palette,
+		}
 	records["_last_slot"] = last_slot
 	var file := FileAccess.open(PATH, FileAccess.WRITE)
 	if file:
 		file.store_string(JSON.stringify(records))
-
-func record_for(id: String) -> Dictionary:
-	if not records.has(id) or typeof(records[id]) != TYPE_DICTIONARY:
-		records[id] = {}
-	return records[id]

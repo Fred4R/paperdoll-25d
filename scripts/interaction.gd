@@ -58,13 +58,26 @@ func _ready() -> void:
 		npc.set_schedule([window_mark.global_position, chair_mark.global_position])
 	if npc2 and npc2.has_method("set_schedule"):
 		npc2.set_schedule([gate_mark.global_position, bench_mark.global_position])
+	var hud := $"../HUD"
+	if hud.has_signal("closed"):
+		hud.closed.connect(_on_hud_closed)
 	_set_hint()
 	_load_records()
+
+func _on_hud_closed() -> void:
+	if _wardrobe:
+		_close_wardrobe()
+	elif _list_open:
+		_close_list()
 
 func _input(event: InputEvent) -> void:
 	if not event.is_pressed() or event.is_echo():
 		return
 	if event.is_action_pressed("ui_cancel"):
+		if _wardrobe or _list_open:
+			$"../HUD".hide_panel()
+			get_viewport().set_input_as_handled()
+			return
 		if _editing:
 			_close_editor()
 			get_viewport().set_input_as_handled()
@@ -351,6 +364,7 @@ func _begin_contact() -> void:
 		npc.set_palette("woman_rose_bare" if current == "woman_rose" else "woman_dark_bare")
 	npc.begin_clip()
 	player.begin_clip()
+	player.set_preview(true)
 	if not _side_view():
 		player.begin_ease()
 		npc.begin_ease()
@@ -376,6 +390,7 @@ func _side_view() -> bool:
 func _finish_clip() -> void:
 	_playing = false
 	_cooldown = COOLDOWN
+	player.set_preview(false)
 	player.end_clip()
 	npc.end_clip()
 	if not _side_view():
@@ -404,7 +419,8 @@ func _close_wardrobe() -> void:
 	_save_records()
 
 func _show_wardrobe() -> void:
-	list_label.text = "Wardrobe  %s\n1  Hair\n2  Shirt\n3  Skirt\n4  Nude\n5  Apply to all women\n6  Name\nEsc close" % _woman_name(npc)
+	var record := SaveStore.record_for(npc.name)
+	list_label.text = "Wardrobe  %s\n1  Hair\n2  Shirt\n3  Skirt\n4  Nude\n5  Apply to all women\n6  Name\nEsc close" % record.display_name
 	_show_icons()
 
 func _show_icons() -> void:
@@ -422,36 +438,38 @@ func _show_icons() -> void:
 		list_panel.add_child(rect)
 
 func _wardrobe_key(code: int) -> void:
-	var id := npc.name
-	if not _records.has(id):
-		_records[id] = {}
-	var record: Dictionary = _records[id]
+	var record := SaveStore.record_for(npc.name)
 	if code == KEY_1:
 		npc.paperdoll.cycle_hair()
-		record["hair"] = true
+		record.hair_override = true
 		_last_slot = "hair"
 	elif code == KEY_2:
 		npc.paperdoll.cycle_shirt()
-		record["shirt"] = true
+		record.shirt_override = true
 		_last_slot = "shirt"
 	elif code == KEY_3:
 		npc.paperdoll.cycle_pants()
-		record["skirt"] = true
+		record.skirt_override = true
 		_last_slot = "skirt"
 	elif code == KEY_4:
 		var show := not npc.paperdoll.nude
 		npc.set_nude(show)
-		record["nude"] = show
+		record.nude = show
+		record.nude_override = true
 		_last_slot = "nude"
 	elif code == KEY_5:
 		for woman in _women:
 			if woman == null or woman == npc or woman.paperdoll == null:
 				continue
+			var other := SaveStore.record_for(woman.name)
+			if _last_slot == "nude" and other.nude_override:
+				continue
 			_copy_slot(npc.paperdoll, woman.paperdoll, _last_slot)
+			if _last_slot == "nude":
+				other.nude = record.nude
 	elif code == KEY_6:
-		record["name"] = _next_name(str(record.get("name", npc.name)))
-	_records[id] = record
-	_save_records()
+		record.display_name = _next_name(record.display_name)
+	SaveStore.save_records()
 	_show_wardrobe()
 
 func _copy_slot(source: Node2D, dest: Node2D, slot: String) -> void:
@@ -485,8 +503,8 @@ func _load_records() -> void:
 	for woman in _women:
 		if woman == null:
 			continue
-		var record: Dictionary = _records.get(woman.name, {})
-		if record.get("nude", false):
+		var record := SaveStore.record_for(woman.name)
+		if record.nude:
 			woman.set_nude(true)
 
 func _save_records() -> void:
