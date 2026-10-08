@@ -37,7 +37,8 @@ var _edit_time := 0.0
 var _edit_role := "npc"
 var _hand := "hand_r"
 var _women: Array = []
-var _bare := false
+var _wardrobe := false
+var _records: Dictionary = {}
 var _saved_palette := ""
 
 func _ready() -> void:
@@ -57,6 +58,7 @@ func _ready() -> void:
 	if npc2 and npc2.has_method("set_schedule"):
 		npc2.set_schedule([gate_mark.global_position, bench_mark.global_position])
 	_set_hint()
+	_load_records()
 
 func _input(event: InputEvent) -> void:
 	if not event.is_pressed() or event.is_echo():
@@ -68,12 +70,23 @@ func _input(event: InputEvent) -> void:
 		elif _list_open:
 			_close_list()
 			get_viewport().set_input_as_handled()
+		elif _wardrobe:
+			_close_wardrobe()
+			get_viewport().set_input_as_handled()
 		elif _approaching:
 			_cancel_approach()
 			get_viewport().set_input_as_handled()
 		elif _playing:
 			_finish_clip()
 			get_viewport().set_input_as_handled()
+		return
+	if event is InputEventKey and event.keycode == KEY_TAB and not _list_open and not _editing and not _playing:
+		_open_wardrobe()
+		get_viewport().set_input_as_handled()
+		return
+	if _wardrobe and event is InputEventKey:
+		_wardrobe_key(event.keycode)
+		get_viewport().set_input_as_handled()
 		return
 	if event is InputEventKey and event.keycode == KEY_C and _can_edit():
 		_open_editor()
@@ -367,5 +380,73 @@ func _finish_clip() -> void:
 		_bare = false
 	prompt.visible = false
 
+func _open_wardrobe() -> void:
+	_select_nearest()
+	if npc == null or _flat_distance() > PROMPT_RADIUS:
+		return
+	_wardrobe = true
+	list_panel.visible = true
+	player.set_mode_frozen(true)
+	npc.set_mode_frozen(true)
+	_show_wardrobe()
+
+func _close_wardrobe() -> void:
+	_wardrobe = false
+	list_panel.visible = false
+	player.set_mode_frozen(false)
+	npc.set_mode_frozen(false)
+	_save_records()
+
+func _show_wardrobe() -> void:
+	list_label.text = "Wardrobe\n1  Hair\n2  Shirt\n3  Skirt\n4  Nude\n5  Apply to all women\nEsc close"
+
+func _wardrobe_key(code: int) -> void:
+	var id := npc.name
+	if not _records.has(id):
+		_records[id] = {}
+	var record: Dictionary = _records[id]
+	if code == KEY_1:
+		npc.paperdoll.cycle_hair()
+		record["hair"] = true
+	elif code == KEY_2:
+		npc.paperdoll.cycle_shirt()
+		record["shirt"] = true
+	elif code == KEY_3:
+		npc.paperdoll.cycle_pants()
+		record["skirt"] = true
+	elif code == KEY_4:
+		var show := not npc.paperdoll.nude
+		npc.set_nude(show)
+		record["nude"] = show
+	elif code == KEY_5:
+		for woman in _women:
+			if woman == null or woman == npc:
+				continue
+			var other: Dictionary = _records.get(woman.name, {})
+			if not other.get("nude", false):
+				woman.set_nude(npc.paperdoll.nude)
+	_records[id] = record
+	_show_wardrobe()
+
+func _load_records() -> void:
+	var file := FileAccess.open("user://characters.json", FileAccess.READ)
+	if file == null:
+		return
+	var parsed: Variant = JSON.parse_string(file.get_as_text())
+	if typeof(parsed) != TYPE_DICTIONARY:
+		return
+	_records = parsed
+	for woman in _women:
+		if woman == null:
+			continue
+		var record: Dictionary = _records.get(woman.name, {})
+		if record.get("nude", false):
+			woman.set_nude(true)
+
+func _save_records() -> void:
+	var file := FileAccess.open("user://characters.json", FileAccess.WRITE)
+	if file:
+		file.store_string(JSON.stringify(_records))
+
 func _set_hint() -> void:
-	hint.text = "Mouse: look    WASD: walk    E: interact    Esc: close list or cancel approach\nClip plays out once she arrives. 3s cooldown.\nFirst person. Embrace or Greeting."
+	hint.text = "Mouse: look    WASD: walk    E: clips    Tab: wardrobe"

@@ -81,6 +81,7 @@ var _face_smile := 0.0
 var _ease := 1.0
 var _ease_from: Dictionary = {}
 var hair_tint := Color.WHITE
+var nude := false
 
 const PIVOT_NODES := {
 	"arm_l": "ArmL",
@@ -231,6 +232,10 @@ func begin_ease() -> void:
 		"elbow_r": elbow_r.rotation if elbow_r else 0.0,
 	}
 
+func set_nude(show: bool) -> void:
+	nude = show
+	_apply()
+
 func set_hair_tint(tint: Color) -> void:
 	hair_tint = tint
 	if hair:
@@ -303,7 +308,7 @@ func _apply() -> void:
 	var leg_tex: Texture2D = load(leg_path) if leg_path != "" else null
 	var pant_tex: Texture2D = load("res://assets/paperdoll/pant_leg.svg")
 	if body:
-		body.texture = load(_layer("body"))
+		body.texture = load("res://assets/paperdoll/front/nude_f.svg" if nude and female else ("res://assets/paperdoll/front/nude_m.svg" if nude else _layer("body")))
 	if hair:
 		hair.texture = load(_layer("hair"))
 		hair.modulate = hair_tint
@@ -312,12 +317,12 @@ func _apply() -> void:
 	_set_hero_face(true)
 	if shirt:
 		var shirt_path := _layer("shirt")
-		shirt.visible = shirt_path != ""
+		shirt.visible = shirt_path != "" and not nude
 		if shirt.visible:
 			shirt.texture = load(shirt_path)
 			shirt.modulate = Color.WHITE
 	if skirt:
-		skirt.visible = bool(_palette.get("has_skirt", false))
+		skirt.visible = bool(_palette.get("has_skirt", false)) and not nude
 		if skirt.visible:
 			skirt.texture = load(_layer("skirt"))
 			skirt.modulate = Color.WHITE
@@ -357,7 +362,7 @@ func _apply() -> void:
 		pivot.get_node("Elbow").position = Vector2(0, mid)
 		var sleeve: Sprite2D = pivot.get_node("Sleeve")
 		var sleeve_path := _layer("sleeve")
-		sleeve.visible = sleeve_path != ""
+		sleeve.visible = sleeve_path != "" and not nude
 		if sleeve.visible:
 			sleeve.texture = load(sleeve_path)
 			sleeve.modulate = Color.WHITE
