@@ -76,20 +76,21 @@ static func held_slice(angle: float, current: int) -> int:
 	if absf(shortest_delta(angle, center)) < PI / 8.0 + HOLD_RAD:
 		return current
 	return next
+
+static func view_slice(angle: float) -> int:
 	var turns := fposmod(angle + PI / 8.0, TAU) / TAU
 	return int(turns * 8.0) % 8
 
 static func slice_view(slice: int) -> String:
-	if slice == 0 or slice == 7 or slice == 1:
+	if slice == 1 or slice == 7:
+		return "quarter"
+	if slice == 0:
 		return "front"
-	if slice == 4 or slice == 3 or slice == 5:
+	if slice == 4:
+		return "back"
+	if slice == 3 or slice == 5:
 		return "back"
 	return "side"
-	if facing < 0.0:
-		return "back"
-	if facing < SIDE_DOT:
-		return "side"
-	return "front"
 
 static func gait_phase(distance_m: float) -> float:
 	if STRIDE_M <= 0.0:

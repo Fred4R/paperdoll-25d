@@ -614,3 +614,5 @@ func _save_records() -> void:
 
 func _set_hint() -> void:
 	hint.text = "Mouse: look    WASD: walk    E: clips    Tab: wardrobe"
+	if npc and npc.paperdoll and npc.paperdoll.get("_quarter"):
+		hint.text += "    Front fallback"

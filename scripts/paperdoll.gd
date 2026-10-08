@@ -85,6 +85,7 @@ var _ease_from: Dictionary = {}
 var hair_tint := Color.WHITE
 var nude := false
 var _view_blend := 1.0
+var _quarter := false
 var _show_chest := false
 var _show_groin := false
 
@@ -328,10 +329,13 @@ func _blend_from(weight: float) -> void:
 func set_view(view: String) -> void:
 	var side := view == "side"
 	var back := view == "back"
-	if side == _side and back == _back:
+	var quarter := view == "quarter"
+	if side == _side and back == _back and quarter == _quarter:
 		return
 	_side = side
 	_back = back
+	_quarter = quarter
+	_view_blend = 0.0
 	set_ik_enabled(_ik.use_ik if _ik else false)
 	_apply()
 
@@ -351,9 +355,6 @@ func set_seated(seated: bool) -> void:
 		knee_l.rotation = -1.4 if seated else 0.0
 	if knee_r:
 		knee_r.rotation = 1.4 if seated else 0.0
-	_clip_locked = locked
-	if not locked and female:
-		_set_hero_face(true)
 
 func apply_pose(pose: Dictionary) -> void:
 	for pivot_name in pose.keys():
@@ -383,7 +384,7 @@ func _apply() -> void:
 	var leg_tex: Texture2D = load(leg_path) if leg_path != "" else null
 	var pant_tex: Texture2D = load("res://assets/paperdoll/pant_leg.svg")
 	if body:
-		body.texture = load(_nude_path() if nude else _layer("body"))
+		body.texture = load("res://assets/paperdoll/front/quarter_front.svg" if _quarter and not nude else (_nude_path() if nude else _layer("body")))
 	if hair:
 		hair.texture = load(_layer("hair"))
 		hair.modulate = hair_tint
