@@ -2,7 +2,7 @@ extends Node
 ## Director. List, freeze, she walks to you, one shared clock, both roles.
 
 const EMBRACE_PATH := "res://data/clips/embrace.json"
-const GREETING_PATH := "res://data/clips/greeting.json"
+const HANDHOLD_PATH := "res://data/clips/handhold.json"
 const ClipLibrary := preload("res://scripts/clip_library.gd")
 const PROMPT_RADIUS := 1.2
 const SLOT_GAP := 0.4
@@ -264,19 +264,21 @@ func _nudge_hand(delta: Vector2) -> void:
 	player.nudge_target(_hand, delta)
 	npc.nudge_target(_hand, delta)
 
+func _paired(clip: Dictionary) -> bool:
+	var roles: Dictionary = clip.get("roles", {})
+	var targets: Dictionary = clip.get("targets", {})
+	return roles.has("player") and roles.has("npc") and targets.has("player") and targets.has("npc")
+
 func _apply_targets() -> void:
 	var targets: Dictionary = _clip.get("targets", {})
-	var pair: Array = DollMath.frame_pair(Vector2(128, 192), 16.0)
-	var l: Vector2 = pair[0]
-	var r: Vector2 = pair[1]
-	if targets.has("hand_l"):
-		var left: Array = targets["hand_l"]
-		l = Vector2(float(left[0]), float(left[1]))
-	if targets.has("hand_r"):
-		var right: Array = targets["hand_r"]
-		r = Vector2(float(right[0]), float(right[1]))
-	player.set_hand_targets(l, r)
-	npc.set_hand_targets(l, r)
+	var player_targets: Dictionary = targets.get("player", targets)
+	var npc_targets: Dictionary = targets.get("npc", targets)
+	player.set_hand_targets(_pair(player_targets), _pair(player_targets, "hand_r"))
+	npc.set_hand_targets(_pair(npc_targets), _pair(npc_targets, "hand_r"))
+
+func _pair(targets: Dictionary, hand: String = "hand_l") -> Vector2:
+	var point: Array = targets.get(hand, [-16, 70] if hand == "hand_l" else [144, 70])
+	return Vector2(float(point[0]), float(point[1]))
 
 func _save_edit() -> void:
 	DirAccess.make_dir_recursive_absolute("user://clips")
@@ -344,8 +346,8 @@ func _open_list() -> void:
 	_list_open = true
 	prompt.visible = false
 	list_panel.visible = true
-	_list_ids = ["embrace", "greeting", "shirtoff"]
-	var lines := ["1  Embrace", "2  Greeting", "3  Shirt off"]
+	_list_ids = ["embrace", "greeting", "handhold"]
+	var lines := ["1  Embrace", "2  Greeting", "3  Hand hold"]
 	var folder := DirAccess.open("user://clips")
 	if folder:
 		folder.list_dir_begin()
@@ -353,7 +355,7 @@ func _open_list() -> void:
 		while file_name != "":
 			if file_name.ends_with(".json") and _list_ids.size() < 9:
 				var loaded: Dictionary = ClipLibrary.load_file("user://clips/%s" % file_name)
-				if not loaded.has("targets"):
+				if not _paired(loaded):
 					file_name = folder.get_next()
 					continue
 				var id := "user:%s" % file_name
