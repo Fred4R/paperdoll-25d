@@ -238,7 +238,7 @@ func _face_player() -> void:
 	flat.y = 0.0
 	if flat.length_squared() < 0.0001:
 		return
-	npc.rotation.y = atan2(flat.x, flat.z)
+	npc.rotation.y = atan2(-flat.x, -flat.z)
 
 func _on_walk_ended(arrived: bool) -> void:
 	var woman := _tap_woman

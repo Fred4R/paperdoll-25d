@@ -87,6 +87,8 @@ var hair_tint := Color.WHITE
 var nude := false
 var _view_blend := 1.0
 var _quarter := false
+## True while the chosen cell has no drawing of its own (a back quarter) and shows its fallback.
+var empty_cell := false
 var _show_chest := false
 var _show_groin := false
 
@@ -327,7 +329,8 @@ func _blend_from(weight: float) -> void:
 		if pivot:
 			pivot.rotation = DollMath.blend_angle(float(_ease_from[pivot_name]), pivot.rotation, weight)
 
-func set_view(view: String) -> void:
+func set_view(view: String, empty: bool = false) -> void:
+	empty_cell = empty
 	var side := view == "side"
 	var back := view == "back"
 	var quarter := view == "quarter"

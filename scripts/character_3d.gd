@@ -8,6 +8,7 @@ enum Mode { FREE, FROZEN, APPROACH, CLIP }
 signal walk_ended(arrived: bool)
 
 const WALK_STUCK_TIME := 0.5
+const TURN_RATE := 10.0
 
 @export var move_speed: float = 1.4
 @export var gravity: float = 18.0
@@ -253,6 +254,9 @@ func _physics_process(delta: float) -> void:
 			_walking = false
 			walk_ended.emit(false)
 
+	if not is_player and _mode != Mode.CLIP and input_dir.length_squared() > 0.002:
+		_turn_toward(input_dir, delta)
+
 	if not is_player or _preview_on:
 		var cam := get_viewport().get_camera_3d()
 		if cam:
@@ -266,9 +270,9 @@ func _physics_process(delta: float) -> void:
 				forward.y = 0.0
 				if forward.length_squared() > 0.0001:
 					var angle := DollMath.heading(forward, to_cam)
-					var slice := DollMath.view_slice(angle)
-					paperdoll.set_view(DollMath.slice_view(slice))
-					sprite.flip_h = slice > 4
+					_slice = DollMath.held_slice(angle, _slice)
+					paperdoll.set_view(DollMath.slice_view(_slice), DollMath.slice_empty(_slice))
+					sprite.flip_h = DollMath.slice_flip(_slice)
 
 	_bob(delta, input_dir.length() > 0.05 and _mode != Mode.CLIP)
 	if paperdoll and paperdoll.has_method("drive") and _mode != Mode.CLIP:
@@ -379,12 +383,17 @@ func _player_near() -> bool:
 	other.y = 0.0
 	return flat.distance_to(other) <= 1.2
 
+## Forward is -Z for every body (the player camera looks down -Z), so the view cells read heading 0 as front.
 func _face(point: Vector3) -> void:
 	var flat := point - global_position
 	flat.y = 0.0
 	if flat.length_squared() < 0.0001:
 		return
-	rotation.y = atan2(flat.x, flat.z)
+	rotation.y = atan2(-flat.x, -flat.z)
+
+## A walking woman turns to face where she walks, so her cell follows her path.
+func _turn_toward(direction: Vector3, delta: float) -> void:
+	rotation.y = lerp_angle(rotation.y, atan2(-direction.x, -direction.z), minf(1.0, TURN_RATE * delta))
 
 var _slice := 0
 var _bob_t := 0.0

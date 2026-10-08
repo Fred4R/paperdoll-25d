@@ -68,11 +68,12 @@ static func heading(forward: Vector3, to_camera: Vector3) -> float:
 
 const HOLD_RAD := 0.14
 
+## Keep the current cell until the heading is 8° (HOLD_RAD) past its edge. Cell k is centered on k/8 of a turn.
 static func held_slice(angle: float, current: int) -> int:
 	var next := view_slice(angle)
 	if next == current:
 		return current
-	var center := float(current) / 8.0 * TAU - PI
+	var center := float(current) / 8.0 * TAU
 	if absf(shortest_delta(angle, center)) < PI / 8.0 + HOLD_RAD:
 		return current
 	return next
@@ -81,6 +82,9 @@ static func view_slice(angle: float) -> int:
 	var turns := fposmod(angle + PI / 8.0, TAU) / TAU
 	return int(turns * 8.0) % 8
 
+## Eight cells around the doll, from four drawings. Heading 0 is the camera straight in front.
+## 0 front, 1 front quarter, 2 side, 4 back are drawn. 7, 6 mirror 1, 2 with a horizontal flip.
+## 3 and 5 (back quarters) have no drawing: they are empty cells that fall back to the back art (5 flipped).
 static func slice_view(slice: int) -> String:
 	if slice == 1 or slice == 7:
 		return "quarter"
@@ -91,6 +95,12 @@ static func slice_view(slice: int) -> String:
 	if slice == 3 or slice == 5:
 		return "back"
 	return "side"
+
+static func slice_flip(slice: int) -> bool:
+	return slice > 4
+
+static func slice_empty(slice: int) -> bool:
+	return slice == 3 or slice == 5
 
 static func gait_phase(distance_m: float) -> float:
 	if STRIDE_M <= 0.0:
