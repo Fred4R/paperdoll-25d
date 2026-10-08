@@ -156,6 +156,10 @@ func begin_ease() -> void:
 func set_nude(show: bool) -> void:
 	if paperdoll and paperdoll.has_method("set_nude"):
 		paperdoll.set_nude(show)
+
+func set_hair_tint(tint: Color) -> void:
+	if paperdoll and paperdoll.has_method("set_hair_tint"):
+		paperdoll.set_hair_tint(tint)
 	if paperdoll and paperdoll.has_method("set_hair_tint"):
 		paperdoll.set_hair_tint(tint)
 
